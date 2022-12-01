@@ -1,4 +1,4 @@
-# vax-fourth-dose-RD
+# COVID-19 second booster (fourth dose) regression discontinuity analysis
 
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fvax-fourth-dose-RD)
 
