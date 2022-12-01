@@ -35,7 +35,7 @@ study = StudyDefinition(
     },
         
     # Set index date
-    index_date = "2022-09-01",
+    index_date = "2022-10-01",
 
     # This line defines the study population
     population=patients.satisfying(
