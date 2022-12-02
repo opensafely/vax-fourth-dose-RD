@@ -35,7 +35,6 @@ fct_case_when <- function(...) {
 }
 
 
-
 # Read in data
 fourth <- read_csv(here::here("output", "input_fourth.csv"),
                     col_types = cols(
@@ -56,6 +55,7 @@ fourth <- read_csv(here::here("output", "input_fourth.csv"),
   ) %>%
   arrange(age_cat, desc(covid_vax_4_date)) 
 
+
 # Calculate cumulative proportion of people receiving fourth dose
 fourth_by_day <- fourth %>% 
   group_by(age_cat) %>%
@@ -65,12 +65,11 @@ fourth_by_day <- fourth %>%
   group_by(age_cat, total, covid_vax_4_date) %>% 
   summarise(vax_4_n = n()) %>% # Num vaccinated each day
   ungroup() %>%
-  group_by(age_cat) %>%
-  mutate(vax_4_sum = cumsum(vax_4_n)) %>% # Cumulative num vaccinated each day
-  mutate(vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
-           vax_4_sum = round(vax_4_sum / 7)*7, # Rounding
-         rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   group_by(age_cat, total) %>%
+  mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
+         vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
+           vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
+         rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)), 
                                 max(as.Date("2022-11-30")), by = '1 day')) %>%
   fill(c(vax_4_sum, rate)) %>% # Create rows for days with zero vaccinations
@@ -112,13 +111,13 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum.png"),
 fourth_by_day %>% 
   distinct(age_cat, total)
 
-# Proportion with each number of doses
+# Proportion with each number of doses on Nov 1
 dose_counts <- fourth %>%
   mutate(# Count receiving each dose
-         first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date >= "2022-10-01", 0, 1),
-         second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date >= "2022-10-01", 0, 1),
-         third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date >= "2022-10-01", 0, 1),
-         fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date >= "2022-10-01", 0, 1),
+         first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date > "2022-11-01", 0, 1),
+         second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date > "2022-11-01", 0, 1),
+         third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date > "2022-11-01", 0, 1),
+         fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date > "2022-11-01", 0, 1),
          no_dose = ifelse(is.na(covid_vax_1_date), 1, 0),
          
          # Variable representing number of doses
