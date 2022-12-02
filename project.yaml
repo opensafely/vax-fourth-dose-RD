@@ -20,4 +20,15 @@ actions:
       highly_sensitive:
         cohort: output/input_fourth.csv
 
+<<<<<<< Updated upstream
   
+=======
+  cumulative_fourth_dose:
+   run: r:latest analysis/descriptive/cumulative_vax_byage.R
+   needs: [generate_study_pop]
+   outputs:
+      moderately_sensitive:
+        measure_csv: output/cumulative_rates/final_*.csv
+        plot: output/cumulative_rates/plot_*.png
+
+>>>>>>> Stashed changes
