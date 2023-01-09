@@ -44,7 +44,7 @@ flu_vax <- read_feather(here::here("output", "input_fourth.feather")) %>%
   # Calculate denominator (num people per age year)
   # Everyone alive at 1 Oct 22 (ignore deaths for now)
   mutate(total_age1 = n(),
-         week = floor_date(as.Date(flu_vax_date), unit="week")) %>%
+         week = floor_date(as.Date(flu_vax_date), unit="week", week_start=1)) %>%
   ungroup() %>%
   dplyr::select(c(patient_id, age, total_age1, flu_vax_date, week))
 
@@ -56,7 +56,7 @@ flu_vax_sum <- flu_vax %>%
   summarise(n_flu_vax = n_distinct(patient_id)) %>%
 
   # Fill in missing weeks
-  complete(week = seq(min(as.Date("2022-07-01")),
+  complete(week = seq(min(as.Date("2022-07-04")),
                       max(as.Date("2022-12-25")), by = '1 week')) %>%
   
   group_by(age, total_age1) %>%
