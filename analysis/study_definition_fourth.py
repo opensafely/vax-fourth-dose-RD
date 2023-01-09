@@ -329,7 +329,7 @@ study = StudyDefinition(
     covidadmitted_date=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-        with_these_diagnoses=covid_icd10,
+        with_these_diagnoses=covid_codes,
         on_or_after="2022-10-01",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
@@ -337,7 +337,7 @@ study = StudyDefinition(
 
     # COVID-related death
     coviddeath_date=patients.with_these_codes_on_death_certificate(
-        covid_icd10,
+        covid_codes,
         returning="date_of_death",
         date_format="YYYY-MM-DD",
     ),

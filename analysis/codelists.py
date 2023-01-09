@@ -5,10 +5,9 @@ from cohortextractor import (
     codelist_from_csv,
 )
 
-covid_codes = codelist_from_csv(
-    "codelists/opensafely-covid-identification.csv",
+covid_codes = codelist(
+    ["U071", "U072", "U099", "U109"], 
     system="icd10",
-    column="icd10_code",
 )
 
 ethnicity_codes_6 = codelist_from_csv(
@@ -34,10 +33,4 @@ flu_clinical_not_given_codes = codelist_from_csv(
     "codelists/opensafely-influenza-vaccination-clinical-codes-not-given.csv",  
     system="ctv3", 
     column="CTV3ID",
-)
-
-covid_icd10 = codelist_from_csv(
-    "codelists/opensafely-covid-identification.csv",
-    system="icd10",
-    column="icd10_code",
 )
