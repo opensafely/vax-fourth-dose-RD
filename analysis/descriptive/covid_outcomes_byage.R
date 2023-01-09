@@ -49,7 +49,7 @@ outcomes_long <- outcomes %>%
   melt(id = c("patient_id", "age", "total_age1"),
        value.name = "date", na.rm = TRUE) %>%
   # Create week variable
-  mutate(week = floor_date(as.Date(date), unit="week"),
+  mutate(week = floor_date(as.Date(date), unit="week", week_start=1),
          variable = ifelse(str_detect(variable, "covidadmitted"),
                            "covidadmitted_date",as.character(variable))) %>%
   subset(week >= as.Date("2022-10-02"))
@@ -80,7 +80,7 @@ outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
   arrange(age, outcome, week) %>%
   group_by(age, total_age1, outcome) %>%
   # Fill in missing weeks
-  complete(week = seq(min(as.Date("2022-10-02")),
+  complete(week = seq(min(as.Date("2022-10-03")),
                       max(as.Date("2022-12-25")), by = '1 week')) %>%
   # Rounding
   mutate(cnt = replace_na(cnt, 0),
