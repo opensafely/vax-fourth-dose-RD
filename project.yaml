@@ -43,5 +43,5 @@ actions:
    outputs:
       moderately_sensitive:
         measure_csv: output/cumulative_rates/flu_*.csv
-        plot: output/cumulatives_rates/plot_flu_vax_byage.png
+        plot: output/cumulative_rates/plot_flu_vax_byage.png
   
