@@ -1,10 +1,10 @@
-# COVID-19 second booster (fourth dose) regression discontinuity analysis
+# COVID-19 second booster (fourth dose) regression discontinuity analysis (feasibility)
 
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fvax-fourth-dose-RD)
 
 Details of the purpose and any published outputs from this project can be found at the link above.
 
-This study estimates the effectiveness of the second booster (fourth dose) COVID-19 vaccine using a regression discontinuity design. 
+This study is determining the feasibility of estimating the effectiveness of the second booster (fourth dose) COVID-19 vaccine using a regression discontinuity design. 
 
 The contents of this repository MUST NOT be considered an accurate or valid representation of the study or its purpose. 
 This repository may reflect an incomplete or incorrect analysis with no further ongoing work.
