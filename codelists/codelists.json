@@ -1,3 +1,34 @@
 {
-  "files": {}
+  "files": {
+    "opensafely-ethnicity-snomed-0removed.csv": {
+      "id": "opensafely/ethnicity-snomed-0removed/2e641f61",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/ethnicity-snomed-0removed/2e641f61/",
+      "downloaded_at": "2022-12-14 15:25:49.940135Z",
+      "sha": "8b849b5b785d80306e488d0109640c8c1d2da01b"
+    },
+    "opensafely-covid-identification.csv": {
+      "id": "opensafely/covid-identification/2020-06-03",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification/2020-06-03/",
+      "downloaded_at": "2022-12-14 15:25:50.143578Z",
+      "sha": "124db6929439379b7dacd55ba26ae4f2ed9370bc"
+    },
+    "opensafely-influenza-vaccination-clinical-codes-given.csv": {
+      "id": "opensafely/influenza-vaccination-clinical-codes-given/2020-05-21",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/influenza-vaccination-clinical-codes-given/2020-05-21/",
+      "downloaded_at": "2023-01-06 10:10:38.641775Z",
+      "sha": "c5e7b06fcd7a4f786bcf549e2c0c4ca944eba9b1"
+    },
+    "opensafely-influenza-vaccination-clinical-codes-not-given.csv": {
+      "id": "opensafely/influenza-vaccination-clinical-codes-not-given/2020-05-19",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/influenza-vaccination-clinical-codes-not-given/2020-05-19/",
+      "downloaded_at": "2023-01-06 10:10:38.803820Z",
+      "sha": "db68fd1368358f1ecbbc006c83419b3b47bcb82c"
+    },
+    "opensafely-influenza-vaccination.csv": {
+      "id": "opensafely/influenza-vaccination/2020-05-12",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/influenza-vaccination/2020-05-12/",
+      "downloaded_at": "2023-01-06 10:10:38.952959Z",
+      "sha": "aa7cf32d4c16deb5a14fb3d68f0a2babfe431caf"
+    }
+  }
 }

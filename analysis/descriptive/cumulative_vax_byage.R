@@ -37,23 +37,8 @@ fct_case_when <- function(...) {
 
 
 # Read in data
-fourth <- read_csv(here::here("output", "input_fourth.csv"),
-                    col_types = cols(
-                      age_cat = col_character(),
-                      sex = col_character(),
-                      covid_vax_1_date = col_date(format = "%Y-%m-%d"),
-                      covid_vax_2_date = col_date(format = "%Y-%m-%d"),
-                      covid_vax_3_date = col_date(format = "%Y-%m-%d"),
-                      covid_vax_4_date = col_date(format = "%Y-%m-%d"))) %>%
-  mutate(age_cat = fct_case_when(
-           age_cat == 0 ~ "Missing",
-           age_cat == 1 ~ "40-44 y",
-           age_cat == 2 ~ "45-49 y",
-           age_cat == 3 ~ "50-54 y",
-           age_cat == 4 ~ "55-59 y",
-           TRUE ~ NA_character_
-         )
-  ) %>%
+fourth <- arrow::read_feather(here::here("output", "input_fourth.feather")) %>%
+  mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
   arrange(age_cat, desc(covid_vax_4_date))
 
 
@@ -132,6 +117,7 @@ fourth_age1_byday <- fourth %>%
   mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
          #vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
          vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
+         total = round(total / 7) * 7, # Rounding
          rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
                                   max(as.Date("2022-11-30")), by = '1 day')) %>%
