@@ -42,6 +42,7 @@ outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>%
   mutate(total_age1 = n()) %>%
   ungroup() %>%
   dplyr::select(!c(sex, age_cat, flu_vax_med_date, flu_vax_tpp_date, flu_vax_clinical_date,
+                   ethnicity, region, imd,
                    contains("covid_vax")))
   
 # Convert to long
@@ -49,9 +50,9 @@ outcomes_long <- outcomes %>%
   melt(id = c("patient_id", "age", "total_age1"),
        value.name = "date", na.rm = TRUE) %>%
   # Create week variable
-  mutate(week = floor_date(as.Date(date), unit="week", week_start=1),
+  mutate(week = floor_date(as.Date(date), unit="week", week_start = 1),
          variable = ifelse(str_detect(variable, "covidadmitted"),
-                           "covidadmitted_date",as.character(variable))) %>%
+                           "covidadmitted_date", as.character(variable))) %>%
   subset(week >= as.Date("2022-10-02"))
 
 # Calculate number of outcomes of each type per week
