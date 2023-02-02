@@ -347,4 +347,22 @@ study = StudyDefinition(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
     ),
-)
+
+      # emergency attendance for covid
+    covidemergency_date=patients.attended_emergency_care(
+        returning="date_arrived",
+        on_or_after="2022-10-01",
+        with_these_diagnoses = covid_emergency,
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+
+      # any emergency attendance
+    emergency_date=patients.attended_emergency_care(
+        returning="date_arrived",
+        on_or_after="2022-10-01",
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+
+  )
