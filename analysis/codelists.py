@@ -10,6 +10,11 @@ covid_codes = codelist(
     system="icd10",
 )
 
+covid_emergency = codelist(
+    ["1240751000000100"],
+    system="snomed",
+)
+
 ethnicity_codes_6 = codelist_from_csv(
     "codelists/opensafely-ethnicity-snomed-0removed.csv",
     system="snomed",
