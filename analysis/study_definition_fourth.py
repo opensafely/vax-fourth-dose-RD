@@ -317,8 +317,6 @@ study = StudyDefinition(
     admitted_unplanned_date=patients.admitted_to_hospital(
         returning="date_admitted",
         on_or_after="2022-10-01",
-        #   see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-        #   see https://docs.opensafely.org/study-def-variables/#sus for more info
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
         date_format="YYYY-MM-DD",
