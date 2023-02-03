@@ -47,16 +47,15 @@ outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>%
   ungroup() %>%
   dplyr::select(!c(sex, age_cat, flu_vax_med_date, 
                    flu_vax_tpp_date, flu_vax_clinical_date,
-                   ethnicity, region, imd, contains("covid_vax")))
-  
+                   ethnicity, region, imd,
+                   contains("covid_vax")))
+
 # Convert to long
 outcomes_long <- outcomes %>%
   melt(id = c("patient_id", "age", "total_age1"),
        value.name = "date", na.rm = TRUE) %>%
   # Create week variable
-  mutate(week = floor_date(as.Date(date), unit="week", week_start = 1),
-         variable = ifelse(str_detect(variable, "covidadmitted"),
-                           "covidadmitted_date", as.character(variable))) %>%
+  mutate(week = floor_date(as.Date(date), unit="week", week_start = 1)) %>%
   subset(week >= as.Date("2022-10-02"))
 
 # Calculate number of outcomes of each type per week
@@ -90,7 +89,7 @@ outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
   complete(week = seq(min(as.Date("2022-10-03")),
                       max(as.Date("2022-12-25")), by = '1 week')) %>%
   # Rounding
-  mutate(cnt = replace_na(cnt, 0),
+  mutate(
          cnt = case_when(cnt > 5 ~ cnt),
          cnt = round(cnt / 7) * 7,
          total_age1 = case_when(total_age1 > 5 ~ total_age1),
@@ -124,11 +123,11 @@ outcomes_overall <- outcomes %>%
                   na.rm = TRUE)
                   ) %>%
   # Redaction
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp",
-                     "covid_composite","total_age1"))), redact) %>%
+  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
+                     "covid_composite","total_age1", "any_ed"))), redact) %>%
   # Rounding
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp",
-                     "covid_composite","total_age1"))), rounding) %>%
+  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
+                     "covid_composite","total_age1", "any_ed"))), rounding) %>%
   # Calculate rates
   mutate(covid_hosp_rate = covid_hosp / total_age1 * 100000,
          covid_dth_rate = covid_dth / total_age1 * 100000,
@@ -136,7 +135,7 @@ outcomes_overall <- outcomes %>%
          covid_comp_rate = covid_composite / total_age1 * 100000,
          any_hosp_rate = any_hosp / total_age1 * 100000,
          covid_ed_rate = covid_ed / total_age1 * 100000,
-         any_ed_rate = any_ed / total_age1 * 100000)
+         any_ed_rate = any_ed / total_age1 * 100000) 
 
 # Save
 write_csv(outcomes_overall, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
