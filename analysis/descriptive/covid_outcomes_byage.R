@@ -39,7 +39,7 @@ rounding <- function(vars) {
 # Read in data
 outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>% 
   mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
-  subset(age >= 45 & age < 55) %>%
+  subset(age >= 40 & age < 60) %>%
   group_by(age) %>%
   # Calculate denominator (num people per age year)
     # Everyone alive at 1 Oct 22 (ignore deaths for now)
@@ -124,10 +124,10 @@ outcomes_overall <- outcomes %>%
                   ) %>%
   # Redaction
   mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite","total_age1", "any_ed"))), redact) %>%
+                     "covid_composite", "total_age1", "any_ed"))), redact) %>%
   # Rounding
   mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite","total_age1", "any_ed"))), rounding) %>%
+                     "covid_composite", "total_age1", "any_ed"))), rounding) %>%
   # Calculate rates
   mutate(covid_hosp_rate = covid_hosp / total_age1 * 100000,
          covid_dth_rate = covid_dth / total_age1 * 100000,
@@ -135,7 +135,7 @@ outcomes_overall <- outcomes %>%
          covid_comp_rate = covid_composite / total_age1 * 100000,
          any_hosp_rate = any_hosp / total_age1 * 100000,
          covid_ed_rate = covid_ed / total_age1 * 100000,
-         any_ed_rate = any_ed / total_age1 * 100000) 
+         any_ed_rate = any_ed / total_age1 * 100000)
 
 # Save
 write_csv(outcomes_overall, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
