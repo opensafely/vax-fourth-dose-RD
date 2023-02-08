@@ -35,7 +35,7 @@ actions:
    outputs:
       moderately_sensitive:
         measure_csv: output/covid_outcomes/covid_*.csv
-        plot: output/covid_outcomes/plot_outcomes_byage.png
+        plot: output/covid_outcomes/plot_outcomes_*.png
 
   flu_vax:
    run: r:latest analysis/descriptive/flu_vax_byage.R

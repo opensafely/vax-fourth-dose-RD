@@ -104,41 +104,72 @@ write_csv(outcomes_byweek, here::here("output", "covid_outcomes", "covid_outcome
 
 #############################################
 # Number of events over entire study period 
-#  (Oct 14 to latest available)
+#  (Oct 28 to latest available)
 #############################################
 
-outcomes_overall <- outcomes %>%
+# Individual outcomes - starting 2 weeks post-campaign
+outcomes_overall <- outcomes_long %>%
+  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-01")) %>%
+  group_by(age, total_age1, variable) %>%
+  summarise(cnt = n_distinct(patient_id)) %>%
+  mutate( index_dt = "2 weeks post-campaign",
+         variable = case_when(
+           variable == "covidadmitted_date" ~ "COVID unplanned admission",
+           variable == "coviddeath_date" ~ "COVID death",
+           variable == "covidemergency_date" ~ "COVID A&E visit",
+           variable == "any_death_date" ~ "Any death",
+           variable == "admitted_unplanned_date" ~ "Any unplanned admission",
+           variable == "emergency_date" ~ "Any A&E visit"
+         ))
+  
+# Composite outcome - starting 2 weeks post-campaign
+outcomes_comp <- outcomes_long %>% 
+  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-01") &
+           variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
   group_by(age, total_age1) %>%
-  # Count number of events by age
-  summarise(covid_hosp = sum(covidadmitted_date > as.Date("2022-10-14"), na.rm= TRUE),
-            covid_dth = sum(coviddeath_date > as.Date("2022-10-14"), na.rm= TRUE),
-            covid_ed = sum(covidemergency_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_dth = sum(any_death_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_hosp = sum(admitted_unplanned_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_ed = sum(emergency_date > as.Date("2022-10-14"), na.rm = TRUE),
-            covid_composite = sum(
-                  ((coviddeath_date > as.Date("2022-10-14"))|
-                  (covidadmitted_date > as.Date("2022-10-14"))|
-                  (covidemergency_date > as.Date("2022-10-14"))),
-                  na.rm = TRUE)
-                  ) %>%
-  # Redaction
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite", "total_age1", "any_ed"))), redact) %>%
-  # Rounding
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite", "total_age1", "any_ed"))), rounding) %>%
-  # Calculate rates
-  mutate(covid_hosp_rate = covid_hosp / total_age1 * 100000,
-         covid_dth_rate = covid_dth / total_age1 * 100000,
-         any_dth_rate = any_dth / total_age1 * 100000,
-         covid_comp_rate = covid_composite / total_age1 * 100000,
-         any_hosp_rate = any_hosp / total_age1 * 100000,
-         covid_ed_rate = covid_ed / total_age1 * 100000,
-         any_ed_rate = any_ed / total_age1 * 100000)
+  summarise(cnt = n_distinct(patient_id)) %>%
+  mutate(index_dt = "2 weeks post-campaign",
+         variable = "COVID death or hospitalisation or A&E visit"
+         )
+
+# Individual outcomes - starting 4 weeks post-campaign
+outcomes_overall_2 <- outcomes_long %>%
+  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-01")) %>%
+  group_by(age, total_age1, variable) %>%
+  summarise(cnt = n_distinct(patient_id)) %>%
+  mutate(index_dt = "4 weeks post-campaign",
+         variable = case_when(
+           variable == "covidadmitted_date" ~ "COVID unplanned admission",
+           variable == "coviddeath_date" ~ "COVID death",
+           variable == "covidemergency_date" ~ "COVID A&E visit",
+           variable == "any_death_date" ~ "Any death",
+           variable == "admitted_unplanned_date" ~ "Any unplanned admission",
+           variable == "emergency_date" ~ "Any A&E visit"
+         ))
+
+# Composite outcome - starting 4 weeks post-campaign
+outcomes_comp_2 <- outcomes_long %>% 
+  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-01") &
+           variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
+  group_by(age, total_age1) %>%
+  summarise(cnt = n_distinct(patient_id)) %>%
+  mutate(index_dt = "4 weeks post-campaign",
+         variable = "COVID death or hospitalisation or A&E visit")
+
+# Combine
+outcomes_overall_both <- rbind(outcomes_overall, outcomes_comp, outcomes_overall_2,
+                               outcomes_comp_2) %>%
+  rename(outcome = variable) %>%
+  mutate(cnt = redact(cnt),
+         cnt = rounding(cnt),
+         total_age1 = redact(total_age1),
+         total_age1 = rounding(total_age1),
+         rate = cnt / total_age1 * 100000)
+
+            
 
 # Save
-write_csv(outcomes_overall, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
+write_csv(outcomes_overall_both, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
 
 
 #######################################
@@ -171,3 +202,45 @@ ggplot(subset(outcomes_byweek, outcome != "Flu vaccination")) +
 ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage.png"),
        dpi = 300, units = "in", width = 8, height = 6.25)
 
+
+
+### Total events by age
+
+# 2 weeks post-campaign
+ggplot(subset(outcomes_overall_both, index_dt = "2 weeks post-campaign")) +
+  geom_line(aes(x = age, y = rate, col = outcome),size = 1.25) +
+  geom_vline(aes(xintercept = 50), linetype = "longdash") +
+  scale_x_continuous(breaks = seq(40,60,5)) +
+  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
+  scale_color_brewer(palette = "Spectral") +
+  facet_wrap(~ outcome, ncol = 3, scales = "free_y") +
+  xlab(NULL) + ylab("No. events per 100,000") +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0),
+        legend.title = element_blank(),legend.position = "none")
+
+ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage_2wk.png"),
+       dpi = 300, units = "in", width = 8, height = 6.25)
+
+
+# 4 weeks post-campaign
+ggplot(subset(outcomes_overall_both, index_dt = "4 weeks post-campaign")) +
+  geom_line(aes(x = age, y = rate, col = outcome),size = 1.25) +
+  geom_vline(aes(xintercept = 50), linetype = "longdash") +
+  scale_x_continuous(breaks = seq(40,60,5)) +
+  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
+  scale_color_brewer(palette = "Spectral") +
+  facet_wrap(~ outcome, ncol = 3, scales = "free_y") +
+  xlab(NULL) + ylab("No. events per 100,000") +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0),
+        legend.title = element_blank(),legend.position = "none")
+
+ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage_4wk.png"),
+       dpi = 300, units = "in", width = 8.5, height = 5.25)
