@@ -184,7 +184,7 @@ write.csv(dose_counts,
 
 # Plot of when people received each dose (see if it makes sense)
 doses_by_day <- fourth %>%
-  select(!c(age_cat, age, sex)) %>%
+  select(!c(age_cat, age, sex, imd, region, ethnicity)) %>%
   melt(id = c("patient_id")) %>%
   rename(vax = variable, date = value) %>%
   mutate(vax = fct_case_when(
