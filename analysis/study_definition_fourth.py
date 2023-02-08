@@ -103,100 +103,100 @@ study = StudyDefinition(
     #   consistent over time (before/after discontinuity)
     ###########################################################
        
-    # # IMD - quintile
-    # imd = patients.categorised_as(
-    #     {
-    #         "0": "DEFAULT",
-    #         "1": """index_of_multiple_deprivation >=1 AND index_of_multiple_deprivation < 32844*1/5""",
-    #         "2": """index_of_multiple_deprivation >= 32844*1/5 AND index_of_multiple_deprivation < 32844*2/5""",
-    #         "3": """index_of_multiple_deprivation >= 32844*2/5 AND index_of_multiple_deprivation < 32844*3/5""",
-    #         "4": """index_of_multiple_deprivation >= 32844*3/5 AND index_of_multiple_deprivation < 32844*4/5""",
-    #         "5": """index_of_multiple_deprivation >= 32844*4/5 AND index_of_multiple_deprivation < 32844""",
-    #     },
-    #     index_of_multiple_deprivation=patients.address_as_of(
-    #         "index_date",
-    #         returning="index_of_multiple_deprivation",
-    #         round_to_nearest=100,
-    #     ),
-    #     return_expectations={
-    #         "rate": "universal",
-    #         "category": {
-    #             "ratios": {
-    #                 "0": 0.01,
-    #                 "1": 0.20,
-    #                 "2": 0.20,
-    #                 "3": 0.20,
-    #                 "4": 0.20,
-    #                 "5": 0.19,
-    #             }
-    #         },
-    #     },
-    # ),
+    # IMD - quintile
+    imd = patients.categorised_as(
+        {
+            "0": "DEFAULT",
+            "1": """index_of_multiple_deprivation >=1 AND index_of_multiple_deprivation < 32844*1/5""",
+            "2": """index_of_multiple_deprivation >= 32844*1/5 AND index_of_multiple_deprivation < 32844*2/5""",
+            "3": """index_of_multiple_deprivation >= 32844*2/5 AND index_of_multiple_deprivation < 32844*3/5""",
+            "4": """index_of_multiple_deprivation >= 32844*3/5 AND index_of_multiple_deprivation < 32844*4/5""",
+            "5": """index_of_multiple_deprivation >= 32844*4/5 AND index_of_multiple_deprivation < 32844""",
+        },
+        index_of_multiple_deprivation=patients.address_as_of(
+            "index_date",
+            returning="index_of_multiple_deprivation",
+            round_to_nearest=100,
+        ),
+        return_expectations={
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "0": 0.01,
+                    "1": 0.20,
+                    "2": 0.20,
+                    "3": 0.20,
+                    "4": 0.20,
+                    "5": 0.19,
+                }
+            },
+        },
+    ),
 
-    # ### Region
-    # region = patients.registered_practice_as_of(
-    #     "index_date",
-    #     returning = "nuts1_region_name",
-    #     return_expectations = {
-    #         "rate": "universal",
-    #         "category": {
-    #             "ratios": {
-    #                 "North East": 0.1,
-    #                 "North West": 0.1,
-    #                 "Yorkshire and The Humber": 0.1,
-    #                 "East Midlands": 0.1,
-    #                 "West Midlands": 0.1,
-    #                 "East": 0.1,
-    #                 "London": 0.2,
-    #                 "South East": 0.1,
-    #                 "South West": 0.1,
-    #             },
-    #         },
-    #      },
-    # ),
+    ### Region
+    region = patients.registered_practice_as_of(
+        "index_date",
+        returning = "nuts1_region_name",
+        return_expectations = {
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "North East": 0.1,
+                    "North West": 0.1,
+                    "Yorkshire and The Humber": 0.1,
+                    "East Midlands": 0.1,
+                    "West Midlands": 0.1,
+                    "East": 0.1,
+                    "London": 0.2,
+                    "South East": 0.1,
+                    "South West": 0.1,
+                },
+            },
+         },
+    ),
 
-    # ethnicity = patients.categorised_as(
-    #     {
-    #         "Unknown": "DEFAULT",
-    #         "White": "eth6='1'",
-    #         "Mixed": "eth6='2'",
-    #         "Asian or Asian British": "eth6='3'",
-    #         "Black or Black British": "eth6='4'",
-    #         "Other": "eth6='5'",
-    #     },
-    #     eth6 = patients.with_these_clinical_events(
-    #         ethnicity_codes_6,
-    #         returning = "category",
-    #         find_last_match_in_period = True,
-    #         include_date_of_match = False,
-    #         return_expectations = {
-    #             "incidence": 0.75,
-    #             "category": {
-    #                 "ratios": {
-    #                     "1": 0.30,
-    #                     "2": 0.20,
-    #                     "3": 0.20,
-    #                     "4": 0.20,
-    #                     "5": 0.05,
-    #                     "6": 0.05,
-    #                 },
-    #             },
-    #         },
-    #     ),
-    #     return_expectations = {
-    #         "rate": "universal",
-    #         "category": {
-    #             "ratios": {
-    #                 "White": 0.30,
-    #                 "Mixed": 0.20,
-    #                 "Asian or Asian British": 0.20,
-    #                 "Black or Black British": 0.20,
-    #                 "Other": 0.05,
-    #                 "Unknown": 0.05,
-    #             },
-    #         },
-    #     },
-    # ),
+    ethnicity = patients.categorised_as(
+        {
+            "Unknown": "DEFAULT",
+            "White": "eth6='1'",
+            "Mixed": "eth6='2'",
+            "Asian or Asian British": "eth6='3'",
+            "Black or Black British": "eth6='4'",
+            "Other": "eth6='5'",
+        },
+        eth6 = patients.with_these_clinical_events(
+            ethnicity_codes_6,
+            returning = "category",
+            find_last_match_in_period = True,
+            include_date_of_match = False,
+            return_expectations = {
+                "incidence": 0.75,
+                "category": {
+                    "ratios": {
+                        "1": 0.30,
+                        "2": 0.20,
+                        "3": 0.20,
+                        "4": 0.20,
+                        "5": 0.05,
+                        "6": 0.05,
+                    },
+                },
+            },
+        ),
+        return_expectations = {
+            "rate": "universal",
+            "category": {
+                "ratios": {
+                    "White": 0.30,
+                    "Mixed": 0.20,
+                    "Asian or Asian British": 0.20,
+                    "Black or Black British": 0.20,
+                    "Other": 0.05,
+                    "Unknown": 0.05,
+                },
+            },
+        },
+    ),
 
     ###############################################################################
     # COVID VACCINATION
