@@ -44,4 +44,12 @@ actions:
       moderately_sensitive:
         measure_csv: output/cumulative_rates/flu_*.csv
         plot: output/cumulative_rates/plot_flu_vax_byage.png
+
+  demographics:
+   run: r:latest analysis/descriptive/demographics_byage.R
+   needs: [generate_study_pop]
+   outputs:
+      moderately_sensitive:
+        measure_csv: output/variables_by_age/demographics_*.csv
+        plot: output/variables_by_age/plot_*.png
   
