@@ -207,11 +207,11 @@ ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage.png"),
 ### Total events by age
 
 # 2 weeks post-campaign
-ggplot(subset(outcomes_overall_both, index_dt = "2 weeks post-campaign")) +
-  geom_line(aes(x = age, y = rate, col = outcome),size = 1.25) +
+ggplot(subset(outcomes_overall_both, index_dt %in% c("2 weeks post-campaign"))) +
+  geom_line(aes(x = age, y = rate, group = outcome, col = outcome),size = 1.25) +
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   scale_x_continuous(breaks = seq(40,60,5)) +
-  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
+  scale_y_continuous(expand = c(0.2, 0)) +
   scale_color_brewer(palette = "Spectral") +
   facet_wrap(~ outcome, ncol = 3, scales = "free_y") +
   xlab(NULL) + ylab("No. events per 100,000") +
@@ -227,11 +227,11 @@ ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage_2wk.png"),
 
 
 # 4 weeks post-campaign
-ggplot(subset(outcomes_overall_both, index_dt = "4 weeks post-campaign")) +
-  geom_line(aes(x = age, y = rate, col = outcome),size = 1.25) +
+ggplot(subset(outcomes_overall_both,  index_dt %in% c("2 weeks post-campaign"))) +
+  geom_line(aes(x = age, y = rate, group = outcome, col = outcome),size = 1.25) +
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   scale_x_continuous(breaks = seq(40,60,5)) +
-  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
+  scale_y_continuous(expand = c(.2, 0)) +
   scale_color_brewer(palette = "Spectral") +
   facet_wrap(~ outcome, ncol = 3, scales = "free_y") +
   xlab(NULL) + ylab("No. events per 100,000") +
@@ -243,4 +243,4 @@ ggplot(subset(outcomes_overall_both, index_dt = "4 weeks post-campaign")) +
         legend.title = element_blank(),legend.position = "none")
 
 ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage_4wk.png"),
-       dpi = 300, units = "in", width = 8.5, height = 5.25)
+       dpi = 300, units = "in", width = 8.5, height = 6.25)
