@@ -25,11 +25,11 @@ dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse
 
 ## Function for rounding
 redact <- function(vars) {
-  case_when(vars > 5 ~ vars)
+  case_when(vars > 7 ~ vars)
 }
 
 rounding <- function(vars) {
-  round(vars / 7) * 7
+  round(vars / 5) * 5
 }
 
 #######################################
@@ -87,7 +87,7 @@ outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
   group_by(age, total_age1, outcome) %>%
   # Fill in missing weeks
   complete(week = seq(min(as.Date("2022-10-03")),
-                      max(as.Date("2022-12-25")), by = '1 week')) %>%
+                      max(as.Date("2023-01-30")), by = '1 week')) %>%
   # Rounding
   mutate(
          cnt = case_when(cnt > 5 ~ cnt),
@@ -109,7 +109,7 @@ write_csv(outcomes_byweek, here::here("output", "covid_outcomes", "covid_outcome
 
 # Individual outcomes - starting 2 weeks post-campaign
 outcomes_overall <- outcomes_long %>%
-  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-01")) %>%
+  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-30")) %>%
   group_by(age, total_age1, variable) %>%
   summarise(cnt = n_distinct(patient_id)) %>%
   mutate( index_dt = "2 weeks post-campaign",
@@ -124,7 +124,7 @@ outcomes_overall <- outcomes_long %>%
   
 # Composite outcome - starting 2 weeks post-campaign
 outcomes_comp <- outcomes_long %>% 
-  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-01") &
+  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-30") &
            variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
   group_by(age, total_age1) %>%
   summarise(cnt = n_distinct(patient_id)) %>%
@@ -134,7 +134,7 @@ outcomes_comp <- outcomes_long %>%
 
 # Individual outcomes - starting 4 weeks post-campaign
 outcomes_overall_2 <- outcomes_long %>%
-  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-01")) %>%
+  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-30")) %>%
   group_by(age, total_age1, variable) %>%
   summarise(cnt = n_distinct(patient_id)) %>%
   mutate(index_dt = "4 weeks post-campaign",
@@ -149,7 +149,7 @@ outcomes_overall_2 <- outcomes_long %>%
 
 # Composite outcome - starting 4 weeks post-campaign
 outcomes_comp_2 <- outcomes_long %>% 
-  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-01") &
+  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-30") &
            variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
   group_by(age, total_age1) %>%
   summarise(cnt = n_distinct(patient_id)) %>%
@@ -183,12 +183,11 @@ ggplot(subset(outcomes_byweek, outcome != "Flu vaccination")) +
   scale_color_brewer(palette = "RdBu") +
   scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
   expand_limits(y=0) +
-  scale_x_continuous(breaks = c(as.Date("2022-10-02"),
-                                as.Date("2022-10-23"),
-                                as.Date("2022-11-13"),
-                                as.Date("2022-12-04"),
-                                as.Date("2022-12-24")),
-                     labels = c("Oct 2", "Oct 23", "Nov 13", "Dec 4", "Dec 24")) +
+  scale_x_continuous(breaks = c(as.Date("2022-10-01"),
+                                as.Date("2022-11-01"),
+                                as.Date("2022-12-01"),
+                                as.Date("2023-01-01")),
+                     labels = c("Oct 1","Nov 1","Dec 1","Jan 1")) +
   facet_wrap(~ outcome, ncol = 2, scales = "free_y") +
   xlab(NULL) + ylab("No. events per 100,000") +
   theme_bw() +

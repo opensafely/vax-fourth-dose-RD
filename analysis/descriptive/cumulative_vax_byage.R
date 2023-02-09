@@ -59,11 +59,11 @@ fourth_age5_byday <- fourth %>%
   arrange(age_cat, covid_vax_4_date) %>%
   group_by(age_cat, total) %>%
   mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
-         #vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
-           vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
+         vax_4_sum = case_when(vax_4_sum > 7 ~ vax_4_sum), # Redaction
+           vax_4_sum = round(vax_4_sum / 5) * 5, # Rounding
          rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
-                                max(as.Date("2022-11-30")), by = '1 day')) %>%
+                                max(as.Date("2023-02-01")), by = '1 day')) %>%
   fill(c(vax_4_sum, rate)) %>% # Create rows for days with zero vaccinations
   ungroup() %>%
   select(!vax_4_n)
@@ -76,16 +76,16 @@ write.csv(fourth_age5_byday,
 ### Plot cumulative fourth dose over time
 ggplot(subset(fourth_age5_byday, age_cat != "Missing" &
                 covid_vax_4_date >= "2022-09-01" &
-                covid_vax_4_date < "2022-12-01")) +
+                covid_vax_4_date < "2023-02-01")) +
   geom_line(aes(x = covid_vax_4_date, y = rate/100, group = age_cat, col = age_cat),
             size = 1.25) +
   geom_vline(aes(xintercept = as.Date("2022-10-14")), linetype = "longdash") +
   scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
-                                as.Date("2022-10-14"), as.Date("2022-11-01"),
-                                as.Date("2022-12-01")),
-                     labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1")) +
+                                as.Date("2022-11-01"),
+                                as.Date("2022-12-01"), as.Date("2023-01-01")),
+                     labels = c("Sep 1", "Oct 1", "Nov 1", "Dec 1", "Jan 1")) +
   xlab(NULL) + ylab("Received second booster") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -116,12 +116,12 @@ fourth_age1_byday <- fourth %>%
   arrange(age, covid_vax_4_date) %>%
   group_by(age, total) %>%
   mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
-         #vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
-         vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
-         total = round(total / 7) * 7, # Rounding
+         vax_4_sum = case_when(vax_4_sum > 7 ~ vax_4_sum), # Redaction
+         vax_4_sum = round(vax_4_sum / 5) * 5, # Rounding
+         total = round(total / 5) * 5, # Rounding
          rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
-                                  max(as.Date("2022-11-30")), by = '1 day')) %>%
+                                  max(as.Date("2023-02-01")), by = '1 day')) %>%
   fill(c(vax_4_sum, rate)) %>% # Create rows for days with zero vaccinations
   ungroup() %>%
   select(!vax_4_n) %>%
@@ -135,16 +135,16 @@ write.csv(fourth_age1_byday,
 ### Plot cumulative fourth dose over time
 ggplot(subset(fourth_age1_byday, 
                 covid_vax_4_date >= "2022-09-01" &
-                covid_vax_4_date < "2022-12-01")) +
+                covid_vax_4_date < "2023-02-01")) +
   geom_line(aes(x = covid_vax_4_date, y = rate/100, group = age, col = age),
             size = 1.25) +
   geom_vline(aes(xintercept = as.Date("2022-10-14")), linetype = "longdash") +
   scale_color_brewer(palette = "RdBu") +
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
-                                as.Date("2022-10-14"), as.Date("2022-11-01"),
-                                as.Date("2022-12-01")),
-                     labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1")) +
+                                as.Date("2022-11-01"),
+                                as.Date("2022-12-01"), as.Date("2023-01-01")),
+                     labels = c("Sep 1", "Oct 1", "Nov 1", "Dec 1", "Jan 1")) +
   xlab(NULL) + ylab("Received second booster") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -165,10 +165,10 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 # Proportion with each number of doses on Nov 1
 dose_counts <- fourth %>%
   mutate(# Count receiving each dose
-         first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date > "2022-11-01", 0, 1),
-         second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date > "2022-11-01", 0, 1),
-         third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date > "2022-11-01", 0, 1),
-         fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date > "2022-11-01", 0, 1),
+         first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date > "2023-02-01", 0, 1),
+         second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date > "2023-02-01", 0, 1),
+         third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date > "2023-02-01", 0, 1),
+         fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date > "2023-02-01", 0, 1),
          no_dose = ifelse(is.na(covid_vax_1_date), 1, 0),
 
          # Variable representing number of doses
@@ -198,8 +198,7 @@ doses_by_day <- fourth %>%
   group_by(vax, date) %>%
   summarise(vax_n = n()) %>%
   group_by(vax) %>%
-  complete(date = seq(min(as.Date(date)),
-                                  max(as.Date("2022-11-30")),
+  complete(date = seq(min(as.Date(date)), max(as.Date("2023-02-01")),
                       by = '1 day')) %>%
   fill(vax_n) %>% # Create rows for days with zero vaccinations
   ungroup()
@@ -212,8 +211,9 @@ ggplot(doses_by_day, aes(x = date, y = vax_n)) +
   scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
   scale_fill_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124')) +
   scale_x_continuous(breaks = c(as.Date("2021-01-01"), as.Date("2021-07-01"),
-                                as.Date("2022-01-01"), as.Date("2022-07-01")),
-                     labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022")) +
+                                as.Date("2022-01-01"), as.Date("2022-07-01"),
+                                as.Date("2023-01-01")),
+                     labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022", "Jan 2023")) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
