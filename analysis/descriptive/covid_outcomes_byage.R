@@ -49,7 +49,7 @@ outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>%
                    flu_vax_tpp_date, flu_vax_clinical_date,
                    ethnicity, region, imd,
                    contains("covid_vax")))
-  
+
 # Convert to long
 outcomes_long <- outcomes %>%
   melt(id = c("patient_id", "age", "total_age1"),
