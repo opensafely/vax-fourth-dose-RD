@@ -30,7 +30,7 @@ study = StudyDefinition(
 
     # Configure the expectations framework
     default_expectations = {
-        "date": {"earliest": "2020-12-08", "latest": "2022-12-01"},
+        "date": {"earliest": "2020-12-08", "latest": "2023-02-01"},
         "rate": "uniform",
         "incidence": 0.5,
     },
@@ -212,7 +212,7 @@ study = StudyDefinition(
         return_expectations={
             "date": {
                 "earliest": "2020-12-08",  # first vaccine administered on the 8/12
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             }
         },
     ),
@@ -227,7 +227,7 @@ study = StudyDefinition(
         return_expectations={
             "date": {
                 "earliest": "2020-12-08", 
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             }
         },
     ),
@@ -242,7 +242,7 @@ study = StudyDefinition(
         return_expectations={
             "date": {
                 "earliest": "2020-12-08",  
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             }
         },
     ),
@@ -257,7 +257,7 @@ study = StudyDefinition(
         return_expectations={
             "date": {
                 "earliest": "2020-12-08",  
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             }
         },
     ),
@@ -275,7 +275,7 @@ study = StudyDefinition(
         return_expectations={           
             "date": {
                 "earliest": "2022-07-01",  
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             },
         },
     ),
@@ -289,7 +289,7 @@ study = StudyDefinition(
         return_expectations={           
             "date": {
                 "earliest": "2022-07-01",  
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             },
         },
     ),
@@ -304,7 +304,7 @@ study = StudyDefinition(
         return_expectations={           
             "date": {
                 "earliest": "2022-07-01",  
-                "latest": "2022-12-01",
+                "latest": "2023-02-01",
             },
         },
     ),
