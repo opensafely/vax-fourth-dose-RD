@@ -1,7 +1,7 @@
 
 ################################################################
 # This script:
-# - Calculates number of outcomes by week by age
+# - Calculates number of outcomes by week and by age
 ################################################################
 
 
@@ -58,11 +58,15 @@ outcomes_long <- outcomes %>%
   mutate(week = floor_date(as.Date(date), unit="week", week_start = 1)) %>%
   subset(week >= as.Date("2022-10-02"))
 
-# Calculate number of outcomes of each type per week
+
+#################################################################
+# Calculate number of outcomes of each type per week overall
+#################################################################
+
   # Count all events for now (not just first)
 outcomes_sum_1 <- outcomes_long %>%
-  group_by(age, total_age1, week, variable) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
+  group_by(week, variable) %>%
+  summarise(cnt = n_distinct(patient_id), total = sum(total_age1)) %>%
   mutate(outcome = case_when(
                       variable == "covidadmitted_date" ~ "COVID admission",
                       variable == "coviddeath_date" ~ "COVID death",
@@ -77,26 +81,25 @@ outcomes_sum_1 <- outcomes_long %>%
   # If multiple in a given week count once
 outcomes_sum_2 <- outcomes_long %>%
   subset(variable %in% c("covidadmitted_date", "coviddeath_date", "covidemergency_date")) %>%
-  group_by(age, total_age1, week) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
+  group_by(week) %>%
+  summarise(cnt = n_distinct(patient_id), total = sum(total_age1)) %>%
   mutate(outcome = "COVID death or admission or ED")
 
 # Combine all outcomes counts together into one file
 outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
-  arrange(age, outcome, week) %>%
-  group_by(age, total_age1, outcome) %>%
+  arrange(outcome, week) %>%
+  group_by(outcome) %>%
   # Fill in missing weeks
   complete(week = seq(min(as.Date("2022-10-03")),
                       max(as.Date("2023-01-30")), by = '1 week')) %>%
   # Rounding
   mutate(
-         cnt = case_when(cnt > 5 ~ cnt),
-         cnt = round(cnt / 7) * 7,
-         total_age1 = case_when(total_age1 > 5 ~ total_age1),
-         total_age1 = round(total_age1 / 7) * 7,
+         cnt = case_when(cnt > 7 ~ cnt),
+         cnt = round(cnt / 5) * 5,
+         total = case_when(total > 7 ~ total),
+         total = round(total / 5) * 5,
          # Calculate rates per 100,000
-         rate = cnt / total_age1 * 100000,
-         age = as.character(age))
+         rate = cnt / total * 100000)
 
 # Save 
 write_csv(outcomes_byweek, here::here("output", "covid_outcomes", "covid_outcomes_by_week.csv"))
@@ -178,11 +181,10 @@ write_csv(outcomes_overall_both, here::here("output", "covid_outcomes", "covid_o
 
 ### Number of event by week
 ggplot(subset(outcomes_byweek, outcome != "Flu vaccination")) +
-  geom_line(aes(x = week, y = rate, group = age, col = age),
+  geom_line(aes(x = week, y = rate, col = outcome),
             size = 1.25) +
-  scale_color_brewer(palette = "RdBu") +
-  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
-  expand_limits(y=0) +
+  scale_color_brewer(palette = "Spectral") +
+  scale_y_continuous(expand = c(0.2, 0)) +
   scale_x_continuous(breaks = c(as.Date("2022-10-01"),
                                 as.Date("2022-11-01"),
                                 as.Date("2022-12-01"),
@@ -195,11 +197,11 @@ ggplot(subset(outcomes_byweek, outcome != "Flu vaccination")) +
         panel.grid.minor.x = element_blank(),
         strip.background = element_blank(),
         strip.text = element_text(hjust = 0),
-        legend.title = element_blank(),
+        legend.title = element_blank(), legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage.png"),
-       dpi = 300, units = "in", width = 8, height = 6.25)
+       dpi = 300, units = "in", width = 6.5, height = 6.25)
 
 
 
