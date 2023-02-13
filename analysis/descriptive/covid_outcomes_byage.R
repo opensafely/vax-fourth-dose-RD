@@ -40,23 +40,26 @@ rounding <- function(vars) {
 outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>% 
   mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
   subset(age >= 40 & age < 60) %>%
-  group_by(age) %>%
-  # Calculate denominator (num people per age year)
-    # Everyone alive at 1 Oct 22 (ignore deaths for now)
-  mutate(total_age1 = n()) %>%
   ungroup() %>%
   dplyr::select(!c(sex, age_cat, flu_vax_med_date, 
                    flu_vax_tpp_date, flu_vax_clinical_date,
                    ethnicity, region, imd,
-                   contains("covid_vax")))
-
+                   contains("covid_vax"))) %>%
+  # Exclude if died before 2 weeks post-campaign
+  subset(!is.na(any_death_date)|any_death_date >="2022-10-28") %>%
+  # Total number of people
+  mutate(total = n_distinct(patient_id)) %>%
+  # Number of people per year of age
+  group_by(age) %>%
+  mutate(total_age1 = n_distinct(patient_id))
+  
 # Convert to long
 outcomes_long <- outcomes %>%
-  melt(id = c("patient_id", "age", "total_age1"),
+  melt(id = c("patient_id", "age", "total_age1", "total"),
        value.name = "date", na.rm = TRUE) %>%
   # Create week variable
   mutate(week = floor_date(as.Date(date), unit="week", week_start = 5)) %>%
-  subset(week >= as.Date("2022-10-28") & week < as.Date("2023-01-27"))
+  subset(week >= as.Date("2022-10-28") & week < as.Date("2023-01-27")) 
 
 
 #################################################################
@@ -65,8 +68,7 @@ outcomes_long <- outcomes %>%
 
   # Count all events for now (not just first)
 outcomes_sum_1 <- outcomes_long %>%
-  mutate(total = n_distinct(patient_id)) %>%
-  group_by(week, variable) %>%
+  group_by(week, variable, total) %>%
   mutate(cnt = n_distinct(patient_id),
          outcome = case_when(
            variable == "covidadmitted_date" ~ "COVID admission",
@@ -84,8 +86,7 @@ outcomes_sum_1 <- outcomes_long %>%
   # If multiple in a given week count once
 outcomes_sum_2 <- outcomes_long %>%
   subset(variable %in% c("covidadmitted_date", "coviddeath_date", "covidemergency_date")) %>%
-  mutate(total = n_distinct(patient_id)) %>%
-  group_by(week) %>%
+  group_by(week, total) %>%
   mutate(cnt = n_distinct(patient_id),
          outcome = "COVID death or admission or ED") %>%
   group_by(week, outcome, total, cnt) %>%
@@ -142,6 +143,7 @@ outcomes_comp <- outcomes_long %>%
   group_by(index_dt, age, cnt, total_age1, variable) %>%
   summarise()
 
+
 # Individual outcomes - starting 4 weeks post-campaign
 outcomes_overall_2 <- outcomes_long %>%
   subset(date >= as.Date("2022-11-11")) %>%
@@ -180,8 +182,7 @@ outcomes_overall_both <- rbind(outcomes_overall, outcomes_comp, outcomes_overall
          total_age1 = rounding(total_age1),
          rate = cnt / total_age1 * 100000)
 
-            
-
+          
 # Save
 write_csv(outcomes_overall_both, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
 
