@@ -62,7 +62,6 @@ outcomes_long <- outcomes %>%
   subset(week >= as.Date("2022-10-28") & week < as.Date("2023-01-27")) 
 
 
-
 #################################################################
 # Calculate number of outcomes of each type per week overall
 #################################################################

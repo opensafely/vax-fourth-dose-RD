@@ -39,7 +39,8 @@ fct_case_when <- function(...) {
 # Read in data
 fourth <- arrow::read_feather(here::here("output", "input_fourth.feather")) %>%
   mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
-  arrange(age_cat, desc(covid_vax_4_date))
+  arrange(age_cat, desc(covid_vax_4_date)) %>%
+  dplyr::select(!c(sex,imd,ethnicity,region))
 
 
 ###########################
@@ -221,3 +222,4 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 # 
 # ggsave(here::here("output", "cumulative_rates", "plot_all_doses_over_time.png"),
 #        dpi = 300, units = "in", width = 6, height = 3.25)
+

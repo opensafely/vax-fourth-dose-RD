@@ -67,7 +67,7 @@ flu_vax_sum <- flu_vax %>%
          # Calculate rates per 100
          rate = cum_flu_vax / total_age1 * 100,
          age = as.character(age)) %>%
-  subset(week >= as.Date("2022-10-01"))
+  subset(week >= as.Date("2022-10-01") & week < as.Date("2023-01-01"))
 
 # Save
 write_csv(flu_vax_sum, here::here("output", "cumulative_rates", "flu_vax_by_week.csv"))
@@ -76,7 +76,7 @@ write_csv(flu_vax_sum, here::here("output", "cumulative_rates", "flu_vax_by_week
 # Plots
 #######################################
 
-ggplot(subset(flu_vax_sum, age > 45 & age < 54)) +
+ggplot(subset(flu_vax_sum, (age > 45 & age < 54))) +
   geom_line(aes(x = week, y = rate, group = age, col = age),
             size = 1.25) +
   scale_color_brewer(palette = "RdBu") +
