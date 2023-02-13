@@ -55,8 +55,8 @@ outcomes_long <- outcomes %>%
   melt(id = c("patient_id", "age", "total_age1"),
        value.name = "date", na.rm = TRUE) %>%
   # Create week variable
-  mutate(week = floor_date(as.Date(date), unit="week", week_start = 1)) %>%
-  subset(week >= as.Date("2022-10-02"))
+  mutate(week = floor_date(as.Date(date), unit="week", week_start = 5)) %>%
+  subset(week >= as.Date("2022-10-28") & week < as.Date("2023-01-27"))
 
 
 #################################################################
@@ -65,33 +65,39 @@ outcomes_long <- outcomes %>%
 
   # Count all events for now (not just first)
 outcomes_sum_1 <- outcomes_long %>%
+  mutate(total = n_distinct(patient_id)) %>%
   group_by(week, variable) %>%
-  summarise(cnt = n_distinct(patient_id), total = sum(total_age1)) %>%
-  mutate(outcome = case_when(
-                      variable == "covidadmitted_date" ~ "COVID admission",
-                      variable == "coviddeath_date" ~ "COVID death",
-                      variable == "any_death_date" ~ "Any death",
-                      variable == "admitted_unplanned_date" ~ "Any unplanned admission",
-                      variable == "covidemergency_date" ~ "COVID ED",
-                      variable == "emergency_date" ~ "Any ED")) %>%
-  select(!variable)
+  mutate(cnt = n_distinct(patient_id),
+         outcome = case_when(
+           variable == "covidadmitted_date" ~ "COVID admission",
+           variable == "coviddeath_date" ~ "COVID death",
+           variable == "any_death_date" ~ "Any death",
+           variable == "admitted_unplanned_date" ~ "Any unplanned admission",
+           variable == "covidemergency_date" ~ "COVID ED",
+           variable == "emergency_date" ~ "Any ED")) %>%
+  group_by(week, outcome, total, cnt) %>%
+  summarise()
+
 
 # Calculate number of composite outcome (COVID admission/death) of each type per week
   # Count all events for now (not just first)
   # If multiple in a given week count once
 outcomes_sum_2 <- outcomes_long %>%
   subset(variable %in% c("covidadmitted_date", "coviddeath_date", "covidemergency_date")) %>%
+  mutate(total = n_distinct(patient_id)) %>%
   group_by(week) %>%
-  summarise(cnt = n_distinct(patient_id), total = sum(total_age1)) %>%
-  mutate(outcome = "COVID death or admission or ED")
+  mutate(cnt = n_distinct(patient_id),
+         outcome = "COVID death or admission or ED") %>%
+  group_by(week, outcome, total, cnt) %>%
+  summarise()
 
 # Combine all outcomes counts together into one file
 outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
   arrange(outcome, week) %>%
   group_by(outcome) %>%
   # Fill in missing weeks
-  complete(week = seq(min(as.Date("2022-10-03")),
-                      max(as.Date("2023-01-30")), by = '1 week')) %>%
+  complete(week = seq(min(as.Date("2022-10-28")),
+                      max(as.Date("2023-01-20")), by = '1 week')) %>%
   # Rounding
   mutate(
          cnt = case_when(cnt > 7 ~ cnt),
@@ -112,10 +118,9 @@ write_csv(outcomes_byweek, here::here("output", "covid_outcomes", "covid_outcome
 
 # Individual outcomes - starting 2 weeks post-campaign
 outcomes_overall <- outcomes_long %>%
-  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-30")) %>%
   group_by(age, total_age1, variable) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate( index_dt = "2 weeks post-campaign",
+  mutate(cnt = n_distinct(patient_id),
+         index_dt = "2 weeks post-campaign",
          variable = case_when(
            variable == "covidadmitted_date" ~ "COVID unplanned admission",
            variable == "coviddeath_date" ~ "COVID death",
@@ -123,24 +128,26 @@ outcomes_overall <- outcomes_long %>%
            variable == "any_death_date" ~ "Any death",
            variable == "admitted_unplanned_date" ~ "Any unplanned admission",
            variable == "emergency_date" ~ "Any A&E visit"
-         ))
+         )) %>%
+  group_by(index_dt, age, cnt, total_age1, variable) %>%
+  summarise()
   
 # Composite outcome - starting 2 weeks post-campaign
 outcomes_comp <- outcomes_long %>% 
-  subset(date > as.Date("2022-10-28") & date < as.Date("2023-01-30") &
-           variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
+  subset(variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
   group_by(age, total_age1) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate(index_dt = "2 weeks post-campaign",
-         variable = "COVID death or hospitalisation or A&E visit"
-         )
+  mutate(cnt = n_distinct(patient_id),
+         index_dt = "2 weeks post-campaign",
+         variable = "COVID death or hospitalisation or A&E visit") %>%
+  group_by(index_dt, age, cnt, total_age1, variable) %>%
+  summarise()
 
 # Individual outcomes - starting 4 weeks post-campaign
 outcomes_overall_2 <- outcomes_long %>%
-  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-30")) %>%
+  subset(date >= as.Date("2022-11-11")) %>%
   group_by(age, total_age1, variable) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate(index_dt = "4 weeks post-campaign",
+  mutate(cnt = n_distinct(patient_id),
+         index_dt = "4 weeks post-campaign",
          variable = case_when(
            variable == "covidadmitted_date" ~ "COVID unplanned admission",
            variable == "coviddeath_date" ~ "COVID death",
@@ -148,16 +155,20 @@ outcomes_overall_2 <- outcomes_long %>%
            variable == "any_death_date" ~ "Any death",
            variable == "admitted_unplanned_date" ~ "Any unplanned admission",
            variable == "emergency_date" ~ "Any A&E visit"
-         ))
+         )) %>%
+  group_by(index_dt, age, cnt, total_age1, variable) %>%
+  summarise()
 
 # Composite outcome - starting 4 weeks post-campaign
 outcomes_comp_2 <- outcomes_long %>% 
-  subset(date > as.Date("2022-11-11") & date < as.Date("2023-01-30") &
+  subset(date >= as.Date("2022-11-11") &
            variable %in% c("covidadmitted_date","coviddeath_date","covidemergency_date")) %>%
   group_by(age, total_age1) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate(index_dt = "4 weeks post-campaign",
-         variable = "COVID death or hospitalisation or A&E visit")
+  mutate(cnt = n_distinct(patient_id),
+         index_dt = "4 weeks post-campaign",
+         variable = "COVID death or hospitalisation or A&E visit") %>%
+  group_by(index_dt, age, cnt, total_age1, variable) %>%
+  summarise()
 
 # Combine
 outcomes_overall_both <- rbind(outcomes_overall, outcomes_comp, outcomes_overall_2,
