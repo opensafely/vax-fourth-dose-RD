@@ -85,7 +85,7 @@ outcomes_sum_1 <- outcomes_long %>%
 # Calculate number of composite outcome (COVID admission/death) of each type per week
   # Count all events for now (not just first)
   # If multiple in a given week count once
-outcomes_sum_2b <- outcomes_long %>%
+outcomes_sum_2 <- outcomes_long %>%
   subset(variable %in% c("covidadmitted_date", "coviddeath_date", "covidemergency_date")) %>%
   group_by(week, total) %>%
   mutate(cnt = n_distinct(patient_id),
