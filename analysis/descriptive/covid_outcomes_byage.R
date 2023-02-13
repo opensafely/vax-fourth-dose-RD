@@ -45,8 +45,6 @@ outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>%
                    flu_vax_tpp_date, flu_vax_clinical_date,
                    ethnicity, region, imd,
                    contains("covid_vax"))) %>%
-  # Exclude if died before 2 weeks post-campaign
-  subset(!is.na(any_death_date)|any_death_date >="2022-10-28") %>%
   # Total number of people
   mutate(total = n_distinct(patient_id)) %>%
   # Number of people per year of age
