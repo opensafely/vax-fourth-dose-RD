@@ -97,7 +97,7 @@ fourth_age1_byday <- fourth %>%
          total = round(total / 5) * 5, # Rounding
          rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
-                                  max(as.Date("2022-11-30")), by = '1 day')) %>%
+                                  max(as.Date("2023-02-01")), by = '1 day')) %>%
   fill(c(vax_4_sum, rate)) %>% # Create rows for days with zero vaccinations
   ungroup() %>%
   select(!vax_4_n) %>%
@@ -183,10 +183,10 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
 # # Proportion with each number of doses on Nov 1
 # dose_counts <- fourth %>%
 #   mutate(# Count receiving each dose
-#          first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date > "2022-11-01", 0, 1),
-#          second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date > "2022-11-01", 0, 1),
-#          third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date > "2022-11-01", 0, 1),
-#          fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date > "2022-11-01", 0, 1),
+#          first_dose = ifelse(is.na(covid_vax_1_date)|covid_vax_1_date > "2023-02-01", 0, 1),
+#          second_dose = ifelse(is.na(covid_vax_2_date)|covid_vax_2_date > "2023-02-01", 0, 1),
+#          third_dose = ifelse(is.na(covid_vax_3_date)|covid_vax_3_date > "2023-02-01", 0, 1),
+#          fourth_dose = ifelse(is.na(covid_vax_4_date)|covid_vax_4_date > "2023-02-01", 0, 1),
 #          no_dose = ifelse(is.na(covid_vax_1_date), 1, 0),
 # 
 #          # Variable representing number of doses
@@ -203,7 +203,7 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
 # 
 # # Plot of when people received each dose (see if it makes sense)
 # doses_by_day <- fourth %>%
-#   select(!c(age_cat, age, sex)) %>%
+#   select(!c(age_cat, age, sex, imd, region, ethnicity)) %>%
 #   melt(id = c("patient_id")) %>%
 #   rename(vax = variable, date = value) %>%
 #   mutate(vax = fct_case_when(
@@ -230,8 +230,9 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
 #   scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
 #   scale_fill_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124')) +
 #   scale_x_continuous(breaks = c(as.Date("2021-01-01"), as.Date("2021-07-01"),
-#                                 as.Date("2022-01-01"), as.Date("2022-07-01")),
-#                      labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022")) +
+#                                 as.Date("2022-01-01"), as.Date("2022-07-01"),
+#                                 as.Date("2023-01-01")),
+#                      labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022", "Jan 2023")) +
 #   theme_bw() +
 #   theme(panel.grid.major.x = element_blank(),
 #         panel.grid.minor.x = element_blank(),
@@ -240,3 +241,4 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
 # 
 # ggsave(here::here("output", "cumulative_rates", "plot_all_doses_over_time.png"),
 #        dpi = 300, units = "in", width = 6, height = 3.25)
+
