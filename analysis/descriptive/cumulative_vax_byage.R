@@ -72,7 +72,7 @@ age_check <- fourth %>%
         dob_missing = sum(is.na(dob)))
 
 write.csv(age_check,
-          here::here("output", "checks", "age_check.csv"), row.names = FALSE)
+          here::here("output", "checks", "final_age_check.csv"), row.names = FALSE)
 
 
 #####################################################
@@ -140,7 +140,7 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 ######################################
 
 fourth_nov25 <- fourth %>%
-    subset(!is.na(age_month) & (!is.na(any_death_date)|any_death_date>=as.Date("2022-11-25"))) %>%
+    subset(!is.na(age_month) & (is.na(any_death_date)|any_death_date>=as.Date("2022-11-25"))) %>%
     group_by(age_month) %>%
     mutate(covid_vax_4 = if_else(covid_vax_4_date < as.Date("2022-11-25"), 1, 0, missing = 0),
            total = n()) %>%
