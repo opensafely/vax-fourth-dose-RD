@@ -23,6 +23,8 @@ library('RColorBrewer')
 
 ## Create directories
 dir_create(here::here("output", "cumulative_rates"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "checks"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output"), showWarnings = FALSE, recurse = TRUE)
 
 # Custom functions
 # Factorise ----
@@ -35,73 +37,47 @@ fct_case_when <- function(...) {
   factor(dplyr::case_when(...), levels=levels)
 }
 
+end_date <- as.Date("2023-03-02", format = "%Y-%m-%d")
 
-# Read in data
-fourth <- arrow::read_feather(here::here("output", "input_fourth.feather")) %>%
-  mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
-  arrange(age_cat, desc(covid_vax_4_date)) %>%
+
+#####################################################
+### Read in data                                  ###
+#####################################################
+
+fourth <- arrow::read_feather(here::here("output", "input_fourth_2022-09-02.feather")) %>%
+  mutate_at(c(vars(c(contains("_date")), "dob")), as.Date, format = "%Y-%m-%d") %>%
+  
+  # Calculate age in months
+  mutate(age_month = (dob %--% as.Date("2022-09-02")) %/% months(1),
+         months = age_month - age*12) %>%
   dplyr::select(!c(sex,imd,ethnicity,region))
 
 
-###########################
-### By 5-year age group ###
-###########################
+######################################################
+### Check that age/DOB variables are consistent    ###
+######################################################
 
-### Calculate cumulative proportion of people receiving fourth dose
-fourth_age5_byday <- fourth %>%
-  group_by(age_cat) %>%
-  mutate(total = n()) %>% # Calculate denominator (total count per age category)
-  ungroup() %>%
-  subset(!is.na(covid_vax_4_date)) %>% # Remove people with no 4th vax
-  group_by(age_cat, total, covid_vax_4_date) %>%
-  summarise(vax_4_n = n()) %>% # Num vaccinated each day
-  ungroup() %>%
-  arrange(age_cat, covid_vax_4_date) %>%
-  group_by(age_cat, total) %>%
-  mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
-         #vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
-           vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
-         rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
-  complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
-                                max(as.Date("2022-11-30")), by = '1 day')) %>%
-  fill(c(vax_4_sum, rate)) %>% # Create rows for days with zero vaccinations
-  ungroup() %>%
-  select(!vax_4_n)
+age_check <- fourth %>%
+  mutate(age_check = (dob %--% as.Date("2022-09-02")) %/% years(1),
+         months_check = age_month - age_check*12,
+         too_many_months = ifelse(months > 12, 1, 0),
+         negative_months = ifelse(months < 0, 1, 0),
+         months_differ = ifelse(months_check == months, 0, 1),
+         years_differ = ifelse(age_check == age, 0, 1)) %>%
+  summarise(n = n(),
+        too_many_months = sum(too_many_months, na.rm = TRUE),
+        negative_months = sum(negative_months, na.rm = TRUE),
+        months_differ = sum(months_differ, na.rm = TRUE),
+        years_differ = sum(years_differ, na.rm = TRUE),
+        dob_missing = sum(is.na(dob)))
 
-# Save
-fourth_age5_byday <- fourth_age5_byday %>% subset(covid_vax_4_date >= as.Date("2022-09-01"))
-write.csv(fourth_age5_byday,
-          here::here("output", "cumulative_rates", "final_dose4_cum_byage5.csv"), row.names = FALSE)
-
-### Plot cumulative fourth dose over time
-ggplot(subset(fourth_age5_byday, age_cat != "Missing" &
-                covid_vax_4_date >= "2022-09-01" &
-                covid_vax_4_date < "2022-12-01")) +
-  geom_line(aes(x = covid_vax_4_date, y = rate/100, group = age_cat, col = age_cat),
-            size = 1.25) +
-  geom_vline(aes(xintercept = as.Date("2022-10-14")), linetype = "longdash") +
-  scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
-  scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
-                                as.Date("2022-10-14"), as.Date("2022-11-01"),
-                                as.Date("2022-12-01")),
-                     labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1")) +
-  xlab(NULL) + ylab("Received second booster") +
-  theme_bw() +
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age5.png"),
-       dpi = 300, units = "in", width = 6, height = 3.25)
+write.csv(age_check,
+          here::here("output", "checks", "age_check.csv"), row.names = FALSE)
 
 
-
-
-###########################
-### By 1-year age group ###
-###########################
+#####################################################
+### Cumulative vaccine update by 1-year age group ###
+#####################################################
 
 ### Calculate cumulative proportion of people receiving fourth dose
 fourth_age1_byday <- fourth %>%
@@ -116,9 +92,9 @@ fourth_age1_byday <- fourth %>%
   arrange(age, covid_vax_4_date) %>%
   group_by(age, total) %>%
   mutate(vax_4_sum = cumsum(vax_4_n), # Cumulative num vaccinated each day
-         #vax_4_sum = case_when(vax_4_sum > 5 ~ vax_4_sum), # Redaction
-         vax_4_sum = round(vax_4_sum / 7) * 7, # Rounding
-         total = round(total / 7) * 7, # Rounding
+         vax_4_sum = case_when(vax_4_sum > 7 ~ vax_4_sum), # Redaction
+         vax_4_sum = round(vax_4_sum / 5) * 5, # Rounding
+         total = round(total / 5) * 5, # Rounding
          rate = vax_4_sum / total * 100) %>% # Cumulative % vaccinated each day
   complete(covid_vax_4_date = seq(min(as.Date(covid_vax_4_date)),
                                   max(as.Date("2022-11-30")), by = '1 day')) %>%
@@ -135,7 +111,7 @@ write.csv(fourth_age1_byday,
 ### Plot cumulative fourth dose over time
 ggplot(subset(fourth_age1_byday, 
                 covid_vax_4_date >= "2022-09-01" &
-                covid_vax_4_date < "2022-12-01")) +
+                covid_vax_4_date < end_date)) +
   geom_line(aes(x = covid_vax_4_date, y = rate/100, group = age, col = age),
             size = 1.25) +
   geom_vline(aes(xintercept = as.Date("2022-10-14")), linetype = "longdash") +
@@ -143,8 +119,10 @@ ggplot(subset(fourth_age1_byday,
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
                                 as.Date("2022-10-14"), as.Date("2022-11-01"),
-                                as.Date("2022-12-01")),
-                     labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1")) +
+                                as.Date("2022-12-01"), as.Date("2023-01-01"),
+                                as.Date("2023-02-01")),
+                     labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1", 
+                                "Jan 1", "Feb 1")) +
   xlab(NULL) + ylab("Received second booster") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -155,6 +133,46 @@ ggplot(subset(fourth_age1_byday,
 ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
        dpi = 300, units = "in", width = 6, height = 3.25)
 
+
+
+######################################
+### % vaccinated by age in months  ###
+######################################
+
+fourth_nov25 <- fourth %>%
+    subset(!is.na(age_month)) %>%
+    group_by(age_month) %>%
+    mutate(covid_vax_4 = ifelse(covid_vax_4_date < as.Date("2022-11-25"), 1, 0),
+           total = n()) %>%
+    ungroup() %>%
+    group_by(age_month, total) %>%
+    summarise(n_covid_vax_4 = sum(covid_vax_4)) %>%
+    mutate(n_covid_vax_4 = case_when(n_covid_vax_4 > 7 ~ n_covid_vax_4), # Redaction
+              n_covid_vax_4 = round(n_covid_vax_4 / 5) * 5,
+              total = round(total / 5) * 5,
+              pcent_covid_vax_4 = n_covid_vax_4 / total * 100,
+              age_month = as.numeric(age_month)) # Rounding
+
+# Save
+write.csv(fourth_nov25,
+          here::here("output", "cumulative_rates", "final_vax4_age_months.csv"), row.names = FALSE)
+
+### Plot cumulative fourth dose over time
+ggplot(subset(fourth_nov25, age_month > 564 & age_month < 636)) +
+  geom_vline(aes(xintercept = 50), linetype = "longdash") +
+  geom_point(aes(x = age_month / 12, y = pcent_covid_vax_4), 
+             col = "dodgerblue3") +
+  scale_y_continuous(limits = c(0, 100)) +
+  scale_x_continuous(breaks = seq(47,53,1)) +
+  xlab(NULL) + ylab("Received second booster COVID-19 vaccine (%)") +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
+       dpi = 300, units = "in", width = 6, height = 3.25)
 
 
 
@@ -199,7 +217,7 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 #   summarise(vax_n = n()) %>%
 #   group_by(vax) %>%
 #   complete(date = seq(min(as.Date(date)),
-#                                   max(as.Date("2022-11-30")),
+#                                   max(end_date),
 #                       by = '1 day')) %>%
 #   fill(vax_n) %>% # Create rows for days with zero vaccinations
 #   ungroup()
