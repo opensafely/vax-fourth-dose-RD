@@ -36,7 +36,7 @@ study = StudyDefinition(
     },
         
     # Set index date
-    index_date = "2022-10-01",
+    index_date = "2022-09-01",
 
     # This line defines the study population
     population = patients.satisfying(
@@ -56,40 +56,31 @@ study = StudyDefinition(
             on_or_before = "index_date",
             returning = "binary_flag",
         ),
+        has_follow_up=patients.registered_with_one_practice_between(
+            "index_date - 3 months", "index_date"
+        ),
     ),
 
     # Age (continuous)
     age = patients.age_as_of(
-        "2022-10-01", # People 50+ years became vaccine eligible on October 14
+        "index_date", 
         return_expectations = {
             "rate": "universal",
             "int": {"distribution": "population_ages"},
             "incidence" : 0.001
         },
     ),
-
-    # Age categories
-    age_cat = patients.categorised_as(
-        {"Missing": "DEFAULT",
-            "40-44 y": """age >= 40 AND age < 45""",
-            "45-49 y": """age >= 45 AND age < 50""",
-            "50-54 y": """age >= 50 AND age < 55""",
-            "55-59 y": """age >= 55 AND age < 60""",
-        },
-        return_expectations = {
-            "rate": "universal",
-            "category": {
-                "ratios": {
-                    "Missing": 0.01,
-                    "40-44 y": 0.24,
-                    "45-49 y": 0.25,
-                    "50-54 y": 0.25,
-                    "55-59 y": 0.25,
-                }
-            },
+    
+    # Date of birth month/year
+    dob = patients.date_of_birth(
+        "YYYY-MM",
+        return_expectations={
+            "date": {"earliest": "1962-01-01", "latest": "1982-01-01"},
+            "rate": "uniform",
+            "incidence" : .999
         },
     ),
-    
+
     # Sex
     sex = patients.sex(
          return_expectations={
@@ -155,6 +146,7 @@ study = StudyDefinition(
          },
     ),
 
+    ### Ethnicity (6 categories)
     ethnicity = patients.categorised_as(
         {
             "Unknown": "DEFAULT",
@@ -199,10 +191,10 @@ study = StudyDefinition(
     ),
 
     ###############################################################################
-    # COVID VACCINATION
+    # COVID VACCINATION (ANY TYPE)
     ###############################################################################
 
-    # any COVID vaccination (first dose)
+    # First dose COVID vaccination
     covid_vax_1_date=patients.with_tpp_vaccination_record(
         target_disease_matches = "SARS-2 CORONAVIRUS",
         on_or_after = "2020-12-08",  
@@ -217,7 +209,7 @@ study = StudyDefinition(
         },
     ),
 
-    # SECOND DOSE COVID VACCINATION - any type
+    # Second dose COVID vaccination
     covid_vax_2_date=patients.with_tpp_vaccination_record(
         target_disease_matches="SARS-2 CORONAVIRUS",
         on_or_after = "covid_vax_1_date + 1 days",
@@ -232,7 +224,7 @@ study = StudyDefinition(
         },
     ),
 
-    # THIRD DOSE COVID VACCINATION - any type
+    # Third dose (first booster) COVID vaccination
     covid_vax_3_date=patients.with_tpp_vaccination_record(
         target_disease_matches="SARS-2 CORONAVIRUS",
         on_or_after="covid_vax_2_date + 1 day",
@@ -247,7 +239,7 @@ study = StudyDefinition(
         },
     ),
 
-    # 4th DOSE COVID VACCINATION - any type
+    # Fourth dose (second booster) COVID vaccination
     covid_vax_4_date = patients.with_tpp_vaccination_record(
         target_disease_matches="SARS-2 CORONAVIRUS",
         on_or_after="covid_vax_3_date + 1 day",
@@ -309,14 +301,16 @@ study = StudyDefinition(
         },
     ),
 
-  ############################################################
-  ## OUTCOMES
-  ############################################################
+    ############################################################
+    ## OUTCOMES
+    ############################################################
   
+    ## Hospitalisations ##
+    
     # Unplanned hospital admission (all cause)
     admitted_unplanned_date=patients.admitted_to_hospital(
         returning="date_admitted",
-        on_or_after="2022-10-01",
+        on_or_after="index_date",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
         date_format="YYYY-MM-DD",
@@ -328,10 +322,20 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
-        on_or_after="2022-10-01",
+        on_or_after="index_date",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
+
+    # Respiratory unplanned admission (primary diagnosis only)
+    # respadmitted_date=patients.admitted_to_hospital(
+    #     returning="date_admitted",
+    #     with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+    #     with_these_primary_diagnoses=resp_codes,
+    #     on_or_after="index_date",
+    #     date_format="YYYY-MM-DD",
+    #     find_first_match_in_period=True,
+    # ),
 
     # COVID-related death
     coviddeath_date=patients.with_these_codes_on_death_certificate(
@@ -345,20 +349,20 @@ study = StudyDefinition(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
     ),
+    
+    # Respiratory death (underlying cause only)
+    # respdeath_date=patients.with_these_codes_on_death_certificate(
+    #     resp_codes,
+    #     match_only_underlying_cause=True,
+    #     returning="date_of_death",
+    #     date_format="YYYY-MM-DD",
+    # ),
 
-      # emergency attendance for covid
+    # COVID emergency attendance 
     covidemergency_date=patients.attended_emergency_care(
         returning="date_arrived",
-        on_or_after="2022-10-01",
+        on_or_after="index_date",
         with_these_diagnoses = covid_emergency,
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-    ),
-
-      # any emergency attendance
-    emergency_date=patients.attended_emergency_care(
-        returning="date_arrived",
-        on_or_after="2022-10-01",
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
