@@ -140,9 +140,9 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 ######################################
 
 fourth_nov25 <- fourth %>%
-    subset(!is.na(age_month)) %>%
+    subset(!is.na(age_month) & (!is.na(any_death_date)|any_death_date>=as.Date("2022-11-25"))) %>%
     group_by(age_month) %>%
-    mutate(covid_vax_4 = ifelse(covid_vax_4_date < as.Date("2022-11-25"), 1, 0),
+    mutate(covid_vax_4 = if_else(covid_vax_4_date < as.Date("2022-11-25"), 1, 0, missing = 0),
            total = n()) %>%
     ungroup() %>%
     group_by(age_month, total) %>%
@@ -164,7 +164,7 @@ ggplot(subset(fourth_nov25, age_month > 564 & age_month < 636)) +
              col = "dodgerblue3") +
   scale_y_continuous(limits = c(0, 100)) +
   scale_x_continuous(breaks = seq(47,53,1)) +
-  xlab(NULL) + ylab("Received second booster COVID-19 vaccine (%)") +
+  xlab(NULL) + ylab("Received second booster\nCOVID-19 vaccine (%)") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
