@@ -58,7 +58,7 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
-      diabetes | chronic_liver_disease | chronic_neuro_disease | 
+      diabetes | chronic_liver_disease | chronic_neuro_disease |  
       chronic_heart_disease | sev_mental | sev_obesity,
     
     # Determine earliest recorded date of flu vaccination 
@@ -69,7 +69,7 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     covid_vax4_early = if_else(covid_vax_4_date < as.Date("2022-09-05"), 1, 0, missing = 0),
     
     # If received third dose prior to booster becoming available to non-immunosuppressed
-    covid_vax3_early = if_else(covid_vax_3_date < as.Date("2021-11-29"), 1, 0, missing = 0),
+    covid_vax3_early = if_else(covid_vax_3_date < as.Date("2021-09-16"), 1, 0, missing = 0),
     
     # Received 3rd dose at least 3 months prior to start of campaign
     covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
@@ -80,7 +80,7 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
     vax_priority = cv | housebound | carehome | hscworker | covid_vax4_early |
-      covid_vax3_early
+      covid_vax3_early | endoflife
   ) 
 
 ####################################################
@@ -95,8 +95,20 @@ total_pop_before_exclusions <- baseline %>%
   summarise(
          carehome = sum(carehome == 1),
          housebound = sum(housebound == 1),
+         immunosuppressed = sum(immunosuppressed == 1),
+         ckd = sum(chronic_kidney_disease == 1),
+         chronic_resp_disease = sum(chronic_resp_disease == 1),
+         diabetes = sum(diabetes == 1),
+         chronic_liver_disease = sum(chronic_liver_disease == 1),
+         chronic_neuro_disease = sum(chronic_neuro_disease == 1),
+         chronic_heart_disease = sum(chronic_heart_disease == 1),
+         sev_mental = sum(sev_mental == 1),
+         sev_obesity = sum(sev_obesity == 1),
+         endoflife = sum(endoflife == 1),
+         
          cv = sum(cv == 1),
          hscworker = sum(hscworker == 1),
+         
          covid_vax4_early = sum(covid_vax4_early == 1),
          covid_vax3_early = sum(covid_vax3_early == 1),
          
