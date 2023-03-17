@@ -58,17 +58,17 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
-      diabetes | chronic_liver_disease | chronic_neuro_disease |  
+      diabetes | chronic_liver_disease | chronic_neuro_disease |  asplenia |
       chronic_heart_disease | sev_mental | sev_obesity,
     
     # Determine earliest recorded date of flu vaccination 
     flu_vax_date = pmin(flu_vax_med_date, flu_vax_tpp_date, 
                         flu_vax_clinical_date, na.rm = TRUE),
     
-    # If received fourth dose prior to campaign start in September
+    # If received fourth dose prior to second booster campaign
     covid_vax4_early = if_else(covid_vax_4_date < as.Date("2022-09-05"), 1, 0, missing = 0),
     
-    # If received third dose prior to booster becoming available to non-immunosuppressed
+    # If received third dose prior to first booster campaign
     covid_vax3_early = if_else(covid_vax_3_date < as.Date("2021-09-16"), 1, 0, missing = 0),
     
     # Received 3rd dose at least 3 months prior to start of campaign
@@ -80,11 +80,11 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
     vax_priority = cv | housebound | carehome | hscworker | covid_vax4_early |
-      covid_vax3_early 
+      covid_vax3_early | endoflife
   ) 
 
 ####################################################
-# Overview of study population prior to exclusions #
+# Overview of study population prior to exclusions 
 ####################################################
 
 total_pop_before_exclusions <- baseline %>%
@@ -99,15 +99,16 @@ total_pop_before_exclusions <- baseline %>%
          ckd = sum(chronic_kidney_disease == 1),
          chronic_resp_disease = sum(chronic_resp_disease == 1),
          diabetes = sum(diabetes == 1),
+         asplenia = sum(asplenia == 1),
          chronic_liver_disease = sum(chronic_liver_disease == 1),
          chronic_neuro_disease = sum(chronic_neuro_disease == 1),
          chronic_heart_disease = sum(chronic_heart_disease == 1),
          sev_mental = sum(sev_mental == 1),
          sev_obesity = sum(sev_obesity == 1),
-         #endoflife = sum(endoflife == 1),
          
          cv = sum(cv == 1),
          hscworker = sum(hscworker == 1),
+         endoflife = sum(endoflife == 1),
          
          covid_vax4_early = sum(covid_vax4_early == 1),
          covid_vax3_early = sum(covid_vax3_early == 1),
@@ -117,10 +118,9 @@ total_pop_before_exclusions <- baseline %>%
          
          vax_priority = sum(vax_priority == 1)
          ) %>%
-  # Redaction
-  mutate_at(c(vars(!c(age))), redact) %>%
-  # Rounding
-  mutate_at(c(vars(!c(age))), round) 
+  ungroup() %>%
+  # Redaction and rounding
+  mutate(across(-age, redact), across(-age, rounding)) 
          
 # Save
 write.csv(total_pop_before_exclusions,
@@ -133,10 +133,12 @@ write.csv(total_pop_before_exclusions,
 #################################################
 
 final <- baseline %>%
-  subset(vax_priority == 0) 
+  subset(vax_priority == 0 &
+           covid_vax3 == 1 &
+           covid_vax2 == 1) 
 
 #Save
 write.csv(final,
-          here::here("output", "cohort", "cohort_final.csv"),
+          here::here("output", "cohort", "cohort_final_sep.csv"),
           row.names = FALSE)
  

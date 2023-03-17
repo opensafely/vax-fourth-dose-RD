@@ -23,17 +23,39 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_baseline_*.feather
-
+        
 # Generating study population at different index dates 
-  # generate_study_pop_index:
-  #   run: cohortextractor:latest generate_cohort
-  #     --study-definition study_definition_index
-  #     --index-date-range "2022-09-03 to 2023-01-28 by week" 
-  #     --output-dir=feather 
-  #     --output-format=feather
-  #   outputs:
-  #     highly_sensitive:
-  #       cohort: output/input_index_*.feather
+  generate_study_pop_index_1:
+    run: cohortextractor:latest generate_cohort
+      --study-definition study_definition_index
+      --index-date-range "2022-09-03" 
+      --output-dir=feather 
+      --output-format=feather
+    outputs:
+      highly_sensitive:
+        cohort: output/input_index_*.feather
+        
+# # Generating study population at different index dates 
+#   generate_study_pop_index_2:
+#     run: cohortextractor:latest generate_cohort
+#       --study-definition study_definition_index
+#       --index-date-range "2022-10-15" 
+#       --output-dir=feather 
+#       --output-format=feather
+#     outputs:
+#       highly_sensitive:
+#         cohort: output/input_index*.feather
+
+# # Generating study population at different index dates 
+#   generate_study_pop_index_3:
+#     run: cohortextractor:latest generate_cohort
+#       --study-definition study_definition_index
+#       --index-date-range "2022-11-26" 
+#       --output-dir=feather 
+#       --output-format=feather
+#     outputs:
+#       highly_sensitive:
+#         cohort: output/input_inde*.feather
 
 # Data processing
   data_process_baseline:
@@ -45,17 +67,22 @@ actions:
       moderately_sensitive:
         descriptive: output/descriptive/total_*.csv
 
-# Join 
-# join_cohorts:
-#     run: >
-#       cohort-joiner:v0.0.48
-#         --lhs output/input_baseline_*.csv
-#         --rhs output/input_index_*.csv
-#         --output-dir output/data
-#     needs: [generate_study_pop_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/data/input_*.csv 
+# Data processing
+  data_process_index:
+    run: r:latest analysis/processing/data_processing_index.R
+    needs: [generate_study_pop_index_1]
+    outputs:
+      moderately_sensitive:
+        descriptive: output/descriptive/num_outcomes*.csv
+
+# Discontinuity of demographics
+  demographics:
+   run: r:latest analysis/descriptive/demographics_byage.R
+   needs: [generate_study_pop_baseline, data_process_baseline]
+   outputs:
+      moderately_sensitive:
+        measures_csv: output/descriptive/demographics_*.csv
+
 
 # Cumulative uptake of fourth dose #
   # cumulative_fourth_dose:
@@ -75,14 +102,6 @@ actions:
   #       measure_csv: output/cumulative_rates/flu_*.csv
   #       plot: output/cumulative_rates/plot_flu_vax_byage.png
 
-# Discontinuity of demographics
-  # demographics:
-  #  run: r:latest analysis/descriptive/demographics_byage.R
-  #  needs: [generate_study_pop]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/variables_by_age/demographics_*.csv
-  #       plot: output/variables_by_age/plot_*.png
 
 # Outcome plots #
   # covid_outcomes:

@@ -51,6 +51,8 @@ study = StudyDefinition(
         (sex = "M" OR sex = "F")
         AND
         NOT has_died
+        AND
+        has_follow_up
         """,
         registered = patients.registered_as_of(
             "index_date",
@@ -258,23 +260,18 @@ study = StudyDefinition(
 
     # Chronic Neurological Disease including Learning Disorder
     chronic_neuro_disease=patients.satisfying(
-        """
-        cns_disease OR
-        learndis
-        """,
-        # Chronic Neurological Disease 
-        cns_disease=patients.with_these_clinical_events(
+        """cns_cov OR learndis """,
+        # Chronic neurological disease
+        cns_cov=patients.with_these_clinical_events(
             cns_cov,
             returning="binary_flag",
             on_or_before="index_date - 1 day",
-            return_expectations = {"incidence": 0.01},
-            ),
+        ),
         # Wider Learning Disability
         learndis=patients.with_these_clinical_events(
             learndis,
             returning="binary_flag",
             on_or_before="index_date - 1 day",
-            return_expectations = {"incidence": 0.01},
         ),
     return_expectations = {"incidence": 0.01},
     ),
@@ -427,29 +424,51 @@ study = StudyDefinition(
 
     # Immunosupressive conditions / medications #
     immunosuppressed=patients.satisfying(
-        "immrx OR immdx OR hiv_aids",
+        """
+        immrx OR 
+        immdx OR 
+        hiv_aids OR 
+        solid_organ_transplant OR
+        cancer_haem OR
+        cancer_nonhaem
+        """,
         # Immunosuppression diagnosis codes
         immdx=patients.with_these_clinical_events(
             immdx_cov,
             returning="binary_flag",
             on_or_before="index_date - 1 day",
-            return_expectations = {"incidence": 0.01},
         ),
         # Immunosuppression medication codes
         immrx=patients.with_these_medications(
             immrx,
             returning="binary_flag",
             between=["index_date - 182 days", "index_date - 1 day"],
-            return_expectations = {"incidence": 0.01},
         ),       
         # HIV / AIDS
         hiv_aids = patients.with_these_clinical_events( 
             hiv_aids,
             on_or_before="index_date - 1 day",
             returning="binary_flag",
-            return_expectations = {"incidence": 0.005},
         ), 
-        return_expectations = {"incidence": 0.01},
+        # Solid organ transplant
+        solid_organ_transplant = patients.with_these_clinical_events( 
+            solid_organ_transplant,
+            on_or_before="index_date - 1 day",
+            returning="binary_flag",
+        ), 
+        # Haematological cancer
+        cancer_haem = patients.with_these_clinical_events(
+            cancer_haem_snomed,
+            returning="binary_flag",
+            between=["index_date - 3 years", "index_date - 1 day"],
+        ),
+        # Solid cancer
+        cancer_nonhaem = patients.with_these_clinical_events( 
+            cancer_nonhaem_snomed,
+            between=["index_date - 3 years", "index_date - 1 day"],
+            returning="binary_flag",
+        ), 
+    return_expectations = {"incidence": 0.01},
     ),
   
     # Asplenia or Dysfunction of the Spleen 
@@ -460,45 +479,24 @@ study = StudyDefinition(
         return_expectations = {"incidence": 0.01},
     ),
   
-    # ### Cancer ###
-    # # Haematological cancer
-    # cancer_haem = patients.with_these_clinical_events(
-    #     cancer_haem_snomed,
-    #     returning="binary_flag",
-    #     between=["index_date - 3 years", "index_date - 1 day"],
-    # ),
-    # # Solid cancer
-    # cancer_nonhaem = patients.with_these_clinical_events( 
-    #     cancer_nonhaem_snomed,
-    #     between=["index_date - 3 years", "index_date - 1 day"],
-    #     returning="binary_flag",
-    # ), 
-  
-    # # Solid organ transplant
-    # solid_organ_transplant = patients.with_these_clinical_events( 
-    #     solid_organ_transplant,
-    #     on_or_before="index_date - 1 day",
-    #     returning="binary_flag",
-    # ), 
-
     # End of life
-    # endoflife = patients.satisfying(
-    #     """
-    #     midazolam OR
-    #     endoflife_coding
-    #     """,
-    #     midazolam = patients.with_these_medications(
-    #         midazolam,
-    #         returning="binary_flag",
-    #         on_or_before = "index_date - 1 day",
-    #     ),
-    #     endoflife_coding = patients.with_these_clinical_events(
-    #         eol,
-    #         returning="binary_flag",
-    #         on_or_before = "index_date - 1 day",
-    #         find_last_match_in_period = True,
-    #     ),
-    # ),
+    endoflife = patients.satisfying(
+        """
+        midazolam OR
+        endoflife_coding
+        """,
+        midazolam = patients.with_these_medications(
+            midazolam,
+            returning="binary_flag",
+            on_or_before = "index_date - 1 day",
+        ),
+        endoflife_coding = patients.with_these_clinical_events(
+            eol,
+            returning="binary_flag",
+            on_or_before = "index_date - 1 day",
+            find_last_match_in_period = True,
+        ),
+    ),
     
     # Housebound
     housebound = patients.satisfying(
