@@ -80,7 +80,7 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
     vax_priority = cv | housebound | carehome | hscworker | covid_vax4_early |
-      covid_vax3_early | endoflife
+      covid_vax3_early 
   ) 
 
 ####################################################
@@ -104,7 +104,7 @@ total_pop_before_exclusions <- baseline %>%
          chronic_heart_disease = sum(chronic_heart_disease == 1),
          sev_mental = sum(sev_mental == 1),
          sev_obesity = sum(sev_obesity == 1),
-         endoflife = sum(endoflife == 1),
+         #endoflife = sum(endoflife == 1),
          
          cv = sum(cv == 1),
          hscworker = sum(hscworker == 1),
@@ -118,13 +118,9 @@ total_pop_before_exclusions <- baseline %>%
          vax_priority = sum(vax_priority == 1)
          ) %>%
   # Redaction
-  mutate_at(c(vars(c(carehome, housebound, cv, hscworker, 
-                     vax_priority, covid_vax4_early,
-                     covid_vax3_early, covid_vax3, covid_vax2))), redact) %>%
+  mutate_at(c(vars(!c(age))), redact) %>%
   # Rounding
-  mutate_at(c(vars(c(carehome, housebound, cv, hscworker, 
-                     vax_priority, covid_vax4_early,
-                     covid_vax3_early, covid_vax3, covid_vax2))), round) 
+  mutate_at(c(vars(!c(age))), round) 
          
 # Save
 write.csv(total_pop_before_exclusions,
