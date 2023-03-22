@@ -25,6 +25,8 @@ dir_create(here::here("output"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 
+end_date = as.Date("2023-02-04")
+
 
 #######################################
 # Functions
@@ -40,13 +42,12 @@ rounding <- function(vars) {
   round(vars / 5) * 5
 }
 
-
 #######################################
 # Prepare data
 #######################################
 
 # Read in and clean data 
-baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather")) %>%
+baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
   mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%    
   mutate(dob = as.Date(as.character(as.POSIXct(dob)), format = "%Y-%m-%d"),
          
@@ -65,22 +66,44 @@ baseline <- read_feather(here::here("output", "input_baseline_2022-09-03.feather
     flu_vax_date = pmin(flu_vax_med_date, flu_vax_tpp_date, 
                         flu_vax_clinical_date, na.rm = TRUE),
     
+    # Received booster in 2022/23
+    booster = if_else((covid_vax_3_date >= as.Date("2022-09-05") & 
+                         covid_vax_3_date < end_date) |
+                        (covid_vax_4_date >= as.Date("2022-09-05") &
+                         covid_vax_4_date < end_date),
+                        1, 0, 0),
+    
+    # Booster date (if received)
+    boost_date = if_else(booster == 1,
+                         pmin(covid_vax_3_date, covid_vax_4_date, na.rm = TRUE),
+                         NA_Date_),
+    
     # If received fourth dose prior to second booster campaign
     covid_vax4_early = if_else(covid_vax_4_date < as.Date("2022-09-05"), 1, 0, missing = 0),
     
     # If received third dose prior to first booster campaign
     covid_vax3_early = if_else(covid_vax_3_date < as.Date("2021-09-16"), 1, 0, missing = 0),
     
-    # Received 3rd dose at least 3 months prior to start of campaign
-    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    # Received another COVID vaccine in 3 months prior to start of campaign
+    covid_vax_recent = if_else(( 
+                                (covid_vax_3_date >= as.Date("2022-07-15") &
+                                 covid_vax_3_date <= as.Date("2022-10-15")) |
+                                (covid_vax_2_date >= as.Date("2022-07-15") &
+                                 covid_vax_2_date <= as.Date("2022-10-15")) |
+                                (covid_vax_1_date >= as.Date("2022-07-15") &
+                                 covid_vax_1_date <= as.Date("2022-10-15"))
+                                ), 1, 0, missing = 0),
     
     # Received 2nd dose at least 3 months prior to start of campaign
     covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, missing = 0),
     
+    # Received 3rd dose at least 3 months prior to start of campaign
+    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
     vax_priority = cv | housebound | carehome | hscworker | covid_vax4_early |
-      covid_vax3_early | endoflife
+      covid_vax3_early
   ) 
 
 ####################################################
@@ -116,6 +139,8 @@ total_pop_before_exclusions <- baseline %>%
          covid_vax3 = sum(covid_vax3 == 1),
          covid_vax2 = sum(covid_vax2 == 1),
          
+         covid_vax_recent = sum(covid_vax_recent == 1),
+         
          vax_priority = sum(vax_priority == 1)
          ) %>%
   ungroup() %>%
@@ -133,9 +158,15 @@ write.csv(total_pop_before_exclusions,
 #################################################
 
 final <- baseline %>%
-  subset(vax_priority == 0 &
-           covid_vax3 == 1 &
-           covid_vax2 == 1) 
+  subset( # Exclude clinical priority groups
+            vax_priority == 0 &
+          # Include people who received both primary doses
+            covid_vax2 == 1 &
+          # Exclude if recently received COVID-19 vaccine
+            covid_vax_recent == 0 &
+          # Exclude if at end of life
+            endoflife == 0) %>%
+  dplyr::select(!c(vax_priority, covid_vax))
 
 #Save
 write.csv(final,

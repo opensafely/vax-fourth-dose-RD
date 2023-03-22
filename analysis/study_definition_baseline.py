@@ -94,6 +94,12 @@ study = StudyDefinition(
          }
     ),
 
+    # Date of death
+    dod = patients.died_from_any_cause(
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+
     ###########################################################
     # Demographics - for confirming that population is 
     #   consistent over time (before/after discontinuity)
