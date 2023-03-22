@@ -61,14 +61,14 @@ actions:
       moderately_sensitive:
         measures_csv: output/descriptive/demographics_*.csv
 
-# Cumulative uptake of fourth dose #
-  # cumulative_fourth_dose:
-  #  run: r:latest analysis/descriptive/cumulative_vax_byage.R
-  #  needs: [data_process]
-  #  outputs:
-  #     moderately_sensitive:
-  #       rates_csv: output/cumulative_rates/final_*.csv 
-  #       plot: output/cumulative_rates/plot_*.png
+# Plots of COVID booster uptake by age
+  booster_update:
+   run: r:latest analysis/descriptive/cumulative_vax_byage.R
+   needs: [data_process_baseline]
+   outputs:
+      moderately_sensitive:
+        rates_csv: output/cumulative_rates/final_*.csv 
+        plot: output/cumulative_rates/plot_*.png
 
 # Flu vaccine uptake #
   # flu_vax:
