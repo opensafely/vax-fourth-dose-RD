@@ -127,6 +127,9 @@ primary_by_age_nov26 <- primary("2022-11-26")
 primary_by_age_all <- 
   rbind(primary_by_age_sep06, primary_by_age_oct15, primary_by_age_nov26)
 
+write.csv(primary_by_age_all, here::here("output", "covid_outcomes", "primary_by_age_all.csv"),
+          row.names = FALSE)
+
 ### Number of event by week
 ggplot(subset(primary_by_age_all, age_mos > 564 & age_mos < 636)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
