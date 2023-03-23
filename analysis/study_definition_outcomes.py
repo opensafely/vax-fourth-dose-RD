@@ -45,7 +45,28 @@ study = StudyDefinition(
     index_date = "2022-09-03",
 
     population=patients.which_exist_in_file(COHORT),
-    
+
+    # Date of birth month/year
+    dob=patients.with_value_from_file(
+        COHORT,
+        returning="dob",
+        returning_type="date",
+    ),
+
+    # Date of death
+    dod=patients.with_value_from_file(
+        COHORT,
+        returning="dod",
+        returning_type="date",
+    ),
+
+    # Flu vax
+    flu_vax_date=patients.with_value_from_file(
+        COHORT,
+        returning="flu_vax_date",
+        returning_type="date",
+    ),
+
     ############################################################
     ## OUTCOMES
     ############################################################

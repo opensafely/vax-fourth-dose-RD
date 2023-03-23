@@ -22,152 +22,125 @@ library('RColorBrewer')
 
 ## Create directories
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 
 ## Function for rounding
 redact <- function(vars) {
-  case_when(vars > 5 ~ vars)
+  case_when(vars > 7 ~ vars)
 }
 
 rounding <- function(vars) {
-  round(vars / 7) * 7
+  round(vars / 5) * 5
 }
 
 #######################################
-# Prepare data
+# Read in data
 #######################################
 
-# Read in data
-outcomes <- read_feather(here::here("output", "input_fourth.feather")) %>% 
-  mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
-  subset(age >= 45 & age < 55) %>%
-  group_by(age) %>%
-  # Calculate denominator (num people per age year)
-    # Everyone alive at 1 Oct 22 (ignore deaths for now)
-  mutate(total_age1 = n()) %>%
-  ungroup() %>%
-  dplyr::select(!c(sex, age_cat, flu_vax_med_date, 
-                   flu_vax_tpp_date, flu_vax_clinical_date,
-                   ethnicity, region, imd,
-                   contains("covid_vax")))
+primary_outcomes <- read_csv(here::here("output", "cohort", "primary_outcomes.csv")) %>% 
+  mutate(date = as.Date(date, format = "%Y-%m-%d"))
 
-# Convert to long
-outcomes_long <- outcomes %>%
-  melt(id = c("patient_id", "age", "total_age1"),
-       value.name = "date", na.rm = TRUE) %>%
-  # Create week variable
-  mutate(week = floor_date(as.Date(date), unit="week", week_start = 1)) %>%
-  subset(week >= as.Date("2022-10-02"))
-
-# Calculate number of outcomes of each type per week
-  # Count all events for now (not just first)
-outcomes_sum_1 <- outcomes_long %>%
-  group_by(age, total_age1, week, variable) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate(outcome = case_when(
-                      variable == "covidadmitted_date" ~ "COVID admission",
-                      variable == "coviddeath_date" ~ "COVID death",
-                      variable == "any_death_date" ~ "Any death",
-                      variable == "admitted_unplanned_date" ~ "Any unplanned admission",
-                      variable == "covidemergency_date" ~ "COVID ED",
-                      variable == "emergency_date" ~ "Any ED")) %>%
-  select(!variable)
-
-# Calculate number of composite outcome (COVID admission/death) of each type per week
-  # Count all events for now (not just first)
-  # If multiple in a given week count once
-outcomes_sum_2 <- outcomes_long %>%
-  subset(variable %in% c("covidadmitted_date", "coviddeath_date", "covidemergency_date")) %>%
-  group_by(age, total_age1, week) %>%
-  summarise(cnt = n_distinct(patient_id)) %>%
-  mutate(outcome = "COVID death or admission or ED")
-
-# Combine all outcomes counts together into one file
-outcomes_byweek <- rbind(outcomes_sum_1, outcomes_sum_2) %>%
-  arrange(age, outcome, week) %>%
-  group_by(age, total_age1, outcome) %>%
-  # Fill in missing weeks
-  complete(week = seq(min(as.Date("2022-10-03")),
-                      max(as.Date("2022-12-25")), by = '1 week')) %>%
-  # Rounding
-  mutate(
-         cnt = case_when(cnt > 5 ~ cnt),
-         cnt = round(cnt / 7) * 7,
-         total_age1 = case_when(total_age1 > 5 ~ total_age1),
-         total_age1 = round(total_age1 / 7) * 7,
-         # Calculate rates per 100,000
-         rate = cnt / total_age1 * 100000,
-         age = as.character(age))
-
-# Save 
-write_csv(outcomes_byweek, here::here("output", "covid_outcomes", "covid_outcomes_by_week.csv"))
+secondary_outcomes <- read_csv(here::here("output", "cohort", "secondary_outcomes.csv")) %>% 
+  mutate(date = as.Date(date, format = "%Y-%m-%d"))
 
 
-#############################################
-# Number of events over entire study period 
-#  (Oct 14 to latest available)
-#############################################
+#########################################
+# Total events by age 
+#########################################
 
-outcomes_overall <- outcomes %>%
-  group_by(age, total_age1) %>%
-  # Count number of events by age
-  summarise(covid_hosp = sum(covidadmitted_date > as.Date("2022-10-14"), na.rm= TRUE),
-            covid_dth = sum(coviddeath_date > as.Date("2022-10-14"), na.rm= TRUE),
-            covid_ed = sum(covidemergency_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_dth = sum(any_death_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_hosp = sum(admitted_unplanned_date > as.Date("2022-10-14"), na.rm= TRUE),
-            any_ed = sum(emergency_date > as.Date("2022-10-14"), na.rm = TRUE),
-            covid_composite = sum(
-                  ((coviddeath_date > as.Date("2022-10-14"))|
-                  (covidadmitted_date > as.Date("2022-10-14"))|
-                  (covidemergency_date > as.Date("2022-10-14"))),
-                  na.rm = TRUE)
-                  ) %>%
-  # Redaction
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite","total_age1", "any_ed"))), redact) %>%
-  # Rounding
-  mutate_at(c(vars(c("covid_hosp", "covid_dth", "any_dth", "any_hosp", "covid_ed",
-                     "covid_composite","total_age1", "any_ed"))), rounding) %>%
-  # Calculate rates
-  mutate(covid_hosp_rate = covid_hosp / total_age1 * 100000,
-         covid_dth_rate = covid_dth / total_age1 * 100000,
-         any_dth_rate = any_dth / total_age1 * 100000,
-         covid_comp_rate = covid_composite / total_age1 * 100000,
-         any_hosp_rate = any_hosp / total_age1 * 100000,
-         covid_ed_rate = covid_ed / total_age1 * 100000,
-         any_ed_rate = any_ed / total_age1 * 100000) 
+#### Function to calculate total COVID events by index date ####
+primary <- function(index_date){
 
-# Save
-write_csv(outcomes_overall, here::here("output", "covid_outcomes", "covid_outcomes_overall.csv"))
+primary <- primary_outcomes  %>%
+  # Exclude people who died prior to index date
+  subset(is.na(dod) | dod >= as.Date(index_date)) %>%
+  
+  # Calculate age on index date
+  mutate(age_mos = (dob %--% as.Date(index_date)) %/% months(1),
+         age_yrs = (dob %--% as.Date(index_date)) %/% years(1)) %>%
+
+  group_by(age_mos) %>%
+  mutate(# Denominator by age in months
+         total = uniqueN(patient_id),
+         
+         event = if_else(date > as.Date(index_date) + 28 |
+                                  date < as.Date(index_date),
+                                  1, 0, 0)) %>%
+  group_by(patient_id, age_mos, total) %>%
+  # Create flag for people with outcome within follow-up window
+  summarise(event = max(event))
+
+primary_by_age <- primary %>%
+  group_by(age_mos, total) %>%
+  summarise(n_covid_composite = sum(event)) %>%
+  mutate_at(c(vars(n_covid_composite, total)), redact) %>%
+  mutate_at(c(vars(n_covid_composite, total)), rounding) %>%
+  mutate(rate_covid_composite = n_covid_composite / total * 100000,
+         index_date = index_date)
+
+return(primary_by_age)
+
+}
+
+primary_by_age_sep06 <- primary("2022-09-06")
+primary_by_age_oct15 <- primary("2022-10-15")
+primary_by_age_nov26 <- primary("2022-11-26")
+
+# 
+# #### Function to calculate total secondary events by index date ####
+# secondary <- function(index_date){
+#   
+#   secondary <- secondary_outcomes  %>%
+#     # Exclude people who died prior to index date
+#     subset(is.na(dod) | dod >= as.Date(index_date)) %>%
+#     
+#     # Calculate age on index date
+#     mutate(age_mos = (dob %--% as.Date(index_date)) %/% months(1),
+#            age_yrs = (dob %--% as.Date(index_date)) %/% years(1)) %>%
+#     
+#     group_by(age_mos) %>%
+#     mutate(# Denominator by age in months
+#       total = uniqueN(patient_id),
+#       
+#       event = if_else(date > as.Date(index_date) + 28 |
+#                         date < as.Date(index_date),
+#                       1, 0, 0)) %>%
+#     group_by(patient_id, age_mos, total) %>%
+#     # Create flag for people with outcome within follow-up window
+#     summarise(event = max(event))
+#   
+#   secondary_by_age <- secondary %>%
+#     group_by(age_mos, total) %>%
+#     summarise(n_covid_composite = sum(event)) %>%
+#     mutate_at(c(vars(n_covid_composite, total)), redact) %>%
+#     mutate_at(c(vars(n_covid_composite, total)), rounding) %>%
+#     mutate(pcent_covid_composite = n_covid_composite / total * 100)
+#   
+#   return(secondary_by_age)
+#}
 
 
 #######################################
 # Plots
 #######################################
 
+primary_by_age_all <- 
+  rbind(primary_by_age_sep06, primary_by_age_oct15, primary_by_age_nov26)
+
 ### Number of event by week
-ggplot(subset(outcomes_byweek, outcome != "Flu vaccination")) +
-  geom_line(aes(x = week, y = rate, group = age, col = age),
-            size = 1.25) +
-  scale_color_brewer(palette = "RdBu") +
-  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .2))) +
-  expand_limits(y=0) +
-  scale_x_continuous(breaks = c(as.Date("2022-10-02"),
-                                as.Date("2022-10-23"),
-                                as.Date("2022-11-13"),
-                                as.Date("2022-12-04"),
-                                as.Date("2022-12-24")),
-                     labels = c("Oct 2", "Oct 23", "Nov 13", "Dec 4", "Dec 24")) +
-  facet_wrap(~ outcome, ncol = 2, scales = "free_y") +
+ggplot(subset(primary_by_age_all, age_mos > 564 & age_mos < 636)) + 
+  geom_vline(aes(xintercept = 50), linetype = "longdash") +
+  geom_point(aes(x = age_mos / 12, y = pcent_covid_composite, 
+                group = index_date, col = index_date)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .2))) +
+  scale_x_continuous(breaks = seq(47,53,1)) +
+  facet_wrap(~ index_date, ncol = 2, scales = "free_y") +
   xlab(NULL) + ylab("No. events per 100,000") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_text(hjust = 0),
         legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage.png"),
        dpi = 300, units = "in", width = 8, height = 6.25)
-

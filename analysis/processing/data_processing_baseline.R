@@ -54,9 +54,6 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     # Set DOB to mid-month
     dob = dob + 14,
     
-    # Flag for above cutoff
-    over50 = (age >= 50),
-    
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
       diabetes | chronic_liver_disease | chronic_neuro_disease |  asplenia |

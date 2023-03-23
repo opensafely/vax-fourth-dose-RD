@@ -135,7 +135,7 @@ booster_nov26 <- booster %>%
 write.csv(booster_nov26,
           here::here("output", "cumulative_rates", "final_vax4_age_months.csv"), row.names = FALSE)
 
-### Plot cumulative booster dose over time
+### Plot 
 ggplot(subset(booster_nov26, age_mos > 564 & age_mos < 636)) +
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   geom_point(aes(x = age_mos / 12, y = pcent_boost), 
