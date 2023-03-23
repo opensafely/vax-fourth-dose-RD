@@ -19,6 +19,7 @@ library('dplyr')
 library('fs')
 library('ggplot2')
 library('RColorBrewer')
+library("data.table")
 
 ## Create directories
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
@@ -133,7 +134,7 @@ write.csv(primary_by_age_all, here::here("output", "covid_outcomes", "primary_by
 ### Number of event by week
 ggplot(subset(primary_by_age_all, age_mos > 564 & age_mos < 636)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
-  geom_point(aes(x = age_mos / 12, y = pcent_covid_composite, 
+  geom_point(aes(x = age_mos / 12, y = rate_covid_composite, 
                 group = index_date, col = index_date)) +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   scale_x_continuous(breaks = seq(47,53,1)) +

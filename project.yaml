@@ -66,7 +66,7 @@ actions:
 # Outcome plots #
   covid_outcomes:
    run: r:latest analysis/descriptive/covid_outcomes_byage.R
-   needs: [generate_study_pop]
+   needs: [data_process_outcomes]
    outputs:
       moderately_sensitive:
         measure_csv: output/covid_outcomes/primary_*.csv
