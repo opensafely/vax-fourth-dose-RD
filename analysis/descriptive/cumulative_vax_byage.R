@@ -7,7 +7,7 @@
 
 
 # For running locally only #
-# setwd("C:/Users/aschaffer/OneDrive - Nexus365/Documents/GitHub/vax-booster-dose-RD")
+# setwd("C:/Users/aschaffer/OneDrive - Nexus365/Documents/GitHub/vax-fourth-dose-RD")
 # getwd()
 
 # Import libraries #
@@ -65,7 +65,7 @@ booster_age1_byday <- booster %>%
   group_by(age_yrs) %>%
   mutate(total = n()) %>% # Calculate denominator (total count per age category)
   ungroup() %>%
-  subset(booster == 1) %>% # Remove people with no booster vax
+  subset(!is.na(boost_date)) %>% # Remove people with no booster vax
   group_by(age_yrs, total, boost_date) %>%
   summarise(boost_n = n()) %>% # Num vaccinated each day
   ungroup() %>%
@@ -76,7 +76,7 @@ booster_age1_byday <- booster %>%
          boost_sum = round(boost_sum / 5) * 5, # Rounding
          total = round(total / 5) * 5, # Rounding
          rate = boost_sum / total * 100) %>% # Cumulative % vaccinated each day
-  complete(boost_date = seq(min(as.Date(boost_date)),
+  complete(boost_date = seq(min(as.Date("2022-09-03")),
                                   max(end_date), by = '1 day')) %>%
   fill(c(boost_sum, rate)) %>% # Create rows for days with zero vaccinations
   ungroup() %>%
@@ -178,7 +178,9 @@ doses_by_day <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
                                   max(end_date),
                       by = '1 day')) %>%
   fill(vax_n) %>% # Create rows for days with zero vaccinations
-  ungroup()
+  ungroup() %>%
+  mutate(vax_n = case_when(vax_n > 7 ~ vax_n),
+         vax_n = round(vax_n / 5) * 5)
 
 
 ggplot(doses_by_day, aes(x = date, y = vax_n)) +

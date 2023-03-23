@@ -46,12 +46,12 @@ actions:
         cohort: output/index/input_outcomes_*.feather
 
 # Data cleaning of outcome data
-  data_process_index:
-    run: r:latest analysis/processing/data_processing_index.R
-    needs: [study_definition_outcomes]
-    outputs:
-      moderately_sensitive:
-        descriptive: output/descriptive/num_outcomes*.csv
+  # data_process_index:
+  #   run: r:latest analysis/processing/data_processing_index.R
+  #   needs: [study_definition_outcomes]
+  #   outputs:
+  #     moderately_sensitive:
+  #       descriptive: output/descriptive/num_outcomes*.csv
 
 # Discontinuity of demographics
   demographics:
@@ -62,7 +62,7 @@ actions:
         measures_csv: output/descriptive/demographics_*.csv
 
 # Plots of COVID booster uptake by age
-  booster_update:
+  booster_uptake:
    run: r:latest analysis/descriptive/cumulative_vax_byage.R
    needs: [data_process_baseline]
    outputs:
