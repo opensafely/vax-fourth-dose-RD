@@ -91,7 +91,8 @@ covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covi
 covidcomposite <- rbind(covidcomposite_sep, covidcomposite_nov)
   
 # Save file for plot
-write.csv(covidcomposite, here::here("output", "covid_outcomes", "plot_covidcomposite_age.csv"))
+write.csv(covidcomposite, here::here("output", "covid_outcomes", "plot_covidcomposite_age.csv"),
+          row.names = FALSE)
   
 
 ############################################################
