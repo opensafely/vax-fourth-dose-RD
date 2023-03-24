@@ -33,22 +33,46 @@ actions:
       moderately_sensitive:
         descriptive: output/descriptive/total_*.csv
 
- # Extract outcomes based on final study pop
-  generate_study_pop_outcomes:
+ # Extract outcomes pre-campaign (index date = Sep 3)
+  outcomes_sep:
     run: cohortextractor:latest generate_cohort
-      --study-definition study_definition_outcomes
-      --index-date-range "2022-09-03 to 2023-01-31 by week" 
+      --study-definition study_definition_outcomes_1
+      --index-date-range "2022-09-03" 
       --output-dir=feather 
       --output-format=feather
     needs: [data_process_baseline]
     outputs:
       highly_sensitive:
-        cohort: output/index/input_outcomes_*.feather
+        cohort: output/index/input_*.feather
+
+ # Extract outcomes mid-campaign (index date = Oct 15)
+  outcomes_oct:
+    run: cohortextractor:latest generate_cohort
+      --study-definition study_definition_outcomes_1
+      --index-date-range "2022-10-15" 
+      --output-dir=feather 
+      --output-format=feather
+    needs: [data_process_baseline]
+    outputs:
+      highly_sensitive:
+        cohort: output/index/input*.feather
+
+ # Extract outcomes during-campaign (index date = Nov 26)
+  outcomes_nov:
+    run: cohortextractor:latest generate_cohort
+      --study-definition study_definition_outcomes_2
+      --index-date-range "2022-11-26 to 2023-01-31 by week" 
+      --output-dir=feather 
+      --output-format=feather
+    needs: [data_process_baseline]
+    outputs:
+      highly_sensitive:
+        cohort: output/index/inpu*.feather
 
 # Data cleaning of outcome data
   data_process_outcomes:
     run: r:latest analysis/processing/data_process_outcomes.R
-    needs: [generate_study_pop_outcomes]
+    needs: [outcomes_sep, outcomes_oct, outcomes_nov]
     outputs:
       highly_sensitive:
         outcomes: output/cohort/outcomes*.csv
@@ -68,18 +92,8 @@ actions:
    needs: [data_process_outcomes]
    outputs:
       moderately_sensitive:
-        measure_csv: output/covid_outcomes/primary_*.csv
-        plot: output/covid_outcomes/plot_outcomes_*.png
-
-        
-# Check max #
-  check_max:
-   run: r:latest analysis/processing/check_max.R
-   needs: [generate_study_pop_outcomes]
-   outputs:
-      moderately_sensitive:
-        measure_csv: output/descriptive/check_max.csv
-   
+        measure_csv: output/covid_outcomes/plot_*.csv
+        plot: output/covid_outcomes/plot_*.png
 
 # Discontinuity of demographics
   # demographics:
@@ -100,12 +114,12 @@ actions:
   #       plot: output/cumulative_rates/plot_flu_vax_byage.png
 
 # ITT analysis #
-  itt_analysis:
-   run: r:latest analysis/statistical_analysis/itt_analysis.R
-   needs: [data_process_outcomes]
-   outputs:
-      moderately_sensitive:
-        measure_csv: output/covid_outcomes/outcome_*.csv
+  # itt_analysis:
+  #  run: r:latest analysis/statistical_analysis/itt_analysis.R
+  #  needs: [data_process_outcomes]
+  #  outputs:
+  #     moderately_sensitive:
+  #       measure_csv: output/covid_outcomes/outcome_*.csv
 
 # Outcome plots #
   # covid_outcomes:

@@ -74,7 +74,7 @@ study = StudyDefinition(
     ## Hospitalisations ##
     
     # Unplanned hospital admission (all cause)
-    admitted_unplanned_date_1=patients.admitted_to_hospital(
+    admitted_unplanned_date=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
@@ -84,7 +84,7 @@ study = StudyDefinition(
     ),
   
     # COVID unplanned admission
-    covidadmitted_date_1=patients.admitted_to_hospital(
+    covidadmitted_date=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
@@ -93,7 +93,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
     ),   
     # Respiratory unplanned admission (primary diagnosis only)
-    respadmitted_date_1=patients.admitted_to_hospital(
+    respadmitted_date=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
@@ -124,7 +124,7 @@ study = StudyDefinition(
     ),
 
     # COVID emergency attendance 
-    covidemergency_date_1=patients.attended_emergency_care(
+    covidemergency_date=patients.attended_emergency_care(
         returning="date_arrived",
         between=["index_date","index_date + 28 days"],
         with_these_diagnoses = covid_emergency,
