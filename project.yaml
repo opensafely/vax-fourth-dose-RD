@@ -76,6 +76,9 @@ actions:
   check_max:
    run: r:latest analysis/processing/check_max.R
    needs: [generate_study_pop_outcomes]
+   outputs:
+      moderately_sensitive:
+        log: metadata/check_max.log
    
 
 # Discontinuity of demographics
