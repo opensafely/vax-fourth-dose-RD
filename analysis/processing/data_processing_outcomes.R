@@ -89,3 +89,16 @@ secondary_outcomes <- rbind(
 
 # Save #
 write_csv(secondary_outcomes, here::here("output", "cohort", "secondary_outcomes.csv"))
+
+
+#####################################
+# Checks
+#####################################
+
+check_max <- all.indexes %>%
+  summarise(covidadmitted_max = max(covidadmitted_num),
+            covidemergency_max = max(covidemergency_num),
+            respadmitted_max = max(respadmitted_num),
+            admitted_unplanned_max = max(admitted_unplanned_num))
+
+write_csv(check_max, here::here("output", "descriptive", "check_max_num.csv"))

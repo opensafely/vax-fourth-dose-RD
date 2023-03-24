@@ -53,6 +53,7 @@ actions:
       highly_sensitive:
         primary_outcomes: output/cohort/primary_outcomes.csv
         secondary_outcomes: output/cohort/secondary_outcomes.csv
+        check: output/descriptive/check_max_num.csv
 
 # Plots of COVID booster uptake by age
   booster_uptake:
