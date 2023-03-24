@@ -78,7 +78,7 @@ actions:
    needs: [generate_study_pop_outcomes]
    outputs:
       moderately_sensitive:
-        log: metadata/check_max.log
+        measure_csv: output/descriptive/check_max.csv
    
 
 # Discontinuity of demographics

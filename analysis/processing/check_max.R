@@ -51,4 +51,5 @@ index.dates <- map(list.files, read_feather)
     unique() %>%
     summarise(admitted_unplanned_max = max(admitted_unplanned_num, na.rm = TRUE))
   
- print(combined)
+ write.csv(combined, here::here("output", "descriptive", "check_max.csv"), row.names = TRUE)
+ 
