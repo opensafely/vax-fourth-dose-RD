@@ -9,7 +9,7 @@
 version: '3.0'
 
 expectations:
-  population_size: 10000
+  population_size: 10000000
 
 actions:
 
@@ -25,7 +25,7 @@ actions:
       
 # Data cleaning, defining exclusions, saving final study pop
   data_process_baseline:
-    run: r:latest analysis/processing/data_processing_baseline.R
+    run: r:latest analysis/processing/data_process_baseline.R
     needs: [generate_study_pop_baseline]
     outputs:
       highly_sensitive:
@@ -34,7 +34,7 @@ actions:
         descriptive: output/descriptive/total_*.csv
 
  # Extract outcomes based on final study pop
-  study_definition_outcomes:
+  generate_study_pop_outcomes:
     run: cohortextractor:latest generate_cohort
       --study-definition study_definition_outcomes
       --index-date-range "2022-09-03 to 2023-01-31 by week" 
@@ -47,13 +47,11 @@ actions:
 
 # Data cleaning of outcome data
   data_process_outcomes:
-    run: r:latest analysis/processing/data_processing_outcomes.R
-    needs: [study_definition_outcomes]
+    run: r:latest analysis/processing/data_process_outcomes.R
+    needs: [generate_study_pop_outcomes]
     outputs:
       highly_sensitive:
-        primary_outcomes: output/cohort/primary_outcomes.csv
-        secondary_outcomes: output/cohort/secondary_outcomes.csv
-        check: output/descriptive/check_max_num.csv
+        outcomes: output/cohort/outcomes*.csv
 
 # Plots of COVID booster uptake by age
   booster_uptake:
@@ -66,12 +64,19 @@ actions:
 
 # Outcome plots #
   covid_outcomes:
-   run: r:latest analysis/descriptive/covid_outcomes_byage.R
+   run: r:latest analysis/descriptive/plot_outcomes_byage.R
    needs: [data_process_outcomes]
    outputs:
       moderately_sensitive:
         measure_csv: output/covid_outcomes/primary_*.csv
         plot: output/covid_outcomes/plot_outcomes_*.png
+
+        
+# Check max #
+  check_max:
+   run: r:latest analysis/processing/check_max.R
+   needs: [generate_study_pop_outcomes]
+   
 
 # Discontinuity of demographics
   # demographics:
@@ -91,6 +96,13 @@ actions:
   #       measure_csv: output/cumulative_rates/flu_*.csv
   #       plot: output/cumulative_rates/plot_flu_vax_byage.png
 
+# ITT analysis #
+  itt_analysis:
+   run: r:latest analysis/statistical_analysis/itt_analysis.R
+   needs: [data_process_outcomes]
+   outputs:
+      moderately_sensitive:
+        measure_csv: output/covid_outcomes/outcome_*.csv
 
 # Outcome plots #
   # covid_outcomes:
@@ -102,7 +114,7 @@ actions:
   #       plot: output/covid_outcomes/plot_outcomes_*.png
   
 
-# ITT analysis #
+
 
 
 # IV analysis #
