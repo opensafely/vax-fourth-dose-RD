@@ -37,9 +37,19 @@ source(here::here("analysis", "custom_functions.R"))
 covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"),
                                col_types = cols(
                                  dod = col_date(format = "%Y-%m-%d"),
-                                 dob = col_date(format = "%Y-%m-%d")
+                                 dob = col_date(format = "%Y-%m-%d"),
+                                 flu_vax_date = col_date(format = "%Y-%m-%d"),
+                                 admitted_unplanned_date = col_date(format = "%Y-%m-%d"),
+                                 covidadmitted_date = col_date(format = "%Y-%m-%d"),
+                                 respadmitted_date = col_date(format = "%Y-%m-%d"),
+                                 coviddeath_date = col_date(format = "%Y-%m-%d"),
+                                 any_death_date = col_date(format = "%Y-%m-%d"),
+                                 respdeath_date = col_date(format = "%Y-%m-%d"),
+                                 covidemergency_date = col_date(format = "%Y-%m-%d"),
+                                 covidcomposite_date = col_date(format = "%Y-%m-%d")
                                )) %>%
   dplyr::select(c(covidcomposite, dod, dob, patient_id)) %>%
+  unique() %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
          age_mos = (dob %--% "2022-09-03") %/% months(1),
@@ -52,10 +62,14 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
     total = data.table::uniqueN(patient_id)) %>%
+  ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite),
-            n_covidcomposite = redact(n_covidcomposite),
+  summarise(n_covidcomposite = sum(covidcomposite == 1),
+            rate = n_covidcomposite / total * 100000) 
+
+covidcomposite_sep_red <- covidcomposite_sep %>%
+  mutate(n_covidcomposite = redact(n_covidcomposite),
             n_covidcomposite = rounding(n_covidcomposite),
             total = redact(total), 
             total = rounding(total),
@@ -65,9 +79,18 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
 
 covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"),
                                col_types = cols(
-                                 covid_date = col_date(format = "%Y-%m-%d"),
                                  dod = col_date(format = "%Y-%m-%d"),
-                                 dob = col_date(format = "%Y-%m-%d"))) %>%
+                                 dob = col_date(format = "%Y-%m-%d"),
+                                 flu_vax_date = col_date(format = "%Y-%m-%d"),
+                                 admitted_unplanned_date = col_date(format = "%Y-%m-%d"),
+                                 covidadmitted_date = col_date(format = "%Y-%m-%d"),
+                                 respadmitted_date = col_date(format = "%Y-%m-%d"),
+                                 coviddeath_date = col_date(format = "%Y-%m-%d"),
+                                 any_death_date = col_date(format = "%Y-%m-%d"),
+                                 respdeath_date = col_date(format = "%Y-%m-%d"),
+                                 covidemergency_date = col_date(format = "%Y-%m-%d"),
+                                 covid_date = col_date(format = "%Y-%m-%d")
+                               )) %>%
   mutate(covidcomposite = if_else(covid_date >= as.Date("2022-11-26") &
                                     covid_date <= as.Date("2022-12-24"),
                                   1, 0, 0)) %>%
@@ -85,21 +108,27 @@ covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covi
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
     total = data.table::uniqueN(patient_id)) %>%
+  ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite),
-            n_covidcomposite = redact(n_covidcomposite),
-            n_covidcomposite = rounding(n_covidcomposite),
-            total = redact(total), 
-            total = rounding(total),
+  summarise(n_covidcomposite = sum(covidcomposite == 1),
             rate = n_covidcomposite / total * 100000) 
-  
+
+covidcomposite_nov_red <- covidcomposite_nov %>%
+  mutate(n_covidcomposite = redact(n_covidcomposite),
+         n_covidcomposite = rounding(n_covidcomposite),
+         total = redact(total), 
+         total = rounding(total),
+         rate = n_covidcomposite / total * 100000) 
 
 # Combine data for plot and save
 covidcomposite <- rbind(covidcomposite_sep, covidcomposite_nov)
-  
+covidcomposite_red <- rbind(covidcomposite_sep_red, covidcomposite_nov_red)
+
 # Save file for plot
 write.csv(covidcomposite, here::here("output", "covid_outcomes", "plot_covidcomposite_age.csv"),
+          row.names = FALSE)
+write.csv(covidcomposite_red, here::here("output", "covid_outcomes", "plot_covidcomposite_age_redacted.csv"),
           row.names = FALSE)
   
 
@@ -107,7 +136,7 @@ write.csv(covidcomposite, here::here("output", "covid_outcomes", "plot_covidcomp
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(subset(covidcomposite, age_mos > 564 & age_mos < 636)) + 
+ggplot(subset(covidcomposite_red, age_mos > 564 & age_mos < 636)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   geom_point(aes(x = age_mos / 12, y = rate, 
                  group = start_date, col = start_date)) +
