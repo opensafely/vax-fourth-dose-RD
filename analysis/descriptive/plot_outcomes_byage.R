@@ -47,7 +47,12 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
                                  respdeath_date = col_date(format = "%Y-%m-%d"),
                                  covidemergency_date = col_date(format = "%Y-%m-%d"),
                                  covidcomposite_date = col_date(format = "%Y-%m-%d")
-                               )) %>%
+                               )) 
+
+
+print(nrow(covidcomposite_sep))
+
+covidcomposite_sep <- covidcomposite_sep %>%
   dplyr::select(c(covidcomposite, dod, dob, patient_id)) %>%
   unique() %>%
   mutate(start_date = "September 3",
@@ -82,15 +87,19 @@ covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covi
                                  dod = col_date(format = "%Y-%m-%d"),
                                  dob = col_date(format = "%Y-%m-%d"),
                                  flu_vax_date = col_date(format = "%Y-%m-%d"),
-                                 admitted_unplanned_date = col_date(format = "%Y-%m-%d"),
-                                 covidadmitted_date = col_date(format = "%Y-%m-%d"),
-                                 respadmitted_date = col_date(format = "%Y-%m-%d"),
-                                 coviddeath_date = col_date(format = "%Y-%m-%d"),
+                                 admitted_unplanned_date_1 = col_date(format = "%Y-%m-%d"),
+                                 covidadmitted_date_1 = col_date(format = "%Y-%m-%d"),
+                                 respadmitted_date_1 = col_date(format = "%Y-%m-%d"),
+                                 coviddeath_date_1 = col_date(format = "%Y-%m-%d"),
                                  any_death_date = col_date(format = "%Y-%m-%d"),
                                  respdeath_date = col_date(format = "%Y-%m-%d"),
-                                 covidemergency_date = col_date(format = "%Y-%m-%d"),
-                                 covid_date = col_date(format = "%Y-%m-%d")
-                               )) %>%
+                                 covidemergency_date_1 = col_date(format = "%Y-%m-%d")
+                               )) 
+
+
+print(nrow(covidcomposite_nov))
+
+covidcomposite_nov <- covidcomposite_nov %>%
   mutate(covidcomposite = if_else(covid_date >= as.Date("2022-11-26") &
                                     covid_date <= as.Date("2022-12-24"),
                                   1, 0, 0)) %>%
