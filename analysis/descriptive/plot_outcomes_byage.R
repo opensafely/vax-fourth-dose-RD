@@ -49,7 +49,6 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
                                  covidcomposite_date = col_date(format = "%Y-%m-%d")
                                )) 
 
-
 print(nrow(covidcomposite_sep))
 
 covidcomposite_sep <- covidcomposite_sep %>%
@@ -59,14 +58,13 @@ covidcomposite_sep <- covidcomposite_sep %>%
          # Calculate age on index date
          age_mos = (dob %--% "2022-09-03") %/% months(1),
          age_mos = as.integer(age_mos)) %>%
-  
   # Exclude people who died prior to index date
   subset((age_mos > 564 & age_mos < 636) &
-           is.na(dod) | dod >= as.Date("2022-09-03" )) %>%
+           (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
-    total = data.table::uniqueN(patient_id)) %>%
+    total = n()) %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
@@ -112,11 +110,11 @@ covidcomposite_nov <- covidcomposite_nov %>%
   
   # Exclude people who died prior to index date
   subset((age_mos > 564 & age_mos < 636) &
-           is.na(dod) | dod >= as.Date("2022-11-26")) %>%
+           (is.na(dod) | dod >= as.Date("2022-11-26"))) %>%
   
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
-    total = data.table::uniqueN(patient_id)) %>%
+    total = n()) %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
