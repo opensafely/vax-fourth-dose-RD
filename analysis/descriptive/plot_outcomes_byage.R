@@ -69,6 +69,7 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
 index_date = "2022-11-26"
 
 covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"),
+                               col_select = c(covid_date, dod, dob, patient_id),
                                col_types = cols(
                                  covid_date = col_date(format = "%Y-%m-%d"),
                                  dod = col_date(format = "%Y-%m-%d"),
