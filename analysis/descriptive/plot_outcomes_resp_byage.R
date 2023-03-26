@@ -34,12 +34,12 @@ source(here::here("analysis", "custom_functions.R"))
 #########################################
 
 # Extract outcomes for pre-vax campaign and during campaign
-covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"))
+respadmit_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"))
 
-print(nrow(covidcomposite_sep))
+print(nrow(respadmit_sep))
 
-covidcomposite_sep <- covidcomposite_sep %>%
-  dplyr::select(c(covidcomposite, dod, dob, patient_id)) %>%
+respadmit_sep <- respadmit_sep %>%
+  dplyr::select(c(respadmitted, dod, dob, patient_id)) %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
          age_mos = (dob %--% "2022-09-03") %/% months(1)) %>%
@@ -52,27 +52,25 @@ covidcomposite_sep <- covidcomposite_sep %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite == 1)) %>%
-  mutate(rate = n_covidcomposite / total * 100000) 
+  summarise(n_respadmit = sum(respadmitted == 1)) %>%
+  mutate(rate = n_respadmit / total * 100000) 
 
-covidcomposite_sep_red <- covidcomposite_sep %>%
-  mutate(n_covidcomposite = redact(n_covidcomposite),
-            n_covidcomposite = rounding(n_covidcomposite),
+respadmit_sep_red <- respadmit_sep %>%
+  mutate(n_respadmit = redact(n_respadmit),
+            n_respadmit = rounding(n_respadmit),
             total = redact(total), 
             total = rounding(total),
-            rate = n_covidcomposite / total * 100000) 
+            rate = n_respadmit / total * 100000) 
 
 ###
 
-covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"))
+respadmit_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_respadmitted.csv"))
 
-print(nrow(covidcomposite_nov))
+print(nrow(respadmit_nov))
 
-covidcomposite_nov <- covidcomposite_nov %>%
-  mutate(covidcomposite = if_else(covid_date >= as.Date("2022-11-26") &
-                                    covid_date <= as.Date("2022-12-24"),
-                                  1, 0, 0)) %>%
-  dplyr::select(c(patient_id, dob, dod, covidcomposite)) %>%
+respadmit_nov <- respadmit_nov %>%
+  mutate(respadmit = if_else(var == 1, 1, 0, 0)) %>%
+  dplyr::select(c(patient_id, dob, dod, var)) %>%
   unique() %>%
   mutate(start_date = "November 26",
          # Calculate age on index date
@@ -88,24 +86,24 @@ covidcomposite_nov <- covidcomposite_nov %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite == 1)) %>%
-  mutate(rate = n_covidcomposite / total * 100000) 
+  summarise(n_respadmit = sum(var == 1)) %>%
+  mutate(rate = n_respadmit / total * 100000) 
 
-covidcomposite_nov_red <- covidcomposite_nov %>%
-  mutate(n_covidcomposite = redact(n_covidcomposite),
-         n_covidcomposite = rounding(n_covidcomposite),
+respadmit_nov_red <- respadmit_nov %>%
+  mutate(n_respadmit = redact(n_respadmit),
+         n_respadmit = rounding(n_respadmit),
          total = redact(total), 
          total = rounding(total),
-         rate = n_covidcomposite / total * 100000) 
+         rate = n_respadmit / total * 100000) 
 
 # Combine data for plot and save
-covidcomposite <- rbind(covidcomposite_sep, covidcomposite_nov)
-covidcomposite_red <- rbind(covidcomposite_sep_red, covidcomposite_nov_red)
+respadmit <- rbind(respadmit_sep, respadmit_nov)
+respadmit_red <- rbind(respadmit_sep_red, respadmit_nov_red)
 
 # Save file for plot
-write.csv(covidcomposite, here::here("output", "covid_outcomes", "plot_covidcomposite_age.csv"),
+write.csv(respadmit, here::here("output", "covid_outcomes", "plot_respadmit_age.csv"),
           row.names = FALSE)
-write.csv(covidcomposite_red, here::here("output", "covid_outcomes", "plot_covidcomposite_age_redacted.csv"),
+write.csv(respadmit_red, here::here("output", "covid_outcomes", "plot_respadmit_age_redacted.csv"),
           row.names = FALSE)
   
 
@@ -113,7 +111,7 @@ write.csv(covidcomposite_red, here::here("output", "covid_outcomes", "plot_covid
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(subset(covidcomposite_red, age_mos > 564 & age_mos < 636),
+ggplot(subset(respadmit_red, age_mos > 564 & age_mos < 636),
        aes(x = age_mos / 12, y = rate,
            group = start_date, col = start_date)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
@@ -128,6 +126,6 @@ ggplot(subset(covidcomposite_red, age_mos > 564 & age_mos < 636),
         legend.title = element_blank(), legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggsave(here::here("output", "covid_outcomes", "plot_covid_composite_age_date.png"),
+ggsave(here::here("output", "covid_outcomes", "plot_respadmit_age_date.png"),
        dpi = 300, units = "in", width = 8, height = 6.25)
 

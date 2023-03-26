@@ -88,12 +88,21 @@ actions:
 
 # Outcome plots #
   covid_outcomes:
-   run: r:latest analysis/descriptive/plot_outcomes_byage.R
+   run: r:latest analysis/descriptive/plot_outcomes_covid_byage.R
    needs: [data_process_outcomes]
    outputs:
       moderately_sensitive:
         measure_csv: output/covid_outcomes/plot_*.csv
         plot: output/covid_outcomes/plot_*.png
+
+# Outcome plots #
+  resp_outcomes:
+   run: r:latest analysis/descriptive/plot_outcomes_resp_byage.R
+   needs: [data_process_outcomes]
+   outputs:
+      moderately_sensitive:
+        measure_csv: output/covid_outcomes/plot*.csv
+        plot: output/covid_outcomes/plot*.png
 
 # Discontinuity of demographics
   # demographics:
