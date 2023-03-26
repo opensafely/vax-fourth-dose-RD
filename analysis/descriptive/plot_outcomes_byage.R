@@ -37,14 +37,16 @@ source(here::here("analysis", "custom_functions.R"))
 index_date <- "2022-09-03"
 
 covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"),
+                               col_select = c(covidcomposite_date, dod, dob, patient_id),
                                col_types = cols(
                                  covidcomposite_date = col_date(format = "%Y-%m-%d"),
                                  dod = col_date(format = "%Y-%m-%d"),
                                  dob = col_date(format = "%Y-%m-%d"))) %>%
-  select(c(patient_id, dob, dod, covidcomposite)) %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
-         age_mos = (dob %--% as.Date(index_date)) %/% months(1)) %>%
+         age_mos = (dob %--% index_date) %/% months(1),
+         age_mos = as.integer(age_mos),
+         covidcomposite = if_else(!is.na(covidcomposite_date), 1, 0, 0)) %>%
   
   # Exclude people who died prior to index date
   subset((age_mos > 564 & age_mos < 636) &
@@ -78,7 +80,8 @@ covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covi
   unique() %>%
   mutate(start_date = "November 26",
          # Calculate age on index date
-         age_mos = (dob %--% as.Date(index_date)) %/% months(1)) %>%
+         age_mos = (dob %--% index_date) %/% months(1),
+         age_mos = as.integer(age_mos)) %>%
   
   # Exclude people who died prior to index date
   subset((age_mos > 564 & age_mos < 636) &
