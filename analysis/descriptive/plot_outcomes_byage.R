@@ -36,14 +36,19 @@ source(here::here("analysis", "custom_functions.R"))
 # Extract outcomes for pre-vax campaign and during campaign
 index_date <- "2022-09-03"
 
-covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv")) %>%
+covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"),
+                               col_types = cols(
+                                 covidcomposite_date = col_date(format = "%Y-%m-%d"),
+                                 dod = col_date(format = "%Y-%m-%d"),
+                                 dob = col_date(format = "%Y-%m-%d"))) %>%
   select(c(patient_id, dob, dod, covidcomposite)) %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
          age_mos = (dob %--% as.Date(index_date)) %/% months(1)) %>%
   
   # Exclude people who died prior to index date
-  subset(is.na(dod) | dod >= as.Date(index_date)) %>%
+  subset((age_mos > 564 & age_mos < 636) &
+           is.na(dod) | dod >= as.Date(index_date)) %>%
   
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
@@ -61,7 +66,11 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
 
 index_date = "2022-11-26"
 
-covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv")) %>%
+covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"),
+                               col_types = cols(
+                                 covid_date = col_date(format = "%Y-%m-%d"),
+                                 dod = col_date(format = "%Y-%m-%d"),
+                                 dob = col_date(format = "%Y-%m-%d"))) %>%
   mutate(covidcomposite = if_else(covid_date >= as.Date("2022-11-26") &
                                     covid_date <= as.Date("2022-11-26") + 28,
                                   1, 0, 0)) %>%
@@ -72,7 +81,8 @@ covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covi
          age_mos = (dob %--% as.Date(index_date)) %/% months(1)) %>%
   
   # Exclude people who died prior to index date
-  subset(is.na(dod) | dod >= as.Date(index_date)) %>%
+  subset((age_mos > 564 & age_mos < 636) &
+           is.na(dod) | dod >= as.Date(index_date)) %>%
   
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
