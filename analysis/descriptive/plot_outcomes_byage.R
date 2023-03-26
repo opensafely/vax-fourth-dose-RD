@@ -37,11 +37,11 @@ source(here::here("analysis", "custom_functions.R"))
 index_date <- "2022-09-03"
 
 covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"),
-                               col_select = c(covidcomposite_date, dod, dob, patient_id),
                                col_types = cols(
                                  covidcomposite_date = col_date(format = "%Y-%m-%d"),
                                  dod = col_date(format = "%Y-%m-%d"),
                                  dob = col_date(format = "%Y-%m-%d"))) %>%
+  subset(c(covidcomposite_date, dod, dob, patient_id)) %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
          age_mos = (dob %--% index_date) %/% months(1),
@@ -69,11 +69,11 @@ covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.
 index_date = "2022-11-26"
 
 covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"),
-                               col_select = c(covid_date, dod, dob, patient_id),
                                col_types = cols(
                                  covid_date = col_date(format = "%Y-%m-%d"),
                                  dod = col_date(format = "%Y-%m-%d"),
                                  dob = col_date(format = "%Y-%m-%d"))) %>%
+  subset(c(covid_date, dod, dob, patient_id)) %>%
   mutate(covidcomposite = if_else(covid_date >= as.Date("2022-11-26") &
                                     covid_date <= as.Date("2022-11-26") + 28,
                                   1, 0, 0)) %>%
