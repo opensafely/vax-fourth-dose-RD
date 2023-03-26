@@ -113,17 +113,19 @@ write.csv(covidcomposite_red, here::here("output", "covid_outcomes", "plot_covid
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(subset(covidcomposite_red, age_mos > 564 & age_mos < 636)) + 
+ggplot(subset(covidcomposite_red, age_mos > 564 & age_mos < 636),
+       aes(x = age_mos / 12, y = rate,
+           group = start_date, col = start_date)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
-  geom_point(aes(x = age_mos / 12, y = rate, 
-                 group = start_date, col = start_date)) +
+  geom_point() +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   scale_x_continuous(breaks = seq(47,53,1)) +
-  xlab(NULL) + ylab("No. events per 100,000") +
+  facet_wrap(~ start_date, nrow = 2) +
+  xlab("Age in months") + ylab("No. events per 100,000") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        legend.title = element_blank(),
+        legend.title = element_blank(), legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave(here::here("output", "covid_outcomes", "plot_covid_composite_age_date.png"),
