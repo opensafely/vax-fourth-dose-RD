@@ -34,42 +34,26 @@ source(here::here("analysis", "custom_functions.R"))
 #########################################
 
 # Extract outcomes for pre-vax campaign and during campaign
-covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"),
-                               col_types = cols(
-                                 dod = col_date(format = "%Y-%m-%d"),
-                                 dob = col_date(format = "%Y-%m-%d"),
-                                 flu_vax_date = col_date(format = "%Y-%m-%d"),
-                                 admitted_unplanned_date = col_date(format = "%Y-%m-%d"),
-                                 covidadmitted_date = col_date(format = "%Y-%m-%d"),
-                                 respadmitted_date = col_date(format = "%Y-%m-%d"),
-                                 coviddeath_date = col_date(format = "%Y-%m-%d"),
-                                 any_death_date = col_date(format = "%Y-%m-%d"),
-                                 respdeath_date = col_date(format = "%Y-%m-%d"),
-                                 covidemergency_date = col_date(format = "%Y-%m-%d"),
-                                 covidcomposite_date = col_date(format = "%Y-%m-%d")
-                               )) 
+covidcomposite_sep <- read_csv(here::here("output", "cohort", "outcomes_sep_all.csv"))
 
 print(nrow(covidcomposite_sep))
 
 covidcomposite_sep <- covidcomposite_sep %>%
   dplyr::select(c(covidcomposite, dod, dob, patient_id)) %>%
-  unique() %>%
   mutate(start_date = "September 3",
          # Calculate age on index date
-         age_mos = (dob %--% "2022-09-03") %/% months(1),
-         age_mos = as.integer(age_mos)) %>%
+         age_mos = (dob %--% "2022-09-03") %/% months(1)) %>%
   # Exclude people who died prior to index date
-  subset((age_mos > 564 & age_mos < 636) &
+  subset(age_mos > 564 & age_mos < 636 &
            (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
-  
   group_by(age_mos) %>%
   mutate(# Denominator by age in months
     total = n()) %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite == 1),
-            rate = n_covidcomposite / total * 100000) 
+  summarise(n_covidcomposite = sum(covidcomposite == 1)) %>%
+  mutate(rate = n_covidcomposite / total * 100000) 
 
 covidcomposite_sep_red <- covidcomposite_sep %>%
   mutate(n_covidcomposite = redact(n_covidcomposite),
@@ -80,20 +64,7 @@ covidcomposite_sep_red <- covidcomposite_sep %>%
 
 ###
 
-covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"),
-                               col_types = cols(
-                                 dod = col_date(format = "%Y-%m-%d"),
-                                 dob = col_date(format = "%Y-%m-%d"),
-                                 flu_vax_date = col_date(format = "%Y-%m-%d"),
-                                 admitted_unplanned_date_1 = col_date(format = "%Y-%m-%d"),
-                                 covidadmitted_date_1 = col_date(format = "%Y-%m-%d"),
-                                 respadmitted_date_1 = col_date(format = "%Y-%m-%d"),
-                                 coviddeath_date_1 = col_date(format = "%Y-%m-%d"),
-                                 any_death_date = col_date(format = "%Y-%m-%d"),
-                                 respdeath_date = col_date(format = "%Y-%m-%d"),
-                                 covidemergency_date_1 = col_date(format = "%Y-%m-%d")
-                               )) 
-
+covidcomposite_nov <- read_csv(here::here("output", "cohort", "outcomes_nov_covid.csv"))
 
 print(nrow(covidcomposite_nov))
 
@@ -105,8 +76,7 @@ covidcomposite_nov <- covidcomposite_nov %>%
   unique() %>%
   mutate(start_date = "November 26",
          # Calculate age on index date
-         age_mos = (dob %--% "2022-11-26") %/% months(1),
-         age_mos = as.integer(age_mos)) %>%
+         age_mos = (dob %--% "2022-11-26") %/% months(1)) %>%
   
   # Exclude people who died prior to index date
   subset((age_mos > 564 & age_mos < 636) &
@@ -118,8 +88,8 @@ covidcomposite_nov <- covidcomposite_nov %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(covidcomposite == 1),
-            rate = n_covidcomposite / total * 100000) 
+  summarise(n_covidcomposite = sum(covidcomposite == 1)) %>%
+  mutate(rate = n_covidcomposite / total * 100000) 
 
 covidcomposite_nov_red <- covidcomposite_nov %>%
   mutate(n_covidcomposite = redact(n_covidcomposite),
