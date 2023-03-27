@@ -71,6 +71,29 @@ study = StudyDefinition(
     ## OUTCOMES
     ############################################################
   
+    ## Deaths ##
+
+    # COVID-related death
+    coviddeath_date=patients.with_these_codes_on_death_certificate(
+        covid_codes,
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+  
+    # All-cause death
+    any_death_date=patients.died_from_any_cause(
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+    
+    # Respiratory death (underlying cause only)
+    respdeath_date=patients.with_these_codes_on_death_certificate(
+        resp_codes,
+        match_only_underlying_cause=True,
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+
     ## Hospitalisations ##
     
     # Unplanned hospital admission (all cause)
