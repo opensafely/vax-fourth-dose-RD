@@ -70,7 +70,7 @@ print(nrow(covidcomposite_nov))
 
 covidcomposite_nov <- covidcomposite_nov %>%
   mutate(covidcomposite = if_else(var == 1, 1, 0, 0)) %>%
-  dplyr::select(c(patient_id, dob, dod, var)) %>%
+  dplyr::select(c(patient_id, dob, dod, covidcomposite)) %>%
   unique() %>%
   mutate(start_date = "November 26",
          # Calculate age on index date
@@ -86,7 +86,7 @@ covidcomposite_nov <- covidcomposite_nov %>%
   ungroup() %>%
   group_by(age_mos, total, start_date) %>%
   # Create flag for people with outcome within follow-up window
-  summarise(n_covidcomposite = sum(var == 1)) %>%
+  summarise(n_covidcomposite = sum(covidcomposite == 1)) %>%
   mutate(rate = n_covidcomposite / total * 100000) 
 
 covidcomposite_nov_red <- covidcomposite_nov %>%
