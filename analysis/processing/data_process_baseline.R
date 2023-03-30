@@ -53,6 +53,7 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     flu_vax_date = pmin(flu_vax_med_date, flu_vax_tpp_date, 
                         flu_vax_clinical_date, na.rm = TRUE),
     
+<<<<<<< Updated upstream
     # Received booster in 2022/23
     booster = if_else((covid_vax_3_date >= as.Date("2022-09-05") & 
                          covid_vax_3_date < end_date) |
@@ -60,11 +61,23 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
                          covid_vax_4_date < end_date),
                         1, 0, 0),
     
+=======
+>>>>>>> Stashed changes
     # Booster date (if received)
-    boost_date = if_else(booster == 1,
-                         pmin(covid_vax_3_date, covid_vax_4_date, na.rm = TRUE),
-                         NA_Date_),
+    boost_date = case_when(
+        (!is.na(covid_vax_3_date) & 
+              covid_vax_3_date >= as.Date("2022-09-05") & 
+              covid_vax_3_date < end_date) ~ covid_vax_3_date,
+        
+        (!is.na(covid_vax_4_date) & 
+              covid_vax_4_date >= as.Date("2022-09-05") & 
+              covid_vax_4_date < end_date) ~ covid_vax_4_date,
+        
+        TRUE ~ as.Date(NA)),
     
+    # Received booster anytime in 2022/23
+    booster = if_else(!is.na(boost_date), 1, 0, 0),
+   
     # If received fourth dose prior to second booster campaign
     covid_vax4_early = if_else(covid_vax_4_date < as.Date("2022-09-05"), 1, 0, missing = 0),
     
@@ -89,7 +102,7 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
-    vax_priority = cv | housebound | carehome | hscworker | covid_vax4_early |
+    vax_priority = cv | carehome | hscworker | covid_vax4_early |
       covid_vax3_early
   ) 
 
@@ -152,6 +165,8 @@ final <- baseline %>%
             covid_vax2 == 1 &
           # Exclude if recently received COVID-19 vaccine
             covid_vax_recent == 0 &
+          # Exclude if housebound
+            housebound == 0 &
           # Exclude if at end of life
             endoflife == 0) %>%
   dplyr::select(!c(vax_priority, covid_vax_recent, endoflife,

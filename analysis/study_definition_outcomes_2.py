@@ -86,7 +86,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
-        between=["admitted_unplanned_date_1","index_date + 6 days"],
+        between=["admitted_unplanned_date_1 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
@@ -94,10 +94,29 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
-        between=["admitted_unplanned_date_2","index_date + 6 days"],
+        between=["admitted_unplanned_date_2 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
+<<<<<<< Updated upstream
+=======
+    admitted_unplanned_date_4=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["admitted_unplanned_date_3 + 1","index_date + 6 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+    admitted_unplanned_date_5=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["admitted_unplanned_date_4 + 1","index_date + 6 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+>>>>>>> Stashed changes
     # Check max number of admissions per week
     admitted_unplanned_num=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
@@ -120,7 +139,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
-        between=["covidadmitted_date_1","index_date + 6 days"],
+        between=["covidadmitted_date_1 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),   
@@ -128,17 +147,29 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
-        between=["covidadmitted_date_2","index_date + 6 days"],
+        between=["covidadmitted_date_2 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+<<<<<<< Updated upstream
     ),    
+=======
+    ),  
+    # Check max number of admissions per week
+    covidadmitted_num=patients.admitted_to_hospital(
+        returning="number_of_matches_in_period",      
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_these_diagnoses=covid_codes,
+        between=["index_date + 1","index_date + 6 days"],
+        return_expectations={"int" : {"distribution": "normal", "mean": 5, "stddev": 5}, "incidence" : 0.5},
+    ),   
+>>>>>>> Stashed changes
 
     # Respiratory unplanned admission (primary diagnosis only)
     respadmitted_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
-        between=["index_date","index_date + 6 days"],
+        between=["index_date + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
@@ -146,7 +177,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
-        between=["respadmitted_date_1","index_date + 6 days"],
+        between=["respadmitted_date_1 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
@@ -154,7 +185,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
-        between=["respadmitted_date_2","index_date + 6 days"],
+        between=["respadmitted_date_2 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
@@ -180,6 +211,8 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
     ),
 
+    ## A&E attendances ##
+
     # COVID emergency attendance 
     covidemergency_date_1=patients.attended_emergency_care(
         returning="date_arrived",
@@ -190,14 +223,14 @@ study = StudyDefinition(
     ),   
     covidemergency_date_2=patients.attended_emergency_care(
         returning="date_arrived",
-        between=["covidemergency_date_1","index_date + 6 days"],
+        between=["covidemergency_date_1 + 1","index_date + 6 days"],
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),    
     covidemergency_date_3=patients.attended_emergency_care(
         returning="date_arrived",
-        between=["covidemergency_date_2","index_date + 6 days"],
+        between=["covidemergency_date_2 + 1","index_date + 6 days"],
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
