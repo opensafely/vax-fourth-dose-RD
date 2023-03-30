@@ -56,13 +56,6 @@ study = StudyDefinition(
         returning_type="date",
     ),
 
-    # Date of death
-    dod=patients.with_value_from_file(
-        COHORT,
-        returning="dod",
-        returning_type="date",
-    ),
-
     # Flu vax
     flu_vax_date=patients.with_value_from_file(
         COHORT,
@@ -142,13 +135,13 @@ study = StudyDefinition(
         find_first_match_in_period=True,
     ),
     # Check max number of admissions per week
-    # admitted_unplanned_num=patients.admitted_to_hospital(
-    #     returning="number_of_matches_in_period",
-    #     with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-    #     with_patient_classification = ["1"], # ordinary admissions only
-    #     between=["index_date","index_date + 6 days"],
-    #     return_expectations={"int" : {"distribution": "normal", "mean": 5, "stddev": 5}, "incidence" : 0.5},
-    # ),
+    admitted_unplanned_num=patients.admitted_to_hospital(
+        returning="number_of_matches_in_period",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["index_date","index_date + 6 days"],
+        return_expectations={"int" : {"distribution": "normal", "mean": 5, "stddev": 5}, "incidence" : 0.5},
+    ),
   
     # COVID unplanned admission
         #  Maximum COVID unplanned admissions in a week is ?
