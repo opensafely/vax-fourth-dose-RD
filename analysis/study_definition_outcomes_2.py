@@ -55,6 +55,13 @@ study = StudyDefinition(
         returning="dob",
         returning_type="date",
     ),
+    
+    # Date of death
+    dod=patients.with_value_from_file(
+        COHORT,
+        returning="dod",
+        returning_type="date",
+    ),
 
     # Flu vax
     flu_vax_date=patients.with_value_from_file(
