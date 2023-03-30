@@ -56,14 +56,12 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     
     # Booster date (if received)
     boost_date = case_when(
-        (!is.na(covid_vax_3_date) & 
-              covid_vax_3_date >= as.Date("2022-09-05") & 
-              covid_vax_3_date < end_date) ~ covid_vax_3_date,
-        
         (!is.na(covid_vax_4_date) & 
               covid_vax_4_date >= as.Date("2022-09-05") & 
               covid_vax_4_date < end_date) ~ covid_vax_4_date,
-        
+        (!is.na(covid_vax_3_date) & is.na(covid_vax_4_date) &
+              covid_vax_3_date >= as.Date("2022-09-05") & 
+              covid_vax_3_date < end_date) ~ covid_vax_3_date,
         TRUE ~ as.Date(NA)),
     
     # Received booster anytime in 2022/23
@@ -108,7 +106,6 @@ total_pop_before_exclusions <- baseline %>%
   group_by(age, total) %>%
   summarise(
          carehome = sum(carehome == 1),
-         housebound = sum(housebound == 1),
          immunosuppressed = sum(immunosuppressed == 1),
          ckd = sum(chronic_kidney_disease == 1),
          chronic_resp_disease = sum(chronic_resp_disease == 1),
@@ -124,6 +121,7 @@ total_pop_before_exclusions <- baseline %>%
          cv = sum(cv == 1),
          hscworker = sum(hscworker == 1),
          endoflife = sum(endoflife == 1),
+         housebound = sum(housebound == 1),
          
          covid_vax4_early = sum(covid_vax4_early == 1),
          covid_vax3_early = sum(covid_vax3_early == 1),
