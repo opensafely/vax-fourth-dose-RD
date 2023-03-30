@@ -1,6 +1,7 @@
 
 ################################################################
-# This script performs data cleaning and preparation
+# This script defines exclusion criteria and extracts
+# final study population
 ################################################################
 
 
@@ -53,16 +54,6 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     flu_vax_date = pmin(flu_vax_med_date, flu_vax_tpp_date, 
                         flu_vax_clinical_date, na.rm = TRUE),
     
-<<<<<<< Updated upstream
-    # Received booster in 2022/23
-    booster = if_else((covid_vax_3_date >= as.Date("2022-09-05") & 
-                         covid_vax_3_date < end_date) |
-                        (covid_vax_4_date >= as.Date("2022-09-05") &
-                         covid_vax_4_date < end_date),
-                        1, 0, 0),
-    
-=======
->>>>>>> Stashed changes
     # Booster date (if received)
     boost_date = case_when(
         (!is.na(covid_vax_3_date) & 
@@ -92,13 +83,13 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
                                  covid_vax_2_date <= as.Date("2022-10-15")) |
                                 (covid_vax_1_date >= as.Date("2022-07-15") &
                                  covid_vax_1_date <= as.Date("2022-10-15"))
-                                ), 1, 0, missing = 0),
+                                ), 1, 0, 0),
     
     # Received 2nd dose at least 3 months prior to start of campaign
-    covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, 0),
     
     # Received 3rd dose at least 3 months prior to start of campaign
-    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, 0),
     
     # Flag for people prioritised for vaccine (including evidence of having received
        # COVID vaccine before becoming available to general population)
@@ -178,6 +169,9 @@ final <- baseline %>%
                    sev_obesity, flu_vax_tpp_date, flu_vax_med_date, 
                    flu_vax_clinical_date
                    ))
+
+# Number of obs
+print(paste0("Final population (n): ", nrow(final)))
 
 #Save
 write.csv(final,

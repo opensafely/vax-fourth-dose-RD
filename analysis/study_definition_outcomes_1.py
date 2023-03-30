@@ -4,14 +4,14 @@
 # that will be extracted from
 # the OpenSAFELY database.
 #
-# STUDY PURPOSE: to understand cumulative uptake 
-#   of fourth dose (second booster) COVID-19 vaccine
-#   by age, before and after 50+ became eligible
+# STUDY PURPOSE: to perform regression discontinuity of 2022/23 
+#   autumn booster COVID-19 vaccine, before and after 50+ became eligible
 #   on October 15, 2022
 #
-# This study definition extracts information on outcomes. There are multiple
-# index dates (starting on 3 Sep through latest available) to capture all 
-# outcomes over the stud period.
+# This study definition extracts information on outcomes for the control
+# periods - i.e. 28 days after Sep 03 (pre-campaign), 
+# and 28 days after Oct 15 (start of campaign). Only one outcome (first)
+# per person is extracted.
 #
 ##############################################################################
 
@@ -71,6 +71,29 @@ study = StudyDefinition(
     ## OUTCOMES
     ############################################################
   
+    ## Deaths ##
+
+    # COVID-related death
+    coviddeath_date=patients.with_these_codes_on_death_certificate(
+        covid_codes,
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+  
+    # All-cause death
+    any_death_date=patients.died_from_any_cause(
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+    
+    # Respiratory death (underlying cause only)
+    respdeath_date=patients.with_these_codes_on_death_certificate(
+        resp_codes,
+        match_only_underlying_cause=True,
+        returning="date_of_death",
+        date_format="YYYY-MM-DD",
+    ),
+
     ## Hospitalisations ##
     
     # Unplanned hospital admission (all cause)
@@ -100,27 +123,6 @@ study = StudyDefinition(
         between=["index_date","index_date + 28 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
-    ),
-
-    # COVID-related death
-    coviddeath_date=patients.with_these_codes_on_death_certificate(
-        covid_codes,
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
-    ),
-  
-    # All-cause death
-    any_death_date=patients.died_from_any_cause(
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
-    ),
-    
-    # Respiratory death (underlying cause only)
-    respdeath_date=patients.with_these_codes_on_death_certificate(
-        resp_codes,
-        match_only_underlying_cause=True,
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
     ),
 
     # COVID emergency attendance 

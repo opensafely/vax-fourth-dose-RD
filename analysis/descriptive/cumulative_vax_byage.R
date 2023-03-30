@@ -202,3 +202,4 @@ ggplot(doses_by_day, aes(x = date, y = vax_n)) +
 
 ggsave(here::here("output", "cumulative_rates", "plot_all_doses_over_time.png"),
        dpi = 300, units = "in", width = 6, height = 3.25)
+
