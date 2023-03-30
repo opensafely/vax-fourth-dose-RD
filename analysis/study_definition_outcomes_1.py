@@ -9,8 +9,8 @@
 #   on October 15, 2022
 #
 # This study definition extracts information on outcomes for the control
-# periods - i.e. 28 days after Sep 03 (pre-campaign), 
-# and 28 days after Oct 15 (start of campaign). Only one outcome (first)
+# periods - i.e. 42 days after Sep 03 (pre-campaign), 
+# and 42 days after Oct 15 (start of campaign). Only one outcome (first)
 # per person is extracted.
 #
 ##############################################################################
@@ -101,17 +101,16 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
-        between=["index_date","index_date + 28 days"],
+        between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
-  
     # COVID unplanned admission
     covidadmitted_date=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
-        between=["index_date","index_date + 28 days"],
+        between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),   
@@ -120,7 +119,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
-        between=["index_date","index_date + 28 days"],
+        between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
@@ -128,7 +127,7 @@ study = StudyDefinition(
     # COVID emergency attendance 
     covidemergency_date=patients.attended_emergency_care(
         returning="date_arrived",
-        between=["index_date","index_date + 28 days"],
+        between=["index_date","index_date + 42 days"],
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
