@@ -24,6 +24,7 @@ library('data.table')
 ## Create directories
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "covid_outcomes","by_start_date"), showWarnings = FALSE, recurse = TRUE)
 
 # Load functions
