@@ -225,5 +225,3 @@ sapply(start_dates, bydate2)
 
 
 
-# Dataset with sample size from each cohort
-
