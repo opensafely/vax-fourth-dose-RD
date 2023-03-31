@@ -90,7 +90,7 @@ outcomes_oct <- read_feather(here::here("output", "index", "input_outcomes_1_202
          # Calendar birth month
          birth_month = as.factor(month(dob)),
          
-         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date <= as.Date("2022-10-15"), 1, 0, 0),
+         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date <= as.Date(start_date), 1, 0, 0),
          
          # Create flag for each outcomes
          covidadmitted = if_else(!is.na(covidadmitted_date), 1, 0, 0),
@@ -105,7 +105,7 @@ outcomes_oct <- read_feather(here::here("output", "index", "input_outcomes_1_202
          respdeath = if_else(!is.na(respdeath_date), 1, 0, 0),
          respcomposite = if_else(respadmitted == 1 | respdeath == 1, 1, 0, 0)
   ) %>%
-  select(!c(contains("_date"), dod))
+  select(!c(contains("_date")))
 
 print(paste0("October cohort (no. rows): ", nrow(outcomes_oct)))
 print(paste0("October cohort (no. people): ", n_distinct(outcomes_oct$patient_id)))        
