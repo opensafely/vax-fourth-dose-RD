@@ -222,3 +222,8 @@ bydate2 <- function(start_date){
 # Do the above over all relevant start dates
 start_dates <- as.Date(0:10, origin="2022-11-26")
 sapply(start_dates, bydate2)
+
+
+
+# Dataset with sample size from each cohort
+
