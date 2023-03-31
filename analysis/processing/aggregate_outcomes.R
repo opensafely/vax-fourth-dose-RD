@@ -79,3 +79,37 @@ agg1("2022-10-15")
 start_dates <- as.Date(0:10, origin = "2022-11-26")
 sapply(start_dates,agg1)
 
+
+
+########################################
+
+# Create data frame with number of patients per cohort
+pat <- function(start_date){
+  data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+
+    mutate(n_pat = n_distinct(patient_id),
+           start = as.character(start_date),
+           n_pat = redact(n_pat),
+           n_pat = rounding(n_pat))
+  
+  return(data)
+}
+
+extract <- sapply(start_dates, pat) %>%
+  t() 
+
+start <- do.call(rbind, lapply(extract[,2], as.data.frame)) 
+colnames(start)[1] = "start"
+
+n_pat <- do.call(rbind, lapply(extract[,1], as.data.frame)) 
+colnames(n_pat)[1] = "n_pat"
+
+total_n_by_date <- cbind(n_pat, start) %>%
+  as.data.frame() %>%
+  mutate(n_pat = as.integer(n_pat),
+         start = as.character(start))
+
+write_csv(total_n_by_date, here::here("output", "descriptive", "total_n_by_date.csv"))
+
+
+

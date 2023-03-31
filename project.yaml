@@ -102,6 +102,7 @@ actions:
     outputs:
       moderately_sensitive:
         outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
+        no_patients: output/descriptive/total_n_by_date.csv
 
 # Outcome plots #
   plot_outcomes:
