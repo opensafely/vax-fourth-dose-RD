@@ -43,12 +43,12 @@ mod_pred <- function(data, out, start, name){
            quarter = as.factor(rep(1:4, length.out = len))) %>%
     rename(outcome = {{out}}) 
   
-  mod <- glm(outcome / 100000 ~ age_mos3_c*over50 + as.factor(quarter), data = df, 
+  mod <- glm(outcome / 100000 ~ age_mos3_c*over50 , data = df, 
              family = binomial("logit"), weights = total)
   
   pred <- predict(mod, type = "response", se.fit = TRUE)
   
-  df_pred <- cbind(age_mos3 = df$age_mos3, birth_qtr = df$quarter, 
+  df_pred <- cbind(age_mos3 = df$age_mos3, 
                    predicted = pred$fit, se = pred$se.fit) %>%
     as.data.frame() %>%
     mutate(
