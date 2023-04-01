@@ -29,18 +29,18 @@ dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FAL
 source(here::here("analysis", "custom_functions.R"))
 
 
-data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26_red.csv"))
+data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_6mon_2022-11-26_red.csv"))
   
-data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos3)) %>%
-  reshape2::melt(id = c("age_mos3"))
+data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos6)) %>%
+  reshape2::melt(id = c("age_mos6"))
 
 
 ############################################################
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(subset(data2, age_mos3 > 564 & age_mos3 < 636),
-       aes(x = age_mos3 / 12, y = value)) + 
+ggplot(data6,
+       aes(x = age_mos6 / 12, y = value)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   geom_point() +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
