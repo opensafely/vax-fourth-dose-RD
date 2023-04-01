@@ -102,24 +102,25 @@ actions:
     outputs:
       moderately_sensitive:
         outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
-        no_patients: output/descriptive/total_n_by_date.csv
+#        no_patients: output/descriptive/total_n_by_date.csv
 
 # Outcome plots #
-  plot_outcomes:
-   run: r:latest analysis/descriptive/plot_outcomes_byage.R
+  # plot_outcomes:
+  #  run: r:latest analysis/descriptive/plot_outcomes_byage.R
+  #  needs: [aggregate_outcomes_byage]
+  #  outputs:
+  #     moderately_sensitive:
+  #       plot: output/covid_outcomes/figures/plot_*.png
+
+# ITT analysis #
+  itt_analysis:
+   run: r:latest analysis/statistical_analysis/itt_analysis.R
    needs: [aggregate_outcomes_byage]
    outputs:
       moderately_sensitive:
-        plot: output/covid_outcomes/figures/plot_*.png
+        measures_csv: output/covid_outcomes/predicted_*.csv
+        plot: output/covid_outcomes/figures/plot_pred*.png
 
-# Outcome plots #
-  # resp_outcomes:
-  #  run: r:latest analysis/descriptive/plot_outcomes_resp_byage.R
-  #  needs: [data_process_outcomes]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/covid_outcomes/plot*.csv
-  #       plot: output/covid_outcomes/plot*.png
 
 # Discontinuity of demographics
   # demographics:
@@ -139,23 +140,6 @@ actions:
   #       measure_csv: output/cumulative_rates/flu_*.csv
   #       plot: output/cumulative_rates/plot_flu_vax_byage.png
 
-# ITT analysis #
-  # itt_analysis:
-  #  run: r:latest analysis/statistical_analysis/itt_analysis.R
-  #  needs: [data_process_outcomes]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/covid_outcomes/outcome_*.csv
-
-# Outcome plots #
-  # covid_outcomes:
-  #  run: r:latest analysis/descriptive/covid_outcomes_byage.R
-  #  needs: [generate_study_pop]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/covid_outcomes/covid_*.csv
-  #       plot: output/covid_outcomes/plot_outcomes_*.png
-  
 
 
 
