@@ -54,12 +54,12 @@ data1 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,"
 
 write.csv(data1, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_1mon_",start_date,".csv")), row.names = FALSE)
 
-data2 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
-  mutate(age_mos2 = round(age_mos / 2) * 2) %>%
-  group_by(age_mos2) %>%
+data3 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+  mutate(age_mos3 = round(age_mos / 3) * 3) %>%
+  group_by(age_mos3) %>%
   mutate(total = n()) %>%
   ungroup() %>%
-  group_by(age_mos2, total) %>%
+  group_by(age_mos3, total) %>%
   summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
             n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
             n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
@@ -70,7 +70,7 @@ data2 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,"
             n_anydeath = sum(anydeath ==1, na.rm = TRUE),
             n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) 
 
-write.csv(data2, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_2mon_",start_date,".csv")), row.names = FALSE)
+write.csv(data3, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_3mon_",start_date,".csv")), row.names = FALSE)
 
 
 data1_red <- data1 %>%
@@ -89,7 +89,7 @@ data1_red <- data1 %>%
 write.csv(data1_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_1mon_",start_date,"_red.csv")), row.names = FALSE)
 
 
-data2_red <- data2 %>%
+data3_red <- data3 %>%
   mutate(
          across(contains("n_"), roundmid_any),
          rate_covidcomposite = n_covidcomposite / total * 100000,
@@ -102,7 +102,7 @@ data2_red <- data2 %>%
          rate_anydeath = n_anydeath / total * 100000,
          rate_anyadmitted = n_anyadmitted / total * 100000)
 
-write.csv(data2_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_2mon_",start_date,"_red.csv")), row.names = FALSE)
+write.csv(data3_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_3mon_",start_date,"_red.csv")), row.names = FALSE)
 
 }
 
@@ -111,7 +111,7 @@ write.csv(data2_red, here::here("output", "covid_outcomes", "by_start_date", pas
 agg1("2022-09-03")
 agg1("2022-10-15")
 
-start_dates <- as.Date(0:10, origin = "2022-11-26")
+start_dates <- as.Date(0:5, origin = "2022-11-26")
 sapply(start_dates,agg1)
 
 
