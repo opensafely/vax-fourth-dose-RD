@@ -39,7 +39,7 @@ data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos6)) %>%
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(data6,
+ggplot(data2,
        aes(x = age_mos6 / 12, y = value)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   geom_point() +
