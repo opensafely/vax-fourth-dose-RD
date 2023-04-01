@@ -29,23 +29,23 @@ dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FAL
 source(here::here("analysis", "custom_functions.R"))
 
 
-data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_2022-11-26_red.csv"))
+data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_2mon_2022-11-26_red.csv"))
   
-data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos)) %>%
-  reshape2::melt(id = c("age_mos"))
+data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos2)) %>%
+  reshape2::melt(id = c("age_mos2"))
 
 
 ############################################################
 ### Plot event rate by age in months and index date
 ############################################################
 
-ggplot(subset(data2, age_mos > 564 & age_mos < 636),
-       aes(x = age_mos / 12, y = value)) + 
+ggplot(subset(data2, age_mos2 > 564 & age_mos2 < 636),
+       aes(x = age_mos2 / 12, y = value)) + 
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
   geom_point() +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   scale_x_continuous(breaks = seq(47,53,1)) +
-  facet_wrap(~ variable, ncol = 3) +
+  facet_wrap(~ variable, ncol = 3, scales = "free_y") +
   xlab("Age in months") + ylab("No. events per 100,000") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),

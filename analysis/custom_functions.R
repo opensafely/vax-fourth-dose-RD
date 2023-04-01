@@ -15,6 +15,13 @@ rounding <- function(vars) {
   round(vars / 5) * 5
 }
 
+## Mid 6 rounding
+roundmid_any <- function(x, to=6){
+  # like round_any, but centers on (integer) midpoint of the rounding points
+  ceiling(x/to)*to - (floor(to/2)*(x!=0))
+}
+
+
 # Factorise ----
 fct_case_when <- function(...) {
   # uses dplyr::case_when but converts the output to a factor,
