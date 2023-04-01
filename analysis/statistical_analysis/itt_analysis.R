@@ -26,20 +26,22 @@ dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings
 dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FALSE, recurse = TRUE)
 
 
-data_nov <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26.csv")) 
-data_sep <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-09-03.csv")) 
+data_nov <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26.csv")) %>%
+  subset(!is.na(age_mos3))
+
+data_sep <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-09-03.csv")) %>%
+  subset(!is.na(age_mos3))
 
 
 mod_pred <- function(data, out, start, name){
   
-  len <- length(data)
+  len <- nrow(data)
   
   df <- data %>%
-    subset(!is.na(age_mos3)) %>%
     mutate(over50 = (age_mos3 >= 600),
            age_mos3_c = age_mos3 - 600, 
-           quarter = as.factor(rep(1:4, len))) %>%
-    rename(outcome= {{out}}) 
+           quarter = as.factor(rep(1:4, length.out = len))) %>%
+    rename(outcome = {{out}}) 
   
   mod <- glm(outcome / 100000 ~ age_mos3_c*over50 + as.factor(quarter), data = df, 
              family = binomial("logit"), weights = total)
