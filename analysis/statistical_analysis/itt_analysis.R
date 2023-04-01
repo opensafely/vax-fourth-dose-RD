@@ -32,14 +32,17 @@ data_sep <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "ou
 
 mod_pred <- function(data, out, start, name){
   
+  len <- length(data)
+  
   df <- data %>%
     subset(!is.na(age_mos3)) %>%
     mutate(over50 = (age_mos3 >= 600),
            age_mos3_c = age_mos3 - 600, 
-           quarter = as.factor(rep(1:4, 20))) %>%
+           quarter = as.factor(rep(1:4, len))) %>%
     rename(outcome= {{out}}) 
   
-  mod <- glm(outcome / 100000 ~ age_mos3_c*over50 + as.factor(quarter), data = df, family = binomial("logit"), weights = total)
+  mod <- glm(outcome / 100000 ~ age_mos3_c*over50 + as.factor(quarter), data = df, 
+             family = binomial("logit"), weights = total)
   
   pred <- predict(mod, type = "response", se.fit = TRUE)
   
