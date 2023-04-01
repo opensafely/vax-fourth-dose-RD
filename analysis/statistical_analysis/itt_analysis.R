@@ -40,13 +40,15 @@ mod_pred <- function(data, out, start, name){
   df <- data %>%
     mutate(over50 = (age_mos3 >= 600),
            age_mos3_c = age_mos3 - 600, 
-           quarter = as.factor(rep(1:4, length.out = len))) %>%
+           quarter = rep(1:4, length.out = len)) %>%
     rename(outcome = {{out}}) 
   
-  mod <- glm(outcome / 100000 ~ age_mos3_c*over50 , data = df, 
+  mod <- glm(outcome / 100000 ~ poly(age_mos3_c, 2)*over50 + as.factor(quarter), data = df, 
              family = binomial("logit"), weights = total)
   
-  pred <- predict(mod, type = "response", se.fit = TRUE)
+  newdata <- df %>% mutate(quarter = 1)
+  
+  pred <- predict(mod, type = "response", newdata = newdata, se.fit = TRUE)
   
   df_pred <- cbind(age_mos3 = df$age_mos3, 
                    predicted = pred$fit, se = pred$se.fit) %>%
@@ -92,7 +94,7 @@ ggplot(covidcomp, aes(x = age_mos3 / 12)) +
   scale_colour_manual(values = c("dodgerblue3", "maroon")) +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   xlab("Age") + ylab("No. events per 100,000 (predicted)") +
-  facet_wrap(~ start, nrow = 2) +
+  facet_wrap(~ start, nrow = 2, scales = "free_y") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -112,7 +114,7 @@ ggplot(respcomp, aes(x = age_mos3 / 12)) +
   scale_colour_manual(values = c("dodgerblue3", "maroon")) +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   xlab("Age") + ylab("No. events per 100,000 (predicted)") +
-  facet_wrap(~ start, nrow = 2) +
+  facet_wrap(~ start, nrow = 2, scales = "free_y")  +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -132,7 +134,7 @@ ggplot(anyadmit, aes(x = age_mos3 / 12)) +
   scale_colour_manual(values = c("dodgerblue3", "maroon")) +
   scale_y_continuous(expand = expansion(mult = c(0, .2))) +
   xlab("Age") + ylab("No. events per 100,000 (predicted)") +
-  facet_wrap(~ start, nrow = 2) +
+  facet_wrap(~ start, nrow = 2, scales = "free_y")  +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
