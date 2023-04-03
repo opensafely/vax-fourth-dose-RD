@@ -119,8 +119,16 @@ actions:
    outputs:
       moderately_sensitive:
         measures_csv: output/covid_outcomes/predicted_*.csv
-        plot: output/covid_outcomes/figures/plot_pred*.png
+        plot: output/covid_outcomes/figures/plot*.png
 
+# ITT analysis (with polynomial)#
+  itt_analysis_poly:
+   run: r:latest analysis/statistical_analysis/itt_analysis_poly.R
+   needs: [aggregate_outcomes_byage]
+   outputs:
+      moderately_sensitive:
+        measures_csv: output/covid_outcomes/predicted*.csv
+        plot: output/covid_outcomes/figures/plo*.png
 
 # Discontinuity of demographics
   # demographics:
