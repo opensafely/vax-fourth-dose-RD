@@ -26,7 +26,10 @@ dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings
 dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FALSE, recurse = TRUE)
 
 
-data_nov <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26.csv")) %>%
+data_nov26 <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26.csv")) %>%
+  subset(!is.na(age_mos3) & age_mos3 >= 540 & age_mos3 < 660)
+
+data_dec10 <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-12-10.csv")) %>%
   subset(!is.na(age_mos3) & age_mos3 >= 540 & age_mos3 < 660)
 
 data_sep <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-09-03.csv")) %>%
@@ -84,46 +87,52 @@ mod_pred <- function(data, out, start, name){
   
 }
 
-covidcomp_nov <- mod_pred(data_nov, rate_covidcomposite, "Index date: November 26", "COVID admission/A&E/death")
+covidcomp_nov26 <- mod_pred(data_nov26, rate_covidcomposite, "Index date: November 26", "COVID admission/A&E/death")
+covidcomp_dec10 <- mod_pred(data_dec10, rate_covidcomposite, "Index date: December 10", "COVID admission/A&E/death")
 covidcomp_sep <- mod_pred(data_sep, rate_covidcomposite, "Index date: September 3", "COVID admission/A&E/death")
 
-covidadmit_nov <- mod_pred(data_nov, rate_covidadmitted, "Index date: November 26", "COVID admission")
+covidadmit_nov26 <- mod_pred(data_nov26, rate_covidadmitted, "Index date: November 26", "COVID admission")
+covidadmit_dec10 <- mod_pred(data_dec10, rate_covidadmitted, "Index date: December 10", "COVID admission")
 covidadmit_sep <- mod_pred(data_sep, rate_covidadmitted, "Index date: September 3", "COVID admission")
 
-covidemerg_nov <- mod_pred(data_nov, rate_covidemerg, "Index date: November 26", "COVID admission")
+covidemerg_nov26 <- mod_pred(data_nov26, rate_covidemerg, "Index date: November 26", "COVID admission")
+covidemerg_dec10 <- mod_pred(data_dec10, rate_covidemerg, "Index date: December 10", "COVID admission")
 covidemerg_sep <- mod_pred(data_sep, rate_covidemerg, "Index date: September 3", "COVID admission")
 
-respcomp_nov <- mod_pred(data_nov, rate_respcomposite, "Index date: November 26", "Respiratory admission/death")
+respcomp_nov26 <- mod_pred(data_nov26, rate_respcomposite, "Index date: November 26", "Respiratory admission/death")
+respcomp_dec10 <- mod_pred(data_dec10, rate_respcomposite, "Index date: December 10", "Respiratory admission/death")
 respcomp_sep <- mod_pred(data_sep, rate_respcomposite, "Index date: September 3", "Respiratory admission/death")
 
-respadmit_nov <- mod_pred(data_nov, rate_respadmitted, "Index date: November 26", "Respiratory admission")
+respadmit_nov26 <- mod_pred(data_nov26, rate_respadmitted, "Index date: November 26", "Respiratory admission")
+respadmit_dec10 <- mod_pred(data_dec10, rate_respadmitted, "Index date: December 10", "Respiratory admission")
 respadmit_sep <- mod_pred(data_sep, rate_respadmitted, "Index date: September 3", "Respiratory admission")
 
-anyadmit_nov <- mod_pred(data_nov, rate_anyadmitted, "Index date: November 26", "Any unplanned admission")
+anyadmit_nov26 <- mod_pred(data_nov26, rate_anyadmitted, "Index date: November 26", "Any unplanned admission")
+anyadmit_dec10 <- mod_pred(data_dec10, rate_anyadmitted, "Index date: December 10", "Any unplanned admission")
 anyadmit_sep <- mod_pred(data_sep, rate_anyadmitted, "Index date: September 3", "Any unplanned admission")
 
 
-covidcomp <- rbind(covidcomp_nov, covidcomp_sep)
+covidcomp <- rbind(covidcomp_nov26, covidcomp_sep, covidcomp_dec10)
 covidcomp2 <- covidcomp %>% select(!rate)
 write.csv(covidcomp2, here::here("output", "covid_outcomes", "predicted_covidcomp.csv"), row.names = FALSE)
 
-covidadmit <- rbind(covidadmit_nov, covidadmit_sep)
+covidadmit <- rbind(covidadmit_nov26, covidadmit_sep, covidadmit_dec10)
 covidadmit2 <- covidadmit %>% select(!rate)
 write.csv(covidadmit2, here::here("output", "covid_outcomes", "predicted_covidadmit.csv"), row.names = FALSE)
 
-covidemerg <- rbind(covidemerg_nov, covidemerg_sep)
+covidemerg <- rbind(covidemerg_nov26, covidemerg_sep, covidemerg_dec10)
 covidemerg2 <- covidemerg %>% select(!rate)
 write.csv(covidemerg2, here::here("output", "covid_outcomes", "predicted_covidemerg.csv"), row.names = FALSE)
 
-respcomp <- rbind(respcomp_nov, respcomp_sep)
+respcomp <- rbind(respcomp_nov26, respcomp_sep, respcomp_dec10)
 respcomp2 <- respcomp %>% select(!rate)
 write.csv(respcomp2, here::here("output", "covid_outcomes", "predicted_respcomp.csv"), row.names = FALSE)
 
-respadmit <- rbind(respadmit_nov, respadmit_sep)
+respadmit <- rbind(respadmit_nov26, respadmit_sep, respadmit_dec10)
 respadmit2 <- respadmit %>% select(!rate)
 write.csv(respadmit2, here::here("output", "covid_outcomes", "predicted_respadmit.csv"), row.names = FALSE)
 
-anyadmit <- rbind(anyadmit_nov, anyadmit_sep)
+anyadmit <- rbind(anyadmit_nov26, anyadmit_sep, anyadmit_dec10)
 anyadmit2 <- anyadmit %>% select(!rate)
 write.csv(anyadmit2, here::here("output", "covid_outcomes", "predicted_anyadmit.csv"), row.names = FALSE)
 
@@ -145,7 +154,7 @@ ggplot() +
   geom_line(data=subset(outcome, age_mos3 >= 600), 
             aes(x=age_mos3 / 12, y = pred1, col = start), size = .8, 
             linetype = "longdash") +
-  scale_colour_manual(values = c("dodgerblue3", "maroon")) +
+  scale_colour_manual(values = c("dodgerblue3", "maroon", "forestgreen")) +
   scale_y_continuous(expand = expansion(mult = c(.1, .1))) +
   xlab("Age") + ylab("No. events per 100,000 (predicted)") +
   facet_wrap(~ start, nrow = 2, scales = "free_y") +
@@ -161,32 +170,32 @@ ggplot() +
 plot_nopt(covidcomp)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidcomp.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot_nopt(covidadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot_nopt(covidemerg)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidemerg.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot_nopt(respcomp)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_respcomp.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot_nopt(respadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_respadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot_nopt(anyadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_anyadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 
 
@@ -222,29 +231,29 @@ plot <- function(outcome){
 plot(covidcomp)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidcomp.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot(covidadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot(covidemerg)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidemerg.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot(respcomp)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_respcomp.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot(respadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_respadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
 
 plot(anyadmit)
 
 ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_anyadmit.png"),
-       dpi = 300, units = "in", width = 6, height = 6)
+       dpi = 300, units = "in", width = 6, height = 8)
