@@ -178,7 +178,7 @@ agg1("2022-09-03")
 agg1("2022-10-15")
 agg1("2022-11-26")
 
-start_dates <- as.Date(0:20, origin = "2022-11-26")
+start_dates <- as.Date(0:10, origin = "2022-11-26")
 sapply(start_dates,agg1)
 
 
