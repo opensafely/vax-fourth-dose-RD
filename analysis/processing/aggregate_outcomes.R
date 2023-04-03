@@ -121,7 +121,7 @@ write.csv(data3, here::here("output", "covid_outcomes", "by_start_date", paste0(
 
 
 data1_red <- data1 %>%
-  mutate(         total = roundmid_any(total, to=6),
+  mutate(total = roundmid_any(total, to=6),
 
          across(contains("n_"), roundmid_any),
          rate_covidcomposite = n_covidcomposite / total * 100000,
@@ -178,7 +178,7 @@ agg1("2022-09-03")
 agg1("2022-10-15")
 agg1("2022-11-26")
 
-start_dates <- as.Date(0:5, origin = "2022-11-26")
+start_dates <- as.Date(0:10, origin = "2022-11-26")
 sapply(start_dates,agg1)
 
 
