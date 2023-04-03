@@ -112,50 +112,50 @@ write.csv(respcomposite, here::here("output", "cohort", "outcomes_nov_respcompos
 # Check the maximum number of outcomes
 ###############################################################
 
-
-# Combine together all weekly files 
-# Create one outcome file per outcome
-check_max_admit_unplanned <- 
-  bind_rows(
-    purrr::map(index.dates, 
-               ~ dplyr::select(., admitted_unplanned_num))
-  ) %>% 
-  unique() %>%
-  summarise(admitted_unplanned_max = max(admitted_unplanned_num, na.rm = TRUE))
-
-print(paste0("Max unplanned admissions (n): ", check_max_admit_unplanned))
-
-check_max_covid_admit <-
-  bind_rows(
-    purrr::map(index.dates,
-               ~ dplyr::select(., covidadmitted_num))
-  ) %>%
-  unique() %>%
-  summarise(covidadmitted_max = max(covidadmitted_num, na.rm = TRUE))
-
-print(paste0("Max COVID admissions (n): ", check_max_covid_admit))
-
-check_max_covid_emerg <-
-  bind_rows(
-    purrr::map(index.dates,
-               ~ dplyr::select(., covidemergency_num))
-  ) %>%
-  unique() %>%
-  summarise(covidemergency_max = max(covidemergency_num, na.rm = TRUE))
-
-print(paste0("Max COVID A&E (n): ", check_max_covid_emerg))
-
-check_max_resp_admit <-
-  bind_rows(
-    purrr::map(index.dates,
-               ~ dplyr::select(., respadmitted_num))
-  ) %>%
-  unique() %>%
-  summarise(respadmitted_max = max(respadmitted_num, na.rm = TRUE))
-
-print(paste0("Max respiratory admissions (n): ", check_max_resp_admit))
-
-
+# 
+# # Combine together all weekly files 
+# # Create one outcome file per outcome
+# check_max_admit_unplanned <- 
+#   bind_rows(
+#     purrr::map(index.dates, 
+#                ~ dplyr::select(., admitted_unplanned_num))
+#   ) %>% 
+#   unique() %>%
+#   summarise(admitted_unplanned_max = max(admitted_unplanned_num, na.rm = TRUE))
+# 
+# print(paste0("Max unplanned admissions (n): ", check_max_admit_unplanned))
+# 
+# check_max_covid_admit <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., covidadmitted_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(covidadmitted_max = max(covidadmitted_num, na.rm = TRUE))
+# 
+# print(paste0("Max COVID admissions (n): ", check_max_covid_admit))
+# 
+# check_max_covid_emerg <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., covidemergency_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(covidemergency_max = max(covidemergency_num, na.rm = TRUE))
+# 
+# print(paste0("Max COVID A&E (n): ", check_max_covid_emerg))
+# 
+# check_max_resp_admit <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., respadmitted_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(respadmitted_max = max(respadmitted_num, na.rm = TRUE))
+# 
+# print(paste0("Max respiratory admissions (n): ", check_max_resp_admit))
+# 
+# 
 
 #######################################
 # Outcomes start on November 26
