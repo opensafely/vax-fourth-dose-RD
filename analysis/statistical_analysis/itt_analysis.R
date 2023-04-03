@@ -29,7 +29,7 @@ dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FAL
 data_nov26 <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-11-26.csv")) %>%
   subset(!is.na(age_mos3) & age_mos3 >= 540 & age_mos3 < 660)
 
-data_dec06 <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-12-10.csv")) %>%
+data_dec06 <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-12-06.csv")) %>%
   subset(!is.na(age_mos3) & age_mos3 >= 540 & age_mos3 < 660)
 
 data_sep <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_3mon_2022-09-03.csv")) %>%
