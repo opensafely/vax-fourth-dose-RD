@@ -43,7 +43,7 @@ mod_pred <- function(data, out, start, name){
            quarter = rep(1:4, length.out = len)) %>%
     rename(outcome = {{out}}) 
   
-  mod <- glm(outcome / 100000 ~ age_mos3_c*over50, data = df, 
+  mod <- glm(outcome / 100000 ~ poly(age_mos3_c,2)*over50, data = df, 
              family = binomial("logit"), weights = total)
   
   newdata <- df %>% mutate(over50 = 0)
@@ -105,27 +105,27 @@ anyadmit_sep <- mod_pred(data_sep, rate_anyadmitted, "Index date: September 3", 
 
 covidcomp <- rbind(covidcomp_nov, covidcomp_sep)
 covidcomp2 <- covidcomp %>% select(!rate)
-write.csv(covidcomp2, here::here("output", "covid_outcomes", "predicted_covidcomp.csv"), row.names = FALSE)
+write.csv(covidcomp2, here::here("output", "covid_outcomes", "predicted_poly_covidcomp.csv"), row.names = FALSE)
 
 covidadmit <- rbind(covidadmit_nov, covidadmit_sep)
 covidadmit2 <- covidadmit %>% select(!rate)
-write.csv(covidadmit2, here::here("output", "covid_outcomes", "predicted_covidadmit.csv"), row.names = FALSE)
+write.csv(covidadmit2, here::here("output", "covid_outcomes", "predicted_poly_covidadmit.csv"), row.names = FALSE)
 
 covidemerg <- rbind(covidemerg_nov, covidemerg_sep)
 covidemerg2 <- covidemerg %>% select(!rate)
-write.csv(covidemerg2, here::here("output", "covid_outcomes", "predicted_covidemerg.csv"), row.names = FALSE)
+write.csv(covidemerg2, here::here("output", "covid_outcomes", "predicted_poly_covidemerg.csv"), row.names = FALSE)
 
 respcomp <- rbind(respcomp_nov, respcomp_sep)
 respcomp2 <- respcomp %>% select(!rate)
-write.csv(respcomp2, here::here("output", "covid_outcomes", "predicted_respcomp.csv"), row.names = FALSE)
+write.csv(respcomp2, here::here("output", "covid_outcomes", "predicted_poly_respcomp.csv"), row.names = FALSE)
 
 respadmit <- rbind(respadmit_nov, respadmit_sep)
 respadmit2 <- respadmit %>% select(!rate)
-write.csv(respadmit2, here::here("output", "covid_outcomes", "predicted_respadmit.csv"), row.names = FALSE)
+write.csv(respadmit2, here::here("output", "covid_outcomes", "predicted_poly_respadmit.csv"), row.names = FALSE)
 
 anyadmit <- rbind(anyadmit_nov, anyadmit_sep)
 anyadmit2 <- anyadmit %>% select(!rate)
-write.csv(anyadmit2, here::here("output", "covid_outcomes", "predicted_anyadmit.csv"), row.names = FALSE)
+write.csv(anyadmit2, here::here("output", "covid_outcomes", "predicted_poly_anyadmit.csv"), row.names = FALSE)
 
 
 ################
@@ -160,32 +160,32 @@ ggplot() +
 
 plot_nopt(covidcomp)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidcomp.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_covidcomp.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot_nopt(covidadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_covidadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot_nopt(covidemerg)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_covidemerg.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_covidemerg.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot_nopt(respcomp)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_respcomp.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_respcomp.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot_nopt(respadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_respadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_respadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot_nopt(anyadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_anyadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_nopt_pred_poly_anyadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 
@@ -221,30 +221,30 @@ plot <- function(outcome){
 
 plot(covidcomp)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidcomp.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_covidcomp.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot(covidadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_covidadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot(covidemerg)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_covidemerg.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_covidemerg.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot(respcomp)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_respcomp.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_respcomp.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot(respadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_respadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_respadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
 
 plot(anyadmit)
 
-ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_anyadmit.png"),
+ggsave(here::here("output", "covid_outcomes", "figures", "plot_pred_poly_anyadmit.png"),
        dpi = 300, units = "in", width = 6, height = 6)
