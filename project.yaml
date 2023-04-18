@@ -69,13 +69,21 @@ actions:
       highly_sensitive:
         cohort: output/index/inpu*.feather
 
-# Data cleaning of outcome data
-  data_process_outcomes:
-    run: r:latest analysis/processing/data_process_outcomes.R
-    needs: [outcomes_sep, outcomes_oct, outcomes_nov]
+# Data cleaning of outcome data (control periods)
+  data_process_outcomes_1:
+    run: r:latest analysis/processing/data_process_outcomes_1.R
+    needs: [outcomes_sep, outcomes_oct]
     outputs:
       highly_sensitive:
         outcomes: output/cohort/outcomes*.csv
+
+# Data cleaning of outcome data (Nov onward)
+  data_process_outcomes_2:
+    run: r:latest analysis/processing/data_process_outcomes_2.R
+    needs: [outcomes_nov]
+    outputs:
+      highly_sensitive:
+        outcomes: output/cohort/outcome*.csv
 
 # Plots of COVID booster uptake by age
   booster_uptake:
@@ -86,23 +94,40 @@ actions:
         rates_csv: output/cumulative_rates/final_*.csv 
         plot: output/cumulative_rates/plot_*.png
 
-# Outcome plots #
-  covid_outcomes:
-   run: r:latest analysis/descriptive/plot_outcomes_covid_byage.R
-   needs: [data_process_outcomes]
-   outputs:
+
+# Aggregate data by age
+  aggregate_outcomes_byage:
+    run: r:latest analysis/processing/aggregate_outcomes.R
+    needs: [data_process_outcomes_1, data_process_outcomes_2]
+    outputs:
       moderately_sensitive:
-        measure_csv: output/covid_outcomes/plot_*.csv
-        plot: output/covid_outcomes/plot_*.png
+        outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
+#        no_patients: output/descriptive/total_n_by_date.csv
 
 # Outcome plots #
-  resp_outcomes:
-   run: r:latest analysis/descriptive/plot_outcomes_resp_byage.R
-   needs: [data_process_outcomes]
+  # plot_outcomes:
+  #  run: r:latest analysis/descriptive/plot_outcomes_byage.R
+  #  needs: [aggregate_outcomes_byage]
+  #  outputs:
+  #     moderately_sensitive:
+  #       plot: output/covid_outcomes/figures/plot_*.png
+
+# ITT analysis #
+  itt_analysis:
+   run: r:latest analysis/statistical_analysis/itt_analysis.R
+   needs: [aggregate_outcomes_byage]
    outputs:
       moderately_sensitive:
-        measure_csv: output/covid_outcomes/plot*.csv
-        plot: output/covid_outcomes/plot*.png
+        measures_csv: output/covid_outcomes/predicted_*.csv
+        plot: output/covid_outcomes/figures/plot*.png
+
+# Latest date of outcome
+  latest_date_outcomes:
+   run: r:latest analysis/descriptive/latest_date_outcomes.R
+   needs: [data_process_outcomes_2]
+   outputs:
+      moderately_sensitive:
+        plot: output/descriptive/over*.png
 
 # Discontinuity of demographics
   # demographics:
@@ -122,29 +147,11 @@ actions:
   #       measure_csv: output/cumulative_rates/flu_*.csv
   #       plot: output/cumulative_rates/plot_flu_vax_byage.png
 
-# ITT analysis #
-  # itt_analysis:
-  #  run: r:latest analysis/statistical_analysis/itt_analysis.R
-  #  needs: [data_process_outcomes]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/covid_outcomes/outcome_*.csv
-
-# Outcome plots #
-  # covid_outcomes:
-  #  run: r:latest analysis/descriptive/covid_outcomes_byage.R
-  #  needs: [generate_study_pop]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measure_csv: output/covid_outcomes/covid_*.csv
-  #       plot: output/covid_outcomes/plot_outcomes_*.png
-  
 
 
 
 
 # IV analysis #
-
 
 
   
