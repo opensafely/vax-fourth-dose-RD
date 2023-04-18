@@ -15,6 +15,7 @@
 ##############################################################################
 
 
+
 # IMPORT STATEMENTS ----
 
 # Import code building blocks from cohort extractor package
@@ -54,7 +55,7 @@ study = StudyDefinition(
         returning="dob",
         returning_type="date",
     ),
-
+    
     # Date of death
     dod=patients.with_value_from_file(
         COHORT,
@@ -99,6 +100,7 @@ study = StudyDefinition(
     ## Hospitalisations ##
     
     # Unplanned hospital admission (all cause)
+     # Maximum unplanned admissions in a week is 5
     admitted_unplanned_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -149,6 +151,7 @@ study = StudyDefinition(
     # ),
   
     # COVID unplanned admission
+        #  Maximum COVID unplanned admissions in a week is 2
     covidadmitted_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -178,11 +181,12 @@ study = StudyDefinition(
     #     returning="number_of_matches_in_period",      
     #     with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
     #     with_these_diagnoses=covid_codes,
-    #     between=["index_date + 1","index_date + 6 days"],
+    #     between=["index_date + 1 days","index_date + 6 days"],
     #     return_expectations={"int" : {"distribution": "normal", "mean": 5, "stddev": 5}, "incidence" : 0.5},
     # ),   
 
     # Respiratory unplanned admission (primary diagnosis only)
+        #  Maximum respiratory unplanned admissions in a week is 2
     respadmitted_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -219,6 +223,7 @@ study = StudyDefinition(
     ## A&E attendances ##
 
     # COVID emergency attendance 
+        #  Maximum COVID emergency attednance in a week is 2
     covidemergency_date_1=patients.attended_emergency_care(
         returning="date_arrived",
         between=["index_date","index_date + 6 days"],

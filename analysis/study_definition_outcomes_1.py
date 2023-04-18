@@ -4,14 +4,14 @@
 # that will be extracted from
 # the OpenSAFELY database.
 #
-# STUDY PURPOSE: to understand cumulative uptake 
-#   of fourth dose (second booster) COVID-19 vaccine
-#   by age, before and after 50+ became eligible
+# STUDY PURPOSE: to perform regression discontinuity of 2022/23 
+#   autumn booster COVID-19 vaccine, before and after 50+ became eligible
 #   on October 15, 2022
 #
-# This study definition extracts information on outcomes. There are multiple
-# index dates (starting on 3 Sep through latest available) to capture all 
-# outcomes over the stud period.
+# This study definition extracts information on outcomes for the control
+# periods - i.e. 42 days after Sep 03 (pre-campaign), 
+# and 42 days after Oct 15 (start of campaign). Only one outcome (first)
+# per person is extracted.
 #
 ##############################################################################
 
@@ -71,36 +71,7 @@ study = StudyDefinition(
     ## OUTCOMES
     ############################################################
   
-    ## Hospitalisations ##
-    
-    # Unplanned hospital admission (all cause)
-    admitted_unplanned_date=patients.admitted_to_hospital(
-        returning="date_admitted",
-        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-        with_patient_classification = ["1"], # ordinary admissions only
-        between=["index_date","index_date + 28 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-    ),
-  
-    # COVID unplanned admission
-    covidadmitted_date=patients.admitted_to_hospital(
-        returning="date_admitted",
-        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-        with_these_diagnoses=covid_codes,
-        between=["index_date","index_date + 28 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-    ),   
-    # Respiratory unplanned admission (primary diagnosis only)
-    respadmitted_date=patients.admitted_to_hospital(
-        returning="date_admitted",
-        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-        with_these_primary_diagnoses=resp_codes,
-        between=["index_date","index_date + 28 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-    ),
+    ## Deaths ##
 
     # COVID-related death
     coviddeath_date=patients.with_these_codes_on_death_certificate(
@@ -123,10 +94,40 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
     ),
 
+    ## Hospitalisations ##
+    
+    # Unplanned hospital admission (all cause)
+    admitted_unplanned_date=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["index_date","index_date + 42 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+    # COVID unplanned admission
+    covidadmitted_date=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_these_diagnoses=covid_codes,
+        between=["index_date","index_date + 42 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),   
+    # Respiratory unplanned admission (primary diagnosis only)
+    respadmitted_date=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_these_primary_diagnoses=resp_codes,
+        between=["index_date","index_date + 42 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+    ),
+
     # COVID emergency attendance 
     covidemergency_date=patients.attended_emergency_care(
         returning="date_arrived",
-        between=["index_date","index_date + 28 days"],
+        between=["index_date","index_date + 42 days"],
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,

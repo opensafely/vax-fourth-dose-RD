@@ -1,6 +1,7 @@
 
 ################################################################
-# This script performs data cleaning and preparation
+# This script defines exclusion criteria and extracts
+# final study population
 ################################################################
 
 
@@ -55,14 +56,12 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     
     # Booster date (if received)
     boost_date = case_when(
-        (!is.na(covid_vax_3_date) & 
-              covid_vax_3_date >= as.Date("2022-09-05") & 
-              covid_vax_3_date < end_date) ~ covid_vax_3_date,
-        
         (!is.na(covid_vax_4_date) & 
               covid_vax_4_date >= as.Date("2022-09-05") & 
               covid_vax_4_date < end_date) ~ covid_vax_4_date,
-        
+        (!is.na(covid_vax_3_date) & is.na(covid_vax_4_date) &
+              covid_vax_3_date >= as.Date("2022-09-05") & 
+              covid_vax_3_date < end_date) ~ covid_vax_3_date,
         TRUE ~ as.Date(NA)),
     
     # Received booster anytime in 2022/23
@@ -82,13 +81,13 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
                                  covid_vax_2_date <= as.Date("2022-10-15")) |
                                 (covid_vax_1_date >= as.Date("2022-07-15") &
                                  covid_vax_1_date <= as.Date("2022-10-15"))
-                                ), 1, 0, missing = 0),
+                                ), 1, 0, 0),
     
     # Received 2nd dose at least 3 months prior to start of campaign
-    covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, 0),
     
     # Received 3rd dose at least 3 months prior to start of campaign
-    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, 0),
     
     any_exclusion = (carehome == 1 | cv == 1 | hscworker == 1 |
           endoflife == 1 | housebound == 1 | covid_vax4_early == 1 |
@@ -107,8 +106,7 @@ pop_before_exclusions_byage <- baseline %>%
   group_by(age, total) %>%
   summarise(
          carehome = sum(carehome == 1),
-         housebound = sum(housebound == 1),
-
+         
          immunosuppressed = sum(immunosuppressed == 1),
          ckd = sum(chronic_kidney_disease == 1),
          chronic_resp_disease = sum(chronic_resp_disease == 1),
@@ -124,6 +122,7 @@ pop_before_exclusions_byage <- baseline %>%
          cv = sum(cv == 1),
          hscworker = sum(hscworker == 1),
          endoflife = sum(endoflife == 1),
+         housebound = sum(housebound == 1),
          
          covid_vax4_early = sum(covid_vax4_early == 1),
          covid_vax3_early = sum(covid_vax3_early == 1),
@@ -205,6 +204,9 @@ final <- baseline %>%
                    sev_obesity, flu_vax_tpp_date, flu_vax_med_date, 
                    flu_vax_clinical_date)
                 )
+
+# Number of obs
+print(paste0("Final population (n): ", nrow(final)))
 
 #Save
 write.csv(final,

@@ -4,9 +4,8 @@
 # that will be extracted from
 # the OpenSAFELY database.
 #
-# STUDY PURPOSE: to understand cumulative uptake 
-#   of fourth dose (second booster) COVID-19 vaccine
-#   by age, before and after 50+ became eligible
+# STUDY PURPOSE: to perform regression discontinuity of 2022/23 
+#   autumn booster COVID-19 vaccine, before and after 50+ became eligible
 #   on October 15, 2022
 #
 # This study definition defines the baseline characteristics (e.g. demographics, vax dates).
@@ -71,11 +70,11 @@ study = StudyDefinition(
         "index_date", 
         return_expectations = {
             "rate": "universal",
-            "int": {"distribution": "population_ages"},
+            "int": {"distribution": "normal", "mean" : 50, "stddev": 3},
             "incidence" : 0.001
         },
     ),
-    
+
     # Date of birth month/year
     dob = patients.date_of_birth(
         "YYYY-MM",
@@ -98,6 +97,11 @@ study = StudyDefinition(
     dod = patients.died_from_any_cause(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": "2022-09-03", "latest": "2023-02-01"},
+            "rate": "uniform",
+            "incidence" : .1
+        },
     ),
 
     ###########################################################
@@ -206,6 +210,7 @@ study = StudyDefinition(
     ###############################################################################
 
     # Healthcare worker at time of vaccination
+        # Need to sort out how this is defined
     hscworker = patients.with_healthcare_worker_flag_on_covid_vaccine_record(returning="binary_flag"),
 
     ## From PRIMIS ##
@@ -250,7 +255,7 @@ study = StudyDefinition(
             between=["index_date - 90 days", "index_date - 61 days"],
             return_expectations = {"incidence": 0.01},
         ),
-    return_expectations = {"incidence": 0.01},
+        return_expectations = {"incidence": 0.01},
     ),
 
     # Chronic Respiratory Disease
@@ -428,7 +433,7 @@ study = StudyDefinition(
         return_expectations = {"incidence": 0.01},
     ),
 
-    # Immunosupressive conditions / medications #
+    # Immunosupressive conditions (e.g. cancer, transplant) / medications 
     immunosuppressed=patients.satisfying(
         """
         immrx OR 
