@@ -111,7 +111,7 @@ study = StudyDefinition(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_patient_classification = ["1"], # ordinary admissions only
-        between=["admitted_unplanned_date + 1 + 1","index_date + 6 days"],
+        between=["admitted_unplanned_date_1 + 1","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
     ),
