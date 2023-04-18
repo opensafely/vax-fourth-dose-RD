@@ -49,7 +49,7 @@ ggplot(anyadmit_bydate) +
   theme_bw()
 
 ggsave(here::here("output", "descriptive", "over_time_admit.png"),
-         dpi = 300, units = "in", width = 3, height = 3)
+       dpi = 300, units = "in", width = 3, height = 3)
 
 
 # Check latest admission date
