@@ -103,6 +103,7 @@ sapply(start_dates, agg, grp = "yrs", age = age_yrs)
 
 
 ########################################
+
 # Create data frame with number of patients per cohort
 # pat <- function(start_date){
 #   data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
