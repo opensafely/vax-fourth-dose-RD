@@ -119,7 +119,7 @@ actions:
       moderately_sensitive:
         predicted_csv: output/modelling/predicted_*.csv
         coefficients_csv: output/modelling/coef_*.csv
-        plot: output/covid_outcomes/figures/plot*.png
+        plot: output/modelling/figures/plot*.png
 
 # Latest date of outcome
   latest_date_outcomes:
@@ -130,12 +130,12 @@ actions:
         plot: output/descriptive/over*.png
 
 # Discontinuity of demographics
-  # demographics:
-  #  run: r:latest analysis/descriptive/demographics_byage.R
-  #  needs: [generate_study_pop_baseline, data_process_baseline]
-  #  outputs:
-  #     moderately_sensitive:
-  #       measures_csv: output/descriptive/demographics_*.csv
+  demographics:
+   run: r:latest analysis/descriptive/demographics_byage.R
+   needs: [generate_study_pop_baseline, data_process_baseline]
+   outputs:
+      moderately_sensitive:
+        measures_csv: output/descriptive/demographics_*.csv
 
 
 # Flu vaccine uptake #
