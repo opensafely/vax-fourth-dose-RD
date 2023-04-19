@@ -48,6 +48,7 @@ out <- function(start_date){
          
          # Age in months
          age_mos = (dob %--% start_date) %/% months(1),
+         age_yrs = (dob %--% start_date) %/% years(1),
          
          # Calendar birth month
          birth_month = as.factor(month(dob)),

@@ -20,20 +20,15 @@ library('fs')
 library('ggplot2')
 library('RColorBrewer')
 
+
 ## Create directories
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 
 
-## Function for redaction
-redact <- function(vars) {
-  case_when(vars > 7 ~ vars)
-}
+# Load functions
+source(here::here("analysis", "custom_functions.R"))
 
-## Function for rounding
-rounding <- function(vars) {
-  round(vars / 5) * 5
-}
 
 ##########################################
 # Read in and prep data 
@@ -44,11 +39,12 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
   subset(age >= 45 & age < 55) %>%
   
   # Create age in months variable
-  mutate(age_mos = (dob %--% "2022-09-03") %/% months(1)) %>%
+  mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
+         age_3mos = floor(age_mos / 3)) %>%
   
   # Calculate denominator by age in months
-  group_by(age_mos) %>%
-  mutate(total_age_mos = n()) 
+  group_by(age_3mos) %>%
+  mutate(total_age_3mos = n()) 
 
 
 ##########################################
@@ -59,11 +55,11 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
 freq <- function(var){
   demographics %>%
     # Count number in each IMD category by age in months
-    group_by(age_mos, {{var}}, total_age_mos) %>% 
+    group_by(age_3mos, {{var}}, total_age_3mos) %>% 
     tally() %>%
-    mutate(across(c(n, total_age_mos), rounding),
-           across(c(n, total_age_mos), redact),
-         pcent = n / total_age_mos * 100) 
+    mutate(across(c(n, total_age_3mos), rounding),
+           across(c(n, total_age_3mos), redact),
+         pcent = n / total_age_3mos * 100) 
 }
 
 

@@ -170,9 +170,7 @@ pop_before_exclusions_total <- baseline %>%
     
     covid_vax_recent = sum(covid_vax_recent == 1),
     
-    any_exclusion = sum(carehome == 1 | cv == 1 | hscworker == 1 |
-                          endoflife == 1 | housebound == 1 | covid_vax4_early == 1 |
-                          covid_vax3_early == 1 | covid_vax2 != 1 | covid_vax_recent == 1)
+    any_exclusion = sum(any_exclusion)
   ) %>%
   ungroup() %>%
   # Redaction and rounding

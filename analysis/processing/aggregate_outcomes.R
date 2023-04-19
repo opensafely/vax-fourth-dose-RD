@@ -35,94 +35,43 @@ source(here::here("analysis", "custom_functions.R"))
 # Total events by age in months
 #########################################
 
-agg1 <- function(start_date){
+agg <- function(start_date, grp, age){
   
-data1 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
-  group_by(age_mos) %>%
-  mutate(total = n()) %>%
-  ungroup() %>%
-  group_by(age_mos, total) %>%
-  summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
-            n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
-            n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
-            n_covidemerg = sum(covidemerg == 1, na.rm = TRUE),
-            n_respcomposite = sum(respcomposite ==1, na.rm = TRUE),
-            n_respdeath = sum(respdeath == 1, na.rm = TRUE),
-            n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
-            n_anydeath = sum(anydeath ==1, na.rm = TRUE),
-            n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) %>%
-  mutate(rate_covidcomposite = n_covidcomposite / total * 100000,
-            rate_covidadmitted = n_covidadmitted / total * 100000,
-            rate_coviddeath = n_coviddeath / total * 100000,
-            rate_covidemerg = n_covidemerg / total * 100000,
-            rate_respcomposite = n_respcomposite / total * 100000,
-            rate_respdeath = n_respdeath / total * 100000,
-            rate_respadmitted = n_respadmitted / total * 100000,
-            rate_anydeath = n_anydeath / total * 100000,
-            rate_anyadmitted = n_anyadmitted / total * 100000
-            ) 
-
-write.csv(data1, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_1mon_",start_date,".csv")), row.names = FALSE)
-
-data3 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
-  mutate(age_mos3 = round(age_mos / 3) * 3) %>%
-  group_by(age_mos3) %>%
-  mutate(total = n()) %>%
-  ungroup() %>%
-  group_by(age_mos3, total) %>%
-  summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
-            n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
-            n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
-            n_covidemerg = sum(covidemerg == 1, na.rm = TRUE),
-            n_respcomposite = sum(respcomposite ==1, na.rm = TRUE),
-            n_respdeath = sum(respdeath == 1, na.rm = TRUE),
-            n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
-            n_anydeath = sum(anydeath ==1, na.rm = TRUE),
-            n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) %>%
-  mutate(rate_covidcomposite = n_covidcomposite / total * 100000,
-            rate_covidadmitted = n_covidadmitted / total * 100000,
-            rate_coviddeath = n_coviddeath / total * 100000,
-            rate_covidemerg = n_covidemerg / total * 100000,
-            rate_respcomposite = n_respcomposite / total * 100000,
-            rate_respdeath = n_respdeath / total * 100000,
-            rate_respadmitted = n_respadmitted / total * 100000,
-            rate_anydeath = n_anydeath / total * 100000,
-            rate_anyadmitted = n_anyadmitted / total * 100000) 
-
-write.csv(data3, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_3mon_",start_date,".csv")), row.names = FALSE)
-
-# 
-# data6 <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
-#   mutate(age_mos6 = round(age_mos / 6) * 6) %>%
-#   group_by(age_mos6) %>%
-#   mutate(total = n()) %>%
-#   ungroup() %>%
-#   group_by(age_mos6, total) %>%
-#   summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
-#             n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
-#             n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
-#             n_covidemerg = sum(covidemerg == 1, na.rm = TRUE),
-#             n_respcomposite = sum(respcomposite ==1, na.rm = TRUE),
-#             n_respdeath = sum(respdeath == 1, na.rm = TRUE),
-#             n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
-#             n_anydeath = sum(anydeath ==1, na.rm = TRUE),
-#             n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) %>%
-#   mutate(rate_covidcomposite = n_covidcomposite / total * 100000,
-#             rate_covidadmitted = n_covidadmitted / total * 100000,
-#             rate_coviddeath = n_coviddeath / total * 100000,
-#             rate_covidemerg = n_covidemerg / total * 100000,
-#             rate_respcomposite = n_respcomposite / total * 100000,
-#             rate_respdeath = n_respdeath / total * 100000,
-#             rate_respadmitted = n_respadmitted / total * 100000,
-#             rate_anydeath = n_anydeath / total * 100000,
-#             rate_anyadmitted = n_anyadmitted / total * 100000) 
-# 
-# write.csv(data6, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_6mon_",start_date,".csv")), row.names = FALSE)
-
-
-data1_red <- data1 %>%
-  mutate(total = roundmid_any(total, to=6),
-
+  
+  # No redaction
+  dat <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+    mutate(age_3mos = floor(age_mos / 3)) %>%
+    group_by({{age}}) %>%
+    mutate(total = n()) %>%
+    ungroup({{age}}) %>%
+    group_by({{age}}, total) %>%
+    summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
+              n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
+              n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
+              n_covidemerg = sum(covidemerg == 1, na.rm = TRUE),
+              n_respcomposite = sum(respcomposite ==1, na.rm = TRUE),
+              n_respdeath = sum(respdeath == 1, na.rm = TRUE),
+              n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
+              n_anydeath = sum(anydeath ==1, na.rm = TRUE),
+              n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) %>%
+    mutate(rate_covidcomposite = n_covidcomposite / total * 100000,
+           rate_covidadmitted = n_covidadmitted / total * 100000,
+           rate_coviddeath = n_coviddeath / total * 100000,
+           rate_covidemerg = n_covidemerg / total * 100000,
+           rate_respcomposite = n_respcomposite / total * 100000,
+           rate_respdeath = n_respdeath / total * 100000,
+           rate_respadmitted = n_respadmitted / total * 100000,
+           rate_anydeath = n_anydeath / total * 100000,
+           rate_anyadmitted = n_anyadmitted / total * 100000
+    ) 
+  
+  
+  write.csv(dat, here::here("output", "covid_outcomes", "by_start_date", 
+                            paste0("outcomes_byage_",grp,"_",start_date,".csv")), row.names = FALSE)
+  
+  # Redaction
+  dat_red <- dat %>%
+    mutate(total = roundmid_any(total, to=6),
          across(contains("n_"), roundmid_any),
          rate_covidcomposite = n_covidcomposite / total * 100000,
          rate_covidadmitted = n_covidadmitted / total * 100000,
@@ -133,54 +82,24 @@ data1_red <- data1 %>%
          rate_respadmitted = n_respadmitted / total * 100000,
          rate_anydeath = n_anydeath / total * 100000,
          rate_anyadmitted = n_anyadmitted / total * 100000)
-
-write.csv(data1_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_1mon_",start_date,"_red.csv")), row.names = FALSE)
-
-
-data3_red <- data3 %>%
-  mutate(
-    across(contains("n_"), roundmid_any),
-    total = roundmid_any(total, to = 6),
-    rate_covidcomposite = n_covidcomposite / total * 100000,
-    rate_covidadmitted = n_covidadmitted / total * 100000,
-    rate_coviddeath = n_coviddeath / total * 100000,
-    rate_covidemerg = n_covidemerg / total * 100000,
-    rate_respcomposite = n_respcomposite / total * 100000,
-    rate_respdeath = n_respdeath / total * 100000,
-    rate_respadmitted = n_respadmitted / total * 100000,
-    rate_anydeath = n_anydeath / total * 100000,
-    rate_anyadmitted = n_anyadmitted / total * 100000)
-
-write.csv(data3_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_3mon_",start_date,"_red.csv")), row.names = FALSE)
-
-
-# data6_red <- data6 %>%
-#   mutate(
-#          across(contains("n_"), roundmid_any),
-#          total = roundmid_any(total, to = 6),
-#          rate_covidcomposite = n_covidcomposite / total * 100000,
-#          rate_covidadmitted = n_covidadmitted / total * 100000,
-#          rate_coviddeath = n_coviddeath / total * 100000,
-#          rate_covidemerg = n_covidemerg / total * 100000,
-#          rate_respcomposite = n_respcomposite / total * 100000,
-#          rate_respdeath = n_respdeath / total * 100000,
-#          rate_respadmitted = n_respadmitted / total * 100000,
-#          rate_anydeath = n_anydeath / total * 100000,
-#          rate_anyadmitted = n_anyadmitted / total * 100000)
-# 
-# write.csv(data6_red, here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_6mon_",start_date,"_red.csv")), row.names = FALSE)
-
+  
+  write.csv(dat_red, here::here("output", "covid_outcomes", "by_start_date", 
+                                paste0("outcomes_byage_",grp,"_",start_date,"_red.csv")), row.names = FALSE)
+  
 }
 
+### Do the above over all relevant start dates
+agg("2022-09-03", "3mon", age_3mos) 
+agg("2022-09-03", "yrs", age_yrs)
 
-# Do the above over all relevant start dates
-agg1("2022-09-03")
-agg1("2022-10-15")
-agg1("2022-11-26")
+agg("2022-10-15", "3mon", age_3mos) 
+agg("2022-10-15", "yrs", age_yrs)
+
 
 start_dates <- as.Date(0:10, origin = "2022-11-26")
-sapply(start_dates,agg1)
 
+sapply(start_dates, agg, grp = "3mon", age = age_3mos)
+sapply(start_dates, agg, grp = "yrs", age = age_yrs)
 
 
 ########################################
