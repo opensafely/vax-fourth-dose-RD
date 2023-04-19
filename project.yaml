@@ -94,7 +94,6 @@ actions:
         rates_csv: output/cumulative_rates/final_*.csv 
         plot: output/cumulative_rates/plot_*.png
 
-
 # Aggregate data by age
   aggregate_outcomes_byage:
     run: r:latest analysis/processing/aggregate_outcomes.R
@@ -118,7 +117,8 @@ actions:
    needs: [aggregate_outcomes_byage]
    outputs:
       moderately_sensitive:
-        measures_csv: output/covid_outcomes/predicted_*.csv
+        predicted_csv: output/modelling/predicted_*.csv
+        coefficients_csv: output/modelling/coef_*.csv
         plot: output/covid_outcomes/figures/plot*.png
 
 # Latest date of outcome

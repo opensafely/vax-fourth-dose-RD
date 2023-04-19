@@ -173,6 +173,7 @@ bydate1 <- function(start_date, dat, var){
     mutate(dod = as.Date(dod, format = "%Y-%m-%d"),
            
            # Create variable for age in months
+           age_yrs = (dob %--% start_date) %/% years(1),
            age_mos = (dob %--% start_date) %/% months(1),
            
            # Calendar birth month
@@ -188,7 +189,7 @@ bydate1 <- function(start_date, dat, var){
     # Exclude if died before start date
     subset(is.na(dod) | dod >= start_date) %>%
     
-    group_by(patient_id, flu_vax, age_mos, birth_month, dod) %>%
+    group_by(patient_id, flu_vax, age_mos, age_yrs, birth_month, dod) %>%
     
     # Collapse to one row person (as some people have multiple outcome dates)
     summarise({{var}} := max({{var}}, na.rm = TRUE))
@@ -210,7 +211,7 @@ bydate2 <- function(start_date){
               bydate1(start_date, anydeath, anydeath),
               bydate1(start_date, anyadmitted, anyadmitted))
   
-  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "age_mos", "dod", "birth_month"))
+  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "age_yrs", "age_mos", "dod", "birth_month"))
   
   print(paste0(start_date," (no. rows): ", nrow(outcomes)))
   print(paste0(start_date," (no. people): ", n_distinct(outcomes$patient_id)))        

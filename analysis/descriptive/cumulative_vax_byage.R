@@ -52,7 +52,7 @@ booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
            age_yrs = (dob %--% "2022-11-26") %/% years(1)) %>%
     # Exclude if died
     subset(dod > as.Date("2022-11-26") | is.na(dod)) %>%
-    dplyr::select(c(age_mos, age_yrs, boost_date, booster)) 
+    dplyr::select(c(patient_id, age_mos, age_yrs, boost_date, booster)) 
   
 
 #####################################################
@@ -84,24 +84,27 @@ booster_age1_byday <- booster %>%
   mutate(age_yrs = as.character(age_yrs))
 
 # Save
-booster_age1_byday <- booster_age1_byday %>% subset(boost_date >= as.Date("2022-09-06"))
+booster_age1_byday <- booster_age1_byday %>% 
+  subset(boost_date >= as.Date("2022-09-06"))
+
 write.csv(booster_age1_byday,
           here::here("output", "cumulative_rates", "final_dose4_cum_byage1.csv"), row.names = FALSE)
 
+
 ### Plot cumulative booster dose over time
-ggplot(subset(booster_age1_byday, boost_date >= as.Date("2022-09-05") |
+ggplot(subset(booster_age1_byday, boost_date >= as.Date("2022-09-03") |
                 boost_date < end_date)) +
   geom_line(aes(x = boost_date, y = rate/100, group = age_yrs, col = age_yrs),
             size = 1.25) +
-  geom_vline(aes(xintercept = as.Date("2022-10-14")), linetype = "longdash") +
+  geom_vline(aes(xintercept = as.Date("2022-10-15")), linetype = "longdash") +
   scale_color_brewer(palette = "RdBu") +
   scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
   scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
                                 as.Date("2022-10-14"), as.Date("2022-11-01"),
                                 as.Date("2022-12-01"), as.Date("2023-01-01"),
-                                as.Date("2023-02-01")),
+                                as.Date("2023-02-01"), as.Date("2023-03-01")),
                      labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1", 
-                                "Jan 1", "Feb 1")) +
+                                "Jan 1", "Feb 1", "Mar 1")) +
   xlab(NULL) + ylab("Received autumn booster") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -114,34 +117,35 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 
 
 
-######################################
-### % vaccinated by age in months  ###
-######################################
+#################################################
+### % vaccinated by age in 3 month intervals  ###
+#################################################
 
 booster_nov26 <- booster %>%
-    group_by(age_mos) %>%
+    mutate(age_3mos = floor(age_mos / 3)) %>%
+    group_by(age_3mos) %>%
     mutate(boost_nov26 = if_else(boost_date <= as.Date("2022-11-26"), 1, 0, 0),
            total = n()) %>%
     ungroup() %>%
-    group_by(age_mos, total) %>%
+    group_by(age_3mos, total) %>%
     summarise(n_boost = sum(boost_nov26)) %>%
     mutate(n_boost = case_when(n_boost > 7 ~ n_boost), # Redaction
               n_boost = round(n_boost / 5) * 5, # Rounding
               total = round(total / 5) * 5, # Rounding
               pcent_boost = n_boost / total * 100,
-              age_mos = as.numeric(age_mos)) 
+              age_3mos = as.numeric(age_3mos)) 
 
 # Save
 write.csv(booster_nov26,
-          here::here("output", "cumulative_rates", "final_vax4_age_months.csv"), row.names = FALSE)
+          here::here("output", "cumulative_rates", "final_vax4_age_3months.csv"), row.names = FALSE)
 
 ### Plot 
-ggplot(subset(booster_nov26, age_mos > 564 & age_mos < 636)) +
+ggplot(subset(booster_nov26, age_3mos >= 180 & age_3mos <= 216)) +
   geom_vline(aes(xintercept = 50), linetype = "longdash") +
-  geom_point(aes(x = age_mos / 12, y = pcent_boost), 
+  geom_point(aes(x = age_3mos / 4, y = pcent_boost), 
              col = "dodgerblue3") +
   scale_y_continuous(limits = c(0, 100)) +
-  scale_x_continuous(breaks = seq(47,53,1)) +
+  scale_x_continuous(breaks = seq(45,54,1)) +
   xlab(NULL) + ylab("Received second booster\nCOVID-19 vaccine (%)") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -149,7 +153,7 @@ ggplot(subset(booster_nov26, age_mos > 564 & age_mos < 636)) +
         legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_months.png"),
+ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_3months.png"),
        dpi = 300, units = "in", width = 6, height = 3.25)
 
 
