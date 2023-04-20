@@ -1,4 +1,3 @@
-
 ################################################################
 # This script:
 # - Conducts regression model and plots predicted values
@@ -34,7 +33,7 @@ dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 sharp <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+  data <- read.csv(here::here("output", "cohort", paste0("outcomes_check_",start_date,".csv"))) %>%
     mutate(age_3mos = floor(age_mos / 3)) %>%
     subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) 
   
@@ -59,10 +58,6 @@ sharp <- function(start_date){
       mutate(start_date = start_date,
               outcome = name) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`)
-    
-    # Save coefficients
-    write.csv(coef2, here::here("output", "modelling", paste0("coef_",suffix,"_",start_date,".csv")),
-              row.names = FALSE)
     
     # Predicted values 
     origdata <- df %>% distinct(age_3mos, age_3mos_c, over50) %>%
@@ -94,8 +89,6 @@ sharp <- function(start_date){
       mutate(start = start_date,
              outcome = name)
     
-    write.csv(df_pred, here::here("output", "modelling", paste0("predicted_",suffix,"_",start_date,".csv")), row.names = FALSE)
-  
     ggplot() + 
       geom_ribbon(data=subset(df_pred, age_3mos <= 200), 
                   aes(x=age_3mos / 4, ymin=lci2, ymax=uci2), alpha=0.2, fill = "gray50") +
@@ -120,7 +113,7 @@ sharp <- function(start_date){
             legend.title = element_blank(), legend.position = "none",
             axis.text.x = element_text(angle = 45, hjust = 1))
     
-    ggsave(here::here("output", "modelling", "figures", paste0("plot_pred_",suffix,start_date,".png")),
+    ggsave(here::here("output", "modelling", "figures", paste0("plot_check_",suffix,start_date,".png")),
            dpi = 300, units = "in", width = 6, height = 8)
     
   }
@@ -136,34 +129,7 @@ sharp <- function(start_date){
 }
 
 
-
-# Create list of dates
-start_dates <- c(as.Date("2022-09-03"), as.Date( "2022-10-15"), as.Date(0:10, origin = "2022-11-26")) 
-
-# Run function over all dates
-sapply(start_dates, sharp)
-
-
-### Combine all coefficients files into one ###
-comb <- function(suffix){
-  
-  files <- list.files(here::here("output", "modelling"),
-                    pattern = paste0("coef_",suffix), recursive = TRUE, 
-                    full.names = TRUE)
-
-  all_coef <- read_csv(files) %>% bind_rows() 
-
-  write.csv(all_coef, here::here("output", "modelling", paste0("coef_",suffix,"_","all_.csv")))
-
-}
-
-comb("covidcomp")
-comb("covidadmit")
-comb("covidemerg")
-comb("respcomp")
-comb("respadmit")
-comb("anyadmit")
-
+sharp("2022-11-26")
 
 
 

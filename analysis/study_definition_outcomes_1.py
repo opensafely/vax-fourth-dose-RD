@@ -67,6 +67,13 @@ study = StudyDefinition(
         returning_type="date",
     ),
 
+    # Booster vax
+    boost_date=patients.with_value_from_file(
+        COHORT,
+        returning="boost_date",
+        returning_type="date",
+    ),
+
     ############################################################
     ## OUTCOMES
     ############################################################

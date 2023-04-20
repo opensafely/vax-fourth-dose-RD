@@ -182,6 +182,9 @@ bydate1 <- function(start_date, dat, var){
            # Flag for having received flu vax before start date
            flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < start_date, 1, 0, 0),
            
+           # Flag for bosster before start date
+           boost = if_else(!is.na(boost_date) & boost_date < as.Date(start_date), 1, 0, 0),
+           
            # Flag for outcome during 42 day period (1/0)
            {{var}} := if_else((!is.na(date) & date >= start_date
                                & date <= end_date), 1, 0, 0)) %>%
@@ -189,7 +192,7 @@ bydate1 <- function(start_date, dat, var){
     # Exclude if died before start date
     subset(is.na(dod) | dod >= start_date) %>%
     
-    group_by(patient_id, flu_vax, age_mos, age_yrs, birth_month, dod) %>%
+    group_by(patient_id, flu_vax, boost, age_mos, age_yrs, birth_month, dod) %>%
     
     # Collapse to one row person (as some people have multiple outcome dates)
     summarise({{var}} := max({{var}}, na.rm = TRUE))
