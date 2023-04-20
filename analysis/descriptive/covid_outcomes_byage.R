@@ -1,7 +1,7 @@
 
 ################################################################
 # This script:
-# - Calculates number of outcomes by week by age
+# - Calculates number of outcomes by week and by age
 ################################################################
 
 
@@ -121,6 +121,7 @@ primary_by_age_nov26 <- primary("2022-11-26")
 #}
 
 
+
 #######################################
 # Plots
 #######################################
@@ -143,8 +144,30 @@ ggplot(subset(primary_by_age_all, age_mos > 564 & age_mos < 636)) +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage.png"),
+       dpi = 300, units = "in", width = 6.5, height = 6.25)
+
+
+
+### Total events by age
+
+# 2 weeks post-campaign
+ggplot(subset(outcomes_overall_both, index_dt %in% c("2 weeks post-campaign"))) +
+  geom_line(aes(x = age, y = rate, group = outcome, col = outcome),size = 1.25) +
+  geom_vline(aes(xintercept = 50), linetype = "longdash") +
+  scale_x_continuous(breaks = seq(40,60,5)) +
+  scale_y_continuous(expand = c(0.2, 0)) +
+  scale_color_brewer(palette = "Spectral") +
+  facet_wrap(~ outcome, ncol = 3, scales = "free_y") +
+  xlab(NULL) + ylab("No. events per 100,000") +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0),
+        legend.title = element_blank(),legend.position = "none")
+
+ggsave(here::here("output", "covid_outcomes", "plot_outcomes_byage_2wk.png"),
        dpi = 300, units = "in", width = 8, height = 6.25)

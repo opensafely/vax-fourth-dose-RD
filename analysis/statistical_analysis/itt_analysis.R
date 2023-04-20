@@ -1,3 +1,4 @@
+
 ################################################################
 # This script:
 # - Conducts regression model and plots predicted values
@@ -143,7 +144,6 @@ start_dates <- c(as.Date("2022-09-03"), as.Date( "2022-10-15"), as.Date(0:10, or
 sapply(start_dates, sharp)
 
 
-
 ### Combine all coefficients files into one ###
 comb <- function(suffix){
   
@@ -163,6 +163,7 @@ comb("covidemerg")
 comb("respcomp")
 comb("respadmit")
 comb("anyadmit")
+
 
 
 
