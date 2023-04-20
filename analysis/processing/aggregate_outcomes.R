@@ -72,7 +72,7 @@ agg <- function(start_date, grp, age){
   # Redaction
   dat_red <- dat %>%
     mutate(total = roundmid_any(total, to=6),
-         across(contains("n_"), roundmid_any),
+         across(contains("n_"), roundmid_any, to =6),
          rate_covidcomposite = n_covidcomposite / total * 100000,
          rate_covidadmitted = n_covidadmitted / total * 100000,
          rate_coviddeath = n_coviddeath / total * 100000,
