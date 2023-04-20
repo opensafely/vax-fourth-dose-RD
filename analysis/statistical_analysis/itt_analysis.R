@@ -32,8 +32,9 @@ dir_create(here::here("output", "modelling","figures"), showWarnings = FALSE, re
 sharp <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", paste0("outcomes_byage_3mon_",start_date,".csv"))) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220)
+  data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+    mutate(age_3mos = floor(age_mos / 3)) %>%
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) 
   
   mod <- function(out, name, suffix){
     
@@ -46,27 +47,27 @@ sharp <- function(start_date){
       rename(outcome = {{out}}) 
     
     # Model
-    mod <- glm(outcome / 100000 ~ age_3mos_c*over50, data = df, 
-               family = binomial("logit"), weights = total)
-    
+    mod <- glm(outcome ~ age_3mos_c*over50, data = df, family = binomial("logit"))
+
     # Save coefficients and 95% CIs
     coef <-  data.frame(est = mod$coefficients)
     coef2 <- coef %>%  data.frame() %>%
       mutate(var = row.names(coef)) %>%
       cbind(confint(mod), aic = AIC(mod)) %>%
       mutate(start_date = start_date,
-             outcome = name) %>%
+              outcome = name) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`)
     
     # Save coefficients
     write.csv(coef2, here::here("output", "modelling", paste0("coef_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
-    # Create new data for predicting counterfactual value at cutoff
-    newdata <- df %>% mutate(over50 = 0)
-    
     # Predicted values 
-    pred.df1 <- predict(mod, se.fit = TRUE, type = "response") %>% 
+    origdata <- df %>% distinct(age_3mos, age_3mos_c, over50) %>%
+      arrange(age_3mos_c) 
+    
+    pred.df1 <- predict(mod, se.fit = TRUE, type = "response",
+                        newdata = origdata) %>% 
       data.frame() %>%
       mutate(pred1 = fit,
              lci1 = fit - 1.96*se.fit, 
@@ -74,6 +75,10 @@ sharp <- function(start_date){
       select(c("pred1","lci1","uci1"))
     
     # Predicted counterfactual values
+    newdata <- df %>% distinct(age_3mos, age_3mos_c, over50) %>%
+      arrange(age_3mos_c) %>%
+      mutate(over50 = 0) 
+    
     pred.df2 <- predict(mod, se.fit=TRUE, type = "response", 
                         newdata=newdata) %>%
       data.frame() %>%
@@ -83,31 +88,18 @@ sharp <- function(start_date){
       select(c("pred2","lci2","uci2"))
     
     # Combine with original data
-    df_pred <- cbind(age_3mos = df$age_3mos, 
-                     rate = df$out,
-                     total = df$total,
-                     pred.df1, pred.df2
-    ) %>%
-      mutate(pred1 = pred1 * 100000,
-             lci1 = lci1 * 100000,
-             uci1 = uci1 * 100000,
-             
-             pred2 = pred2 * 100000,
-             lci2 = lci2 * 100000,
-             uci2 = uci2 * 100000,
-             
-             start = start_date,
+    df_pred <- cbind(pred.df1, pred.df2, origdata) %>%
+      mutate(start = start_date,
              outcome = name)
     
     write.csv(df_pred, here::here("output", "modelling", paste0("predicted_",suffix,"_",start_date,".csv")), row.names = FALSE)
-    
   
     ggplot() + 
       geom_ribbon(data=subset(df_pred, age_3mos <= 200), 
                   aes(x=age_3mos / 4, ymin=lci2, ymax=uci2), alpha=0.2, fill = "gray50") +
       geom_ribbon(data=subset(df_pred, age_3mos >= 200), 
                   aes(x=age_3mos / 4, ymin=lci1, ymax=uci1), alpha=0.2, fill = "gray50") +
-      geom_point(data=df_pred, aes(x = age_3mos / 4, y = rate), size = 1.25, alpha= .5) +
+      #geom_point(data=df_pred, aes(x = age_3mos / 4, y = rate), size = 1.25, alpha= .5) +
       geom_vline(data=df_pred, aes(xintercept = 50), linetype = "longdash") +
       geom_line(data=subset(df_pred, age_3mos <= 200), 
                 aes(x=age_3mos / 4, y = pred2), size = .8, 
@@ -132,13 +124,13 @@ sharp <- function(start_date){
   }
   
   # Run for each outcome
-  mod(rate_covidcomposite, "COVID unplanned admission/A&E/death", "covidcomp")
-  mod(rate_covidadmitted, "COVID unplanned admission", "covidadmit")
-  mod(rate_covidemerg, "COVID A&E", "covidemerg")
-  mod(rate_coviddeath, "COVID death", "coviddeath")
-  mod(rate_respcomposite, "Respiratory composite", "respcomp")
-  mod(rate_respadmitted, "Respiratory admission", "respadmit")
-  mod(rate_anyadmitted, "All cause unplanned admission", "anyadmit")  
+  mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomp")
+  mod(covidadmitted, "COVID unplanned admission", "covidadmit")
+  mod(covidemerg, "COVID A&E", "covidemerg")
+  mod(coviddeath, "COVID death", "coviddeath")
+  mod(respcomposite, "Respiratory composite", "respcomp")
+  mod(respadmitted, "Respiratory admission", "respadmit")
+  mod(anyadmitted, "All cause unplanned admission", "anyadmit")  
   
 }
 

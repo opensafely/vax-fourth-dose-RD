@@ -114,7 +114,7 @@ actions:
 # ITT analysis #
   itt_analysis:
    run: r:latest analysis/statistical_analysis/itt_analysis.R
-   needs: [aggregate_outcomes_byage]
+   needs: [data_process_outcomes_1, data_process_outcomes_2]
    outputs:
       moderately_sensitive:
         predicted_csv: output/modelling/predicted_*.csv
