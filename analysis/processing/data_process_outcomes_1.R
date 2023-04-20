@@ -31,7 +31,6 @@ dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = 
 ## Load functions
 source(here::here("analysis", "custom_functions.R"))
 
-
 ####################################################
 # Function extracting outcomes in follow-up period
 ####################################################
@@ -54,7 +53,10 @@ out <- function(start_date){
          birth_month = as.factor(month(dob)),
          
          # Flag for having received flu vax before start date
-         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date <= as.Date(start_date), 1, 0, 0),
+         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < as.Date(start_date), 1, 0, 0),
+         
+         # Flag for bosster before start date
+         boost = if_else(!is.na(boost_date) & boost_date < as.Date(start_date), 1, 0, 0),
          
          # Create flag for each outcomes
          covidadmitted = if_else(!is.na(covidadmitted_date), 1, 0, 0),
@@ -93,6 +95,15 @@ print(paste0("October cohort (no. rows): ", nrow(outcomes_oct)))
 print(paste0("October cohort (no. people): ", n_distinct(outcomes_oct$patient_id)))        
       
 write.csv(outcomes_oct, here::here("output", "cohort", "outcomes_2022-10-15.csv"), row.names = FALSE)
+
+
+### Outcomes starting in November 
+outcomes_nov <- out("2022-11-26")
+
+print(paste0("November cohort (no. rows): ", nrow(outcomes_nov)))
+print(paste0("November cohort (no. people): ", n_distinct(outcomes_nov$patient_id)))        
+
+write.csv(outcomes_nov, here::here("output", "cohort", "outcomes_check_2022-11-26.csv"), row.names = FALSE)
 
 
 

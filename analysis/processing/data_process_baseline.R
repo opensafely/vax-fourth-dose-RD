@@ -85,10 +85,12 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
                                 ), 1, 0, missing = 0),
     
     # Received 2nd dose at least 3 months prior to start of campaign
-    covid_vax2 = if_else(covid_vax_2_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax2 = if_else(!is.na(covid_vax_2_date) &
+                           covid_vax_2_date < as.Date("2022-07-15"), 1, 0, missing = 0),
     
     # Received 3rd dose at least 3 months prior to start of campaign
-    covid_vax3 = if_else(covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
+    covid_vax3 = if_else(!is.na(covid_vax_3_date) &
+                           covid_vax_3_date < as.Date("2022-07-15"), 1, 0, missing = 0),
     
     any_exclusion = (carehome == 1 | cv == 1 | hscworker == 1 |
           endoflife == 1 | housebound == 1 | covid_vax4_early == 1 |
