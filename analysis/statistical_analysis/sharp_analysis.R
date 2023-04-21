@@ -23,6 +23,7 @@ library('data.table')
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "modelling", "final"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling","figures"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 
@@ -43,12 +44,11 @@ sharp <- function(start_date){
     len <- nrow(data)
     df <- data %>%
       mutate(over50 = if_else(age_3mos >= 200, 1, 0, 0),
-             age_3mos_c = as.numeric(age_3mos - 200), 
-             quarter = rep(1:4, length.out = len)) %>%
+             age_3mos_c = as.numeric(age_3mos - 200)) %>%
       rename(outcome = {{out}}) 
     
     # Model
-    mod <- glm(outcome ~ age_3mos_c*over50, data = df, family = binomial("logit"))
+    mod <- lm(outcome ~ age_3mos_c*over50, data = df)
 
     # Save coefficients and 95% CIs
     coef <-  data.frame(est = mod$coefficients)
@@ -153,7 +153,7 @@ comb <- function(suffix){
 
   all_coef <- read_csv(files) %>% bind_rows() 
 
-  write.csv(all_coef, here::here("output", "modelling", paste0("coef_",suffix,"_","all_.csv")), row.names = FALSE)
+  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_",suffix,"_","all_.csv")), row.names = FALSE)
 
 }
 
