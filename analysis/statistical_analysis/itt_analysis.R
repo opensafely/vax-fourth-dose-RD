@@ -153,7 +153,7 @@ comb <- function(suffix){
 
   all_coef <- read_csv(files) %>% bind_rows() 
 
-  write.csv(all_coef, here::here("output", "modelling", paste0("coef_",suffix,"_","all_.csv")))
+  write.csv(all_coef, here::here("output", "modelling", paste0("coef_",suffix,"_","all_.csv")), row.names = FALSE)
 
 }
 
