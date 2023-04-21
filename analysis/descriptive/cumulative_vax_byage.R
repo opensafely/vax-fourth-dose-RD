@@ -61,7 +61,7 @@ booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
 
 ### Calculate cumulative proportion of people receiving booster dose
 booster_age1_byday <- booster %>%
-  subset(age_yrs < 55 & age_yrs > 44) %>% 
+  subset(age_yrs < 55 & age_yrs >= 45) %>% 
   group_by(age_yrs) %>%
   mutate(total = n()) %>% # Calculate denominator (total count per age category)
   ungroup() %>%

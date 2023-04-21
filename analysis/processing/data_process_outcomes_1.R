@@ -97,13 +97,4 @@ print(paste0("October cohort (no. people): ", n_distinct(outcomes_oct$patient_id
 write.csv(outcomes_oct, here::here("output", "cohort", "outcomes_2022-10-15.csv"), row.names = FALSE)
 
 
-### Outcomes starting in November 
-outcomes_nov <- out("2022-11-26")
-
-print(paste0("November cohort (no. rows): ", nrow(outcomes_nov)))
-print(paste0("November cohort (no. people): ", n_distinct(outcomes_nov$patient_id)))        
-
-write.csv(outcomes_nov, here::here("output", "cohort", "outcomes_check_2022-11-26.csv"), row.names = FALSE)
-
-
 
