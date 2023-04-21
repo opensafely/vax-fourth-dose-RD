@@ -57,18 +57,6 @@ actions:
       highly_sensitive:
         cohort: output/index/input*.feather
 
-  # Extract outcomes during-campaign (index date = Nov 26) - checks
-  outcomes_nov_check:
-    run: cohortextractor:latest generate_cohort
-      --study-definition study_definition_outcomes_1
-      --index-date-range "2022-11-26" 
-      --output-dir=feather 
-      --output-format=feather
-    needs: [data_process_baseline]
-    outputs:
-      highly_sensitive:
-        cohort: output/index/inp*.feather
-
  # Extract outcomes during-campaign (index date = Nov 26)
   outcomes_nov:
     run: cohortextractor:latest generate_cohort
@@ -84,7 +72,7 @@ actions:
 # Data cleaning of outcome data (control periods)
   data_process_outcomes_1:
     run: r:latest analysis/processing/data_process_outcomes_1.R
-    needs: [outcomes_sep, outcomes_oct, outcomes_nov_check]
+    needs: [outcomes_sep, outcomes_oct]
     outputs:
       highly_sensitive:
         outcomes: output/cohort/outcomes*.csv
@@ -123,32 +111,24 @@ actions:
   #     moderately_sensitive:
   #       plot: output/covid_outcomes/figures/plot_*.png
 
-# ITT analysis #
-  itt_analysis:
-   run: r:latest analysis/statistical_analysis/itt_analysis.R
+# sharp analysis #
+  sharp_analysis:
+   run: r:latest analysis/statistical_analysis/sharp_analysis.R
    needs: [data_process_outcomes_1, data_process_outcomes_2]
    outputs:
       moderately_sensitive:
         predicted_csv: output/modelling/predicted_*.csv
-        coefficients_csv: output/modelling/coef_*.csv
+        coefficients_csv: output/modelling/final/coef_*.csv
         plot: output/modelling/figures/plot*.png
 
-# ITT analysis #
-  itt_analysis_check:
-   run: r:latest analysis/statistical_analysis/itt_analysis_check.R
-   needs: [data_process_outcomes_1]
-   outputs:
-      moderately_sensitive:
-        plot: output/modelling/figures/plo*.png
-
-# IV analysis #
-  iv_analysis:
-   run: r:latest analysis/statistical_analysis/iv_analysis.R
+# Fuzzy analysis #
+  fuzzy_analysis:
+   run: r:latest analysis/statistical_analysis/fuzzy_analysis.R
    needs: [data_process_outcomes_1, data_process_outcomes_2]
    outputs:
       moderately_sensitive:
-        predicted_csv: output/modelling/iv/predicted_*.csv
-        coefficients_csv: output/modelling/iv/coef_*.csv
+        coefficients_csv: output/modelling/iv/coef_iv*.csv
+        final_csv: output/modelling/final/coef_i*.csv
 
 # Latest date of outcome
   latest_date_outcomes:

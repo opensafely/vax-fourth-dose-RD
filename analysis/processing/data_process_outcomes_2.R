@@ -40,13 +40,14 @@ source(here::here("analysis", "custom_functions.R"))
 list.files <- dir_ls('output/index', regexp = "input_outcomes_2_")
 index.dates <- map(list.files, read_feather)
 
+
 # Combine together all weekly files 
   # Create one outcome file per outcome
 combine_files <- function(var){
   
   list <- purrr::map(index.dates, 
                      ~ dplyr::select(., c(contains(var), 
-                              patient_id, dob, dod, flu_vax_date)))
+                              patient_id, dob, dod, flu_vax_date,boost_date)))
   
   combined <- 
     bind_rows(list) %>% 
@@ -55,7 +56,7 @@ combine_files <- function(var){
   
   # Wide to long
   data <- combined %>%
-    reshape2::melt(id = c("patient_id", "dob", "dod", "flu_vax_date"), 
+    reshape2::melt(id = c("patient_id", "dob", "dod", "boost_date", "flu_vax_date"), 
                    value.name = "date") %>%
     mutate(date = as.Date(date, format = "%Y-%m-%d", origin = "1970-01-01")) %>%
     dplyr::select(!c(variable)) %>%
@@ -107,55 +108,6 @@ write.csv(respcomposite, here::here("output", "cohort", "outcomes_nov_respcompos
           row.names = FALSE)
     
 
-
-###############################################################
-# Check the maximum number of outcomes
-###############################################################
-
-# 
-# # Combine together all weekly files 
-# # Create one outcome file per outcome
-# check_max_admit_unplanned <- 
-#   bind_rows(
-#     purrr::map(index.dates, 
-#                ~ dplyr::select(., admitted_unplanned_num))
-#   ) %>% 
-#   unique() %>%
-#   summarise(admitted_unplanned_max = max(admitted_unplanned_num, na.rm = TRUE))
-# 
-# print(paste0("Max unplanned admissions (n): ", check_max_admit_unplanned))
-# 
-# check_max_covid_admit <-
-#   bind_rows(
-#     purrr::map(index.dates,
-#                ~ dplyr::select(., covidadmitted_num))
-#   ) %>%
-#   unique() %>%
-#   summarise(covidadmitted_max = max(covidadmitted_num, na.rm = TRUE))
-# 
-# print(paste0("Max COVID admissions (n): ", check_max_covid_admit))
-# 
-# check_max_covid_emerg <-
-#   bind_rows(
-#     purrr::map(index.dates,
-#                ~ dplyr::select(., covidemergency_num))
-#   ) %>%
-#   unique() %>%
-#   summarise(covidemergency_max = max(covidemergency_num, na.rm = TRUE))
-# 
-# print(paste0("Max COVID A&E (n): ", check_max_covid_emerg))
-# 
-# check_max_resp_admit <-
-#   bind_rows(
-#     purrr::map(index.dates,
-#                ~ dplyr::select(., respadmitted_num))
-#   ) %>%
-#   unique() %>%
-#   summarise(respadmitted_max = max(respadmitted_num, na.rm = TRUE))
-# 
-# print(paste0("Max respiratory admissions (n): ", check_max_resp_admit))
-# 
-# 
 
 #######################################
 # Outcomes start on November 26
@@ -214,7 +166,7 @@ bydate2 <- function(start_date){
               bydate1(start_date, anydeath, anydeath),
               bydate1(start_date, anyadmitted, anyadmitted))
   
-  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "age_yrs", "age_mos", "dod", "birth_month"))
+  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "boost", "age_yrs", "age_mos", "dod", "birth_month"))
   
   print(paste0(start_date," (no. rows): ", nrow(outcomes)))
   print(paste0(start_date," (no. people): ", n_distinct(outcomes$patient_id)))        
@@ -227,5 +179,56 @@ bydate2 <- function(start_date){
 start_dates <- as.Date(0:10, origin="2022-11-26")
 sapply(start_dates, bydate2)
 
+
+
+
+###############################################################
+# Check the maximum number of outcomes
+###############################################################
+
+# 
+# # Combine together all weekly files 
+# # Create one outcome file per outcome
+# check_max_admit_unplanned <- 
+#   bind_rows(
+#     purrr::map(index.dates, 
+#                ~ dplyr::select(., admitted_unplanned_num))
+#   ) %>% 
+#   unique() %>%
+#   summarise(admitted_unplanned_max = max(admitted_unplanned_num, na.rm = TRUE))
+# 
+# print(paste0("Max unplanned admissions (n): ", check_max_admit_unplanned))
+# 
+# check_max_covid_admit <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., covidadmitted_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(covidadmitted_max = max(covidadmitted_num, na.rm = TRUE))
+# 
+# print(paste0("Max COVID admissions (n): ", check_max_covid_admit))
+# 
+# check_max_covid_emerg <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., covidemergency_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(covidemergency_max = max(covidemergency_num, na.rm = TRUE))
+# 
+# print(paste0("Max COVID A&E (n): ", check_max_covid_emerg))
+# 
+# check_max_resp_admit <-
+#   bind_rows(
+#     purrr::map(index.dates,
+#                ~ dplyr::select(., respadmitted_num))
+#   ) %>%
+#   unique() %>%
+#   summarise(respadmitted_max = max(respadmitted_num, na.rm = TRUE))
+# 
+# print(paste0("Max respiratory admissions (n): ", check_max_resp_admit))
+# 
+# 
 
 
