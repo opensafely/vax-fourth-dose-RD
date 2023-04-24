@@ -147,11 +147,21 @@ sapply(start_dates, sharp)
 ### Combine all coefficients files into one ###
 comb <- function(suffix){
   
-  files <- list.files(here::here("output", "modelling"),
-                    pattern = paste0("coef_",suffix,"_20"), recursive = TRUE, 
-                    full.names = TRUE)
-
-  all_coef <- read_csv(files) %>% bind_rows() 
+  
+  all_coef <- bind_rows(
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-09-03.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-10-15.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-11-26.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-11-27.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-11-28.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-11-29.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-11-30.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-12-01.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-12-02.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-12-03.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-12-04.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_",suffix,"_2022-12-05.csv")))
+  )
 
   write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_",suffix,"_","all.csv")), row.names = FALSE)
 

@@ -35,12 +35,14 @@ source(here::here("analysis", "custom_functions.R"))
 ##########################################
 
 demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
-  dplyr::select(c(age, dob, imd, region, ethnicity, sex)) %>%
+  dplyr::select(c(age, dob, imd, region, ethnicity, sex, flu_vax_date)) %>%
   subset(age >= 45 & age < 55) %>%
   
   # Create age in months variable
   mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
-         age_3mos = floor(age_mos / 3)) %>%
+         age_3mos = floor(age_mos / 3),
+         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < as.Date("2022-09-03"),
+                           1, 0, 0)) %>%
   
   # Calculate denominator by age in months
   group_by(age_3mos) %>%
@@ -96,9 +98,18 @@ ethnicity <- freq(ethnicity) %>%
   rename(category = ethnicity) %>%
   mutate(variable = "Ethnicity")
 
+## FLu vax
+fluvax <- freq(flu_vax) %>%
+  rename(category = flu_vax) %>%
+  mutate(variable = "Flu vaccine",
+         category = case_when(
+           category == "0" ~ "No",
+           category == "1" ~ "Yes"
+         ))
+
 
 ## Combine into one file ##
-demographics_by_age <- rbind(imd, sex, region, ethnicity)
+demographics_by_age <- rbind(imd, sex, region, ethnicity, fluvax)
 
 ############ Save ########################
 write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))

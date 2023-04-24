@@ -70,9 +70,9 @@ sharp <- function(start_date){
     pred.df1 <- predict(mod, se.fit = TRUE, type = "response",
                         newdata = origdata) %>% 
       data.frame() %>%
-      mutate(pred1 = fit,
-             lci1 = fit - 1.96*se.fit, 
-             uci1 = fit + 1.96*se.fit) %>%
+      mutate(pred1 = fit * 100000,
+             lci1 = (fit - 1.96*se.fit) * 100000, 
+             uci1 = (fit + 1.96*se.fit) * 100000) %>%
       select(c("pred1","lci1","uci1"))
     
     # Predicted counterfactual values
@@ -83,9 +83,9 @@ sharp <- function(start_date){
     pred.df2 <- predict(mod, se.fit=TRUE, type = "response", 
                         newdata=newdata) %>%
       data.frame() %>%
-      mutate(pred2= fit,
-             lci2 = fit - 1.96*se.fit, 
-             uci2 = fit + 1.96*se.fit) %>%
+      mutate(pred2 = fit * 100000,
+             lci2 = (fit - 1.96*se.fit) * 100000, 
+             uci2 = (fit + 1.96*se.fit) * 100000) %>%
       select(c("pred2","lci2","uci2"))
     
     # Combine with original data
@@ -146,14 +146,24 @@ sapply(start_dates, sharp)
 
 ### Combine all coefficients files into one ###
 comb <- function(suffix){
-  
-  files <- list.files(here::here("output", "modelling"),
-                    pattern = paste0("coef_lpm_",suffix,"_20"), recursive = TRUE, 
-                    full.names = TRUE)
 
-  all_coef <- read_csv(files) %>% bind_rows() 
+  all_coef <- bind_rows(
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-09-03.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-10-15.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-11-26.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-11-27.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-11-28.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-11-29.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-11-30.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-12-01.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-12-02.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-12-03.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-12-04.csv"))),
+                        read_csv(here::here("output", "modelling", paste0("coef_lpm_",suffix,"_2022-12-05.csv")))
+                        )
 
-  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_lpm_",suffix,"_","all.csv")), row.names = FALSE)
+  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_lpm_",suffix,"_","all.csv")), 
+            row.names = FALSE)
 
 }
 
