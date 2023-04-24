@@ -36,19 +36,19 @@ fuzzy <- function(start_date){
     mutate(age_3mos = floor(age_mos / 3),
            over50 = if_else(age_3mos >= 200, 1, 0, 0),
            age_3mos_c = as.numeric(age_3mos - 200)) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) %>%
-    group_by(age_3mos_c, flu_vax, over50) %>%
-    summarise(n = n(), 
-              boost = sum(boost),
-              p_boost = boost / n * 100,
-              outcome = sum({{out}}),
-              p_outcome = outcome / n * 100) 
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220)
   
   mod <- function(out, name, suffix){
     
     # Prep data
-    df <- data  
-
+    df <- data  %>%
+      group_by(age_3mos_c, flu_vax, over50) %>%
+      summarise(n = n(), 
+                boost = sum(boost),
+                p_boost = boost / n * 100,
+                outcome = sum({{out}}),
+                p_outcome = outcome / n * 100) 
+    
     rdd = rdrobust(y = df$p_outcome , x = df$p_age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 60, 
                        kernel="uniform", weights = df$n)
