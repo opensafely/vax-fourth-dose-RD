@@ -85,12 +85,14 @@ study = StudyDefinition(
         covid_codes,
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
     ),
   
     # All-cause death
     any_death_date=patients.died_from_any_cause(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
     ),
     
     # Respiratory death (underlying cause only)
@@ -99,6 +101,8 @@ study = StudyDefinition(
         match_only_underlying_cause=True,
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
+
     ),
 
     ## Hospitalisations ##
@@ -111,6 +115,8 @@ study = StudyDefinition(
         between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+
     ),
     # COVID unplanned admission
     covidadmitted_date=patients.admitted_to_hospital(
@@ -120,6 +126,8 @@ study = StudyDefinition(
         between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+
     ),   
     # Respiratory unplanned admission (primary diagnosis only)
     respadmitted_date=patients.admitted_to_hospital(
@@ -129,6 +137,8 @@ study = StudyDefinition(
         between=["index_date","index_date + 42 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+
     ),
 
     # COVID emergency attendance 
@@ -138,5 +148,6 @@ study = StudyDefinition(
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),   
 )

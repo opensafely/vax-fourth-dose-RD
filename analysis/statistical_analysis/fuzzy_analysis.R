@@ -19,6 +19,7 @@ library('fs')
 library('ggplot2')
 library('RColorBrewer')
 library('data.table')
+library('rdrobust')
 
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings = FALSE, recurse = TRUE)
@@ -32,42 +33,34 @@ fuzzy <- function(start_date){
   
   # Read in data
   data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
-    mutate(age_3mos = floor(age_mos / 3)) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) 
+    mutate(age_3mos = floor(age_mos / 3),
+           over50 = if_else(age_3mos >= 200, 1, 0, 0),
+           age_3mos_c = as.numeric(age_3mos - 200)) %>%
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) %>%
+    group_by(age_3mos_c, flu_vax, over50) %>%
+    summarise(n = n(), 
+              boost = sum(boost),
+              p_boost = boost / n * 100,
+              outcome = sum({{out}}),
+              p_outcome = outcome / n * 100) 
   
   mod <- function(out, name, suffix){
     
     # Prep data
-    len <- nrow(data)
-    df <- data %>%
-      mutate(over50 = if_else(age_3mos >= 200, 1, 0, 0),
-             age_3mos_c = as.numeric(age_3mos - 200)) %>%
-      rename(outcome = {{out}}) 
-    
-    # Stage 1 - estimate association between instrument (over 50)
-    #   and receiving booster
-    model1 <- lm(boost ~ age_3mos_c*over50 + flu_vax, data = df)
-    
-    # Extract predicted values and merge into dataset
-    pred_boost <- predict(model1)
-    model1_pred <- cbind(df, pred_boost = pred_boost) 
-    
-    # Stage 2 - estimate association between predicted values from
-    #   first model and outcome (here, the predicted values replace
-    #   the instrument)
-    model2 <- lm(outcome ~ age_3mos_c*pred_boost + flu_vax, data = model1_pred)
-    
+    df <- data  
+
+    rdd = rdrobust(y = df$p_outcome , x = df$p_age_3mos_c, c = 0,
+                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 60, 
+                       kernel="uniform", weights = df$n)
+  
     # Save coefficients and 95% CIs
-    coef <-  data.frame(est = model2$coefficients)
-    coef2 <- coef %>%  data.frame() %>%
-      mutate(var = row.names(coef)) %>%
-      cbind(confint(model2), aic = AIC(model2)) %>%
-      mutate(start_date = start_date,
-             outcome = name) %>%
-      rename(lci = `2.5 %`, uci = `97.5 %`)
+    coef <- data.frame(estimate = rdd$coef[1],
+                lci = rdd$ci[1,1],
+                uci = rdd$ci[1,2])
     
     # Save coefficients
-    write.csv(coef2, here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_",start_date,".csv")),
+    write.csv(coef, here::here("output", "modelling", "iv",
+              paste0("coef_iv_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
   }
@@ -94,11 +87,21 @@ sapply(start_dates, fuzzy)
 ### Combine all coefficients files into one ###
 comb <- function(suffix){
   
-  files <- list.files(here::here("output", "modelling", "iv"),
-                      pattern = paste0("coef_iv_",suffix), recursive = TRUE, 
-                      full.names = TRUE)
   
-  all_coef <- read_csv(files) %>% bind_rows() 
+  all_coef <- bind_rows(
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-09-03.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-10-15.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-11-26.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-11-27.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-11-28.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-11-29.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-11-30.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-12-01.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-12-02.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-12-03.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-12-04.csv"))),
+    read_csv(here::here("output", "modelling", paste0("coef_iv_",suffix,"_2022-12-05.csv")))
+  )
   
   write.csv(all_coef, here::here("output", "modelling", "final",paste0("coef_iv_",suffix,"_","all_.csv")), 
             row.names = FALSE)

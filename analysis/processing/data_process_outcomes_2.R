@@ -134,7 +134,7 @@ bydate1 <- function(start_date, dat, var){
            # Flag for having received flu vax before start date
            flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < start_date, 1, 0, 0),
            
-           # Flag for bosster before start date
+           # Flag for booster before start date
            boost = if_else(!is.na(boost_date) & boost_date < as.Date(start_date), 1, 0, 0),
            
            # Flag for outcome during 42 day period (1/0)
@@ -166,11 +166,11 @@ bydate2 <- function(start_date){
               bydate1(start_date, anydeath, anydeath),
               bydate1(start_date, anyadmitted, anyadmitted))
   
-  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "boost", "age_yrs", "age_mos", "dod", "birth_month"))
+  outcomes <- dfs %>% reduce(full_join, by=c("patient_id", "flu_vax", "boost", "age_yrs", "age_mos", "dod"))
   
   print(paste0(start_date," (no. rows): ", nrow(outcomes)))
-  print(paste0(start_date," (no. people): ", n_distinct(outcomes$patient_id)))        
-  
+  print(paste0(start_date," (no. people): ", n_distinct(outcomes$patient_id)))
+
   write.csv(outcomes, here::here("output", "cohort", paste0("outcomes_",start_date,".csv")), row.names = FALSE)
 }
 

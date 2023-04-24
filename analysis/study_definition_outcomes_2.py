@@ -87,12 +87,14 @@ study = StudyDefinition(
         covid_codes,
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
     ),
   
     # All-cause death
     any_death_date=patients.died_from_any_cause(
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
     ),
     
     # Respiratory death (underlying cause only)
@@ -101,6 +103,7 @@ study = StudyDefinition(
         match_only_underlying_cause=True,
         returning="date_of_death",
         date_format="YYYY-MM-DD",
+        return_expectations = {"incidence": 0.4},
     ),
 
     ## Hospitalisations ##
@@ -114,6 +117,7 @@ study = StudyDefinition(
         between=["index_date","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     admitted_unplanned_date_2=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -122,6 +126,7 @@ study = StudyDefinition(
         between=["admitted_unplanned_date_1 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     admitted_unplanned_date_3=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -130,6 +135,7 @@ study = StudyDefinition(
         between=["admitted_unplanned_date_2 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     admitted_unplanned_date_4=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -138,6 +144,7 @@ study = StudyDefinition(
         between=["admitted_unplanned_date_3 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     admitted_unplanned_date_5=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -146,6 +153,7 @@ study = StudyDefinition(
         between=["admitted_unplanned_date_4 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     # Check max number of admissions per week
     # admitted_unplanned_num=patients.admitted_to_hospital(
@@ -165,6 +173,7 @@ study = StudyDefinition(
         between=["index_date","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),   
     covidadmitted_date_2=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -173,6 +182,7 @@ study = StudyDefinition(
         between=["covidadmitted_date_1 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),   
     covidadmitted_date_3=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -181,6 +191,7 @@ study = StudyDefinition(
         between=["covidadmitted_date_2 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),  
     # Check max number of admissions per week
     # covidadmitted_num=patients.admitted_to_hospital(
@@ -200,6 +211,7 @@ study = StudyDefinition(
         between=["index_date + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     respadmitted_date_2=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -208,6 +220,7 @@ study = StudyDefinition(
         between=["respadmitted_date_1 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     respadmitted_date_3=patients.admitted_to_hospital(
         returning="date_admitted",
@@ -216,6 +229,7 @@ study = StudyDefinition(
         between=["respadmitted_date_2 + 1 days","index_date + 6 days"],
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),
     # Check max number of admissions per week
     # respadmitted_num=patients.admitted_to_hospital(
@@ -236,6 +250,7 @@ study = StudyDefinition(
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),   
     covidemergency_date_2=patients.attended_emergency_care(
         returning="date_arrived",
@@ -243,6 +258,7 @@ study = StudyDefinition(
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),    
     covidemergency_date_3=patients.attended_emergency_care(
         returning="date_arrived",
@@ -250,6 +266,7 @@ study = StudyDefinition(
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),   
     # Check max number of admissions per week
     # covidemergency_num=patients.attended_emergency_care(

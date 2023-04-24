@@ -43,9 +43,7 @@ sharp <- function(start_date){
   mod <- function(out, name, suffix){
     
     # Prep data
-    len <- nrow(data)
-    df <- data %>%
-      rename(outcome = {{out}}) 
+    df <- data %>% rename(outcome = {{out}}) 
     
     # Model
     mod <- lm(outcome ~ age_3mos_c*over50, data = df)
@@ -56,7 +54,10 @@ sharp <- function(start_date){
       mutate(var = row.names(coef)) %>%
       cbind(confint(mod), aic = AIC(mod)) %>%
       mutate(start_date = start_date,
-              outcome = name) %>%
+             outcome = name,
+             est = est * 100000,
+             lci = lci * 100000,
+             uci = uci * 100000) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`)
     
     # Save coefficients

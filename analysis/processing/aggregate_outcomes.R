@@ -37,7 +37,6 @@ source(here::here("analysis", "custom_functions.R"))
 
 agg <- function(start_date, grp, age){
   
-  
   # No redaction
   dat <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
     mutate(age_3mos = floor(age_mos / 3)) %>%
