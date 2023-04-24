@@ -103,9 +103,8 @@ fluvax <- freq(flu_vax) %>%
   rename(category = flu_vax) %>%
   mutate(variable = "Flu vaccine",
          category = case_when(
-           category == "0" ~ "No",
-           category == "1" ~ "Yes"
-         ))
+           category == 0 ~ "No",
+           category == 1 ~ "Yes"         ))
 
 
 ## Combine into one file ##
