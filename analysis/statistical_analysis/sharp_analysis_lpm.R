@@ -53,12 +53,11 @@ sharp <- function(start_date){
     coef2 <- coef %>%  data.frame() %>%
       mutate(var = row.names(coef)) %>%
       cbind(confint(mod), aic = AIC(mod)) %>%
-      mutate(start_date = start_date,
-             outcome = name,
-             est = est * 100000,
-             lci = lci * 100000,
-             uci = uci * 100000) %>%
-      rename(lci = `2.5 %`, uci = `97.5 %`)
+      rename(lci = `2.5 %`, uci = `97.5 %`) %>%
+      mutate(start_date = start_date, outcome = name,
+            est = est * 100000,
+            lci = lci * 100000,
+            uci = uci * 100000) 
     
     # Save coefficients
     write.csv(coef2, here::here("output", "modelling", paste0("coef_lpm_",suffix,"_",start_date,".csv")),
