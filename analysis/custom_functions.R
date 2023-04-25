@@ -31,9 +31,3 @@ fct_case_when <- function(...) {
   levels <- levels[!is.na(levels)]
   factor(dplyr::case_when(...), levels=levels)
 }
-
-# calculate aggregated outputs to match ONS-CIS data publications ----
-roundmid_any <- function(x, to=1){
-  # like round_any, but centers on (integer) midpoint of the rounding points
-  ceiling(x/to)*to - (floor(to/2)*(x!=0))
-}
