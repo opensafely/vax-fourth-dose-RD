@@ -56,7 +56,9 @@ fuzzy <- function(start_date){
     # Save coefficients and 95% CIs
     coef <- data.frame(estimate = rdd$coef[1],
                 lci = rdd$ci[1,1],
-                uci = rdd$ci[1,2])
+                uci = rdd$ci[1,2],
+                outcome = name,
+                start_date = start_date)
     
     # Save coefficients
     write.csv(coef, here::here("output", "modelling", "iv",
@@ -77,8 +79,7 @@ fuzzy <- function(start_date){
 
 
 # Create list of dates
-start_dates <- c(as.Date("2022-09-03"), as.Date("2022-10-15"), 
-                 as.Date(0:10, origin = "2022-11-26")) 
+start_dates <- c(as.Date(0:10, origin = "2022-11-26")) 
 
 # Run function over all dates
 sapply(start_dates, fuzzy)
@@ -88,8 +89,6 @@ sapply(start_dates, fuzzy)
 comb <- function(suffix){
   
   all_coef <- bind_rows(
-    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-09-03.csv"))),
-    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-10-15.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-11-26.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-11-27.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-11-28.csv"))),
