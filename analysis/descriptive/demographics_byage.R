@@ -34,15 +34,13 @@ source(here::here("analysis", "custom_functions.R"))
 # Read in and prep data 
 ##########################################
 
-demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
-  dplyr::select(c(age, dob, imd, region, ethnicity, sex, flu_vax_date)) %>%
+demographics <- read_csv(here::here("output", "cohort", "cohort_final.csv")) %>%
+  dplyr::select(c(age, dob, imd, region, ethnicity, sex)) %>%
   subset(age >= 45 & age < 55) %>%
   
   # Create age in months variable
   mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
-         age_3mos = floor(age_mos / 3),
-         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < as.Date("2022-09-03"),
-                           1, 0, 0)) %>%
+         age_3mos = floor(age_mos / 3)) %>%
   
   # Calculate denominator by age in months
   group_by(age_3mos) %>%
@@ -98,17 +96,52 @@ ethnicity <- freq(ethnicity) %>%
   rename(category = ethnicity) %>%
   mutate(variable = "Ethnicity")
 
-## FLu vax
-fluvax <- freq(flu_vax) %>%
+## Combine into one file ##
+demographics_by_age <- rbind(imd, sex, region, ethnicity)
+
+
+
+#############################################################
+# Read in and prep data - receipt of flu vaccine at Nov 26
+#############################################################
+
+fluvax <- read_csv(here::here("output", "cohort", "cohort_final.csv")) %>%
+  dplyr::select(c(age, dob, flu_vax_date)) %>%
+  subset(age >= 45 & age < 55) %>%
+  
+  # Create age in months variable
+  mutate(age_mos = (dob %--% "2022-11-26") %/% months(1),
+         age_3mos = floor(age_mos / 3),
+         flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < "2022-11-26",
+                          1, 0, 0)) %>%
+  
+  # Calculate denominator by age in months
+  group_by(age_3mos) %>%
+  mutate(total_age_3mos = n()) 
+
+
+##########################################
+# Function for summarising frequency 
+# distribution by age in months
+##########################################
+
+
+## Sex
+flu_vax_by_age <- fluvax %>%
+  # Count number in each category by age in months
+  group_by(age_3mos, flu_vax, total_age_3mos) %>% 
+  tally() %>%
+  mutate(across(c(n, total_age_3mos), rounding),
+         across(c(n, total_age_3mos), redact),
+         pcent = n / total_age_3mos * 100)  %>%
   rename(category = flu_vax) %>%
-  mutate(variable = "Flu vaccine",
+  mutate(variable = "Flu vaccine", 
          category = case_when(
            category == 0 ~ "No",
-           category == 1 ~ "Yes"         ))
+           category == 1 ~ "Yes"
+         )) 
 
-
-## Combine into one file ##
-demographics_by_age <- rbind(imd, sex, region, ethnicity, fluvax)
 
 ############ Save ########################
 write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))
+write_csv(flu_vax_by_age, here::here("output", "descriptive", "fluvax_byage.csv"))
