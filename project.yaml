@@ -155,7 +155,8 @@ actions:
    needs: [generate_study_pop_baseline, data_process_baseline]
    outputs:
       moderately_sensitive:
-        measures_csv: output/descriptive/demographics_*.csv
+        demographics_csv: output/descriptive/demographics_*.csv
+        fluvaccine_csv: output/descriptive/fluvax_*.csv
 
 
 # Flu vaccine uptake #
