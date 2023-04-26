@@ -49,9 +49,9 @@ fuzzy <- function(start_date){
                 outcome = sum({{out}}),
                 p_outcome = outcome / n * 100) 
     
-    rdd = rdrobust(y = df$p_outcome , x = df$age_3mos_c, c = 0,
-                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 60, 
-                       kernel="uniform", weights = df$n)
+    rdd <- rdrobust(y = df$p_outcome , x = df$age_3mos_c, c = 0,
+                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1,
+                       kernel = "uniform", weights = df$n)
   
     # Save coefficients and 95% CIs
     coef <- data.frame(estimate = rdd$coef[1],
