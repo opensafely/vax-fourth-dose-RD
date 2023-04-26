@@ -34,7 +34,7 @@ source(here::here("analysis", "custom_functions.R"))
 # Read in and prep data 
 ##########################################
 
-demographics <- read_csv(here::here("output", "cohort", "cohort_final.csv")) %>%
+demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
   dplyr::select(c(age, dob, imd, region, ethnicity, sex)) %>%
   subset(age >= 45 & age < 55) %>%
   
@@ -105,7 +105,7 @@ demographics_by_age <- rbind(imd, sex, region, ethnicity)
 # Read in and prep data - receipt of flu vaccine at Nov 26
 #############################################################
 
-fluvax <- read_csv(here::here("output", "cohort", "cohort_final.csv")) %>%
+fluvax <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
   dplyr::select(c(age, dob, flu_vax_date)) %>%
   subset(age >= 45 & age < 55) %>%
   
