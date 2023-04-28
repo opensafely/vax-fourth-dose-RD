@@ -48,17 +48,6 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
   mutate(total_age_3mos = n()) 
 
 
-###########################################
-# Check that death variables looks reasonable
-###########################################
-
-deaths <- demographics %>%
-  group_by(dod) %>%
-  summarise(n_died = n()) 
-
-write_csv(deaths, here::here("output", "descriptive", "deaths_check.csv"))
-
-
 ##########################################
 # Function for summarising frequency 
 # distribution by age in months
