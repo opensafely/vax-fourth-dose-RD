@@ -27,19 +27,8 @@ dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 
 end_date = as.Date("2023-02-04")
 
-#####################################################
-# Functions                                       ###
-#####################################################
-
-# Factorise ----
-fct_case_when <- function(...) {
-  # uses dplyr::case_when but converts the output to a factor,
-  # with factors ordered as they appear in the case_when's  ... argument
-  args <- as.list(match.call())
-  levels <- sapply(args[-1], function(f) f[[3]])  # extract RHS of formula
-  levels <- levels[!is.na(levels)]
-  factor(dplyr::case_when(...), levels=levels)
-}
+## Load functions
+source(here::here("analysis", "custom_functions.R"))
 
 
 #####################################################
@@ -51,7 +40,7 @@ booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
     mutate(age_mos = (dob %--% "2022-11-26") %/% months(1),
            age_yrs = (dob %--% "2022-11-26") %/% years(1)) %>%
     # Exclude if died
-    subset(dod > as.Date("2022-11-26") | is.na(dod)) %>%
+    subset(dod >= as.Date("2022-11-26") | is.na(dod)) %>%
     dplyr::select(c(patient_id, age_mos, age_yrs, boost_date, booster)) 
   
 
