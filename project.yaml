@@ -157,6 +157,7 @@ actions:
       moderately_sensitive:
         demographics_csv: output/descriptive/demographics_*.csv
         fluvaccine_csv: output/descriptive/fluvax_*.csv
+        deaths_csv: output/descriptives/deaths*.csv
 
 
 # Flu vaccine uptake #

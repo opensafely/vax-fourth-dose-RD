@@ -36,7 +36,8 @@ source(here::here("analysis", "custom_functions.R"))
 
 demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
   dplyr::select(c(patient_id, age, dob, dod, imd, region, ethnicity, sex)) %>%
-  subset(age >= 45 & age < 55) %>%
+  subset(age >= 45 & age < 55 &
+         (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   # Create age in months variable
   mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
@@ -47,6 +48,16 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
   mutate(total_age_3mos = n()) 
 
 
+###########################################
+# Check that death variables looks reasonable
+###########################################
+
+deaths <- demographics %>%
+  group_by(dod) %>%
+  summarise(n_died = n()) 
+
+write_csv(death, here::here("output", "descriptive", "deaths_check.csv"))
+
 ##########################################
 # Function for summarising frequency 
 # distribution by age in months
@@ -54,7 +65,6 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
 
 freq <- function(var){
   demographics %>%
-    subset(is.na(dod) | dod >= as.Date("2022-09-03")) %>%
     # Count number in each IMD category by age in months
     group_by(age_3mos, {{var}}, total_age_3mos) %>% 
     tally() %>%
@@ -135,7 +145,6 @@ fluvax <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
 ## Sex
 flu_vax_by_age <- fluvax %>%
   # Count number in each category by age in months
-  subset(is.na(dod) | dod >= as.Date("2022-11-26")) %>%
   group_by(age_3mos, flu_vax, total_age_3mos) %>% 
   tally() %>%
   mutate(across(c(n, total_age_3mos), redact),
