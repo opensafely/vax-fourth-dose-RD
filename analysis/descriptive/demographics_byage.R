@@ -56,7 +56,8 @@ deaths <- demographics %>%
   group_by(dod) %>%
   summarise(n_died = n()) 
 
-write_csv(death, here::here("output", "descriptive", "deaths_check.csv"))
+write_csv(deaths, here::here("output", "descriptive", "deaths_check.csv"))
+
 
 ##########################################
 # Function for summarising frequency 
