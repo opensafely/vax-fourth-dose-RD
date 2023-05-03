@@ -37,6 +37,10 @@ source(here::here("analysis", "custom_functions.R"))
 
 out <- function(start_date){
   
+  
+  start_date = as.Date(start_date)
+  end_date = start_date + 42
+  
   read_feather(here::here("output", "index", paste0("input_outcomes_1_",start_date,".feather"))) %>%
     mutate_at(c(vars(c(contains("_date")))), as.Date, format = "%Y-%m-%d") %>%
   
@@ -59,6 +63,16 @@ out <- function(start_date){
          boost = if_else(!is.na(boost_date) & boost_date < as.Date(start_date), 1, 0, 0),
          
          # Create flag for each outcomes
+         
+         anydeath = if_else(!is.na(any_death_date) & (any_death_date >= start_date) &
+                              (any_death_date <= end_date), 1, 0, 0),
+  
+         respdeath = if_else(!is.na(respdeath_date) & (respdeath_date >= start_date) &
+                       (respdeath_date <= end_date), 1, 0, 0),
+
+         coviddeath = if_else(!is.na(coviddeath_date) & (coviddeath_date >= start_date) &
+                      (coviddeath_date <= end_date), 1, 0, 0),
+
          covidadmitted = if_else(!is.na(covidadmitted_date), 1, 0, 0),
          coviddeath = if_else(!is.na(coviddeath_date), 1, 0, 0),
          covidemerg = if_else(!is.na(covidemergency_date), 1, 0, 0),
@@ -66,10 +80,10 @@ out <- function(start_date){
                                     covidemerg == 1, 1, 0, 0),
          
          anyadmitted = if_else(!is.na(admitted_unplanned_date), 1, 0, 0),
-         anydeath = if_else(!is.na(any_death_date), 1, 0, 0),
          respadmitted = if_else(!is.na(respadmitted_date), 1, 0, 0),
          respdeath = if_else(!is.na(respdeath_date), 1, 0, 0),
-         respcomposite = if_else(respadmitted == 1 | respdeath == 1, 1, 0, 0)
+         respcomposite = if_else(respadmitted == 1 | respdeath == 1, 1, 0, 0),
+    
   ) %>%
   select(!c(contains("_date")))
 }
