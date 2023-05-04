@@ -74,18 +74,17 @@ out <- function(start_date){
                       (coviddeath_date <= end_date), 1, 0, 0),
 
          covidadmitted = if_else(!is.na(covidadmitted_date), 1, 0, 0),
-         coviddeath = if_else(!is.na(coviddeath_date), 1, 0, 0),
          covidemerg = if_else(!is.na(covidemergency_date), 1, 0, 0),
          covidcomposite = if_else(covidadmitted == 1 | coviddeath == 1 |
                                     covidemerg == 1, 1, 0, 0),
          
          anyadmitted = if_else(!is.na(admitted_unplanned_date), 1, 0, 0),
          respadmitted = if_else(!is.na(respadmitted_date), 1, 0, 0),
-         respdeath = if_else(!is.na(respdeath_date), 1, 0, 0),
          respcomposite = if_else(respadmitted == 1 | respdeath == 1, 1, 0, 0),
     
   ) %>%
   select(!c(contains("_date")))
+  
 }
 
 

@@ -60,7 +60,8 @@ sharp <- function(start_date){
             uci = uci * 100000) 
     
     # Save coefficients
-    write.csv(coef2, here::here("output", "modelling", paste0("coef_lpm_",suffix,"_",start_date,".csv")),
+    write.csv(coef2, 
+              here::here("output", "modelling", paste0("coef_lpm_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
     # Predicted values 
@@ -131,6 +132,7 @@ sharp <- function(start_date){
   mod(respcomposite, "Respiratory composite", "respcomp")
   mod(respadmitted, "Respiratory admission", "respadmit")
   mod(anyadmitted, "All cause unplanned admission", "anyadmit")  
+  mod(anydeath, "All cause death", "anydeath")
   
 }
 
@@ -173,4 +175,5 @@ comb("covidemerg")
 comb("respcomp")
 comb("respadmit")
 comb("anyadmit")
+comb("anydeath")
 
