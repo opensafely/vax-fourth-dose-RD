@@ -19,7 +19,7 @@ library('fs')
 library('ggplot2')
 library('RColorBrewer')
 library('data.table')
-library('rdd')
+library('rdrobust')
 
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings = FALSE, recurse = TRUE)
