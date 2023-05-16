@@ -45,7 +45,7 @@ study = StudyDefinition(
         """
         registered
         AND
-        (age >= 44 AND age < 55)
+        (age >= 44 AND age <= 55)
         AND
         (sex = "M" OR sex = "F")
         AND
