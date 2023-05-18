@@ -44,6 +44,7 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
          
     # Set DOB to mid-month
     dob = dob + 14,
+    age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1),
     
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
@@ -67,10 +68,10 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     # Received booster anytime in 2022/23
     booster = if_else(!is.na(boost_date), 1, 0, 0),
    
-    # If received fourth dose prior to second booster campaign
+    # If received fourth dose prior to second booster campaign (September 5)
     covid_vax4_early = if_else(covid_vax_4_date < as.Date("2022-09-05"), 1, 0, missing = 0),
     
-    # If received third dose prior to first booster campaign
+    # If received third dose prior to first booster campaign (September 16)
     covid_vax3_early = if_else(covid_vax_3_date < as.Date("2021-09-16"), 1, 0, missing = 0),
     
     # Received another COVID vaccine in 3 months prior to start of campaign
@@ -81,7 +82,8 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
                                  covid_vax_2_date <= as.Date("2022-10-15")) |
                                 (covid_vax_1_date >= as.Date("2022-07-15") &
                                  covid_vax_1_date <= as.Date("2022-10-15"))
-                                ), 1, 0, 0),
+                                ), 
+                               1, 0, 0),
     
     # Received 2nd dose at least 3 months prior to start of campaign
     covid_vax2 = if_else(!is.na(covid_vax_2_date) &
@@ -101,11 +103,11 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
 ####################################################
 
 pop_before_exclusions_byage <- baseline %>%
-  subset(age >= 45 & age < 55) %>%
-  group_by(age) %>%
+  subset(age_yrs >= 45 & age_yrs < 55) %>%
+  group_by(age_yrs) %>%
   mutate(total = n()) %>%
   ungroup() %>%
-  group_by(age, total) %>%
+  group_by(age_yrs, total) %>%
   summarise(
          carehome = sum(carehome == 1),
          
@@ -138,12 +140,12 @@ pop_before_exclusions_byage <- baseline %>%
          ) %>%
   ungroup() %>%
   # Redaction and rounding
-  mutate(across(-age, redact), across(-age, rounding)) 
+  mutate(across(-age_yrs, redact), across(-age_yrs, rounding)) 
 
 pop_before_exclusions_total <- baseline %>%
-  subset(age >= 45 & age < 55) %>%
-  mutate(total = n(), age = "All") %>%
-  group_by(total, age) %>%
+  subset(age_yrs >= 45 & age_yrs < 55) %>%
+  mutate(total = n(), age_yrs = "All") %>%
+  group_by(total, age_yrs) %>%
   summarise(
     carehome = sum(carehome == 1),
     
@@ -176,7 +178,7 @@ pop_before_exclusions_total <- baseline %>%
   ) %>%
   ungroup() %>%
   # Redaction and rounding
-  mutate(across(-age, redact), across(-age, rounding)) 
+  mutate(across(-age_yrs, redact), across(-age_yrs, rounding)) 
 
          
 # Combine
