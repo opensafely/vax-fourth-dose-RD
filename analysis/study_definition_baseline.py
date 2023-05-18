@@ -600,7 +600,7 @@ study = StudyDefinition(
     # Third dose (first booster) COVID vaccination
     covid_vax_3_date=patients.with_tpp_vaccination_record(
         target_disease_matches="SARS-2 CORONAVIRUS",
-        on_or_after="covid_vax_2_date + 1 day",
+        on_or_after="covid_vax_2_date + 1 days",
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
@@ -615,7 +615,7 @@ study = StudyDefinition(
     # Fourth dose (second booster) COVID vaccination
     covid_vax_4_date = patients.with_tpp_vaccination_record(
         target_disease_matches="SARS-2 CORONAVIRUS",
-        on_or_after="covid_vax_3_date + 1 day",
+        on_or_after="covid_vax_3_date + 1 days",
         find_first_match_in_period=True,
         returning = "date",
         date_format="YYYY-MM-DD",
