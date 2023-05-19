@@ -109,7 +109,6 @@ study = StudyDefinition(
     ## Hospitalisations ##
     
     # Unplanned hospital admission (all cause)
-     # Maximum unplanned admissions in a week is 5
     admitted_unplanned_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -155,6 +154,15 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         return_expectations = {"incidence": 0.4},
     ),
+    admitted_unplanned_date_6=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["admitted_unplanned_date_5 + 1 days","index_date + 6 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+    ),
     # Check max number of admissions per week
     # admitted_unplanned_num=patients.admitted_to_hospital(
     #     returning="number_of_matches_in_period",
@@ -165,7 +173,6 @@ study = StudyDefinition(
     # ),
   
     # COVID unplanned admission
-        #  Maximum COVID unplanned admissions in a week is 2
     covidadmitted_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -192,6 +199,15 @@ study = StudyDefinition(
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
         return_expectations = {"incidence": 0.4},
+    ),      
+    covidadmitted_date_4=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_these_diagnoses=covid_codes,
+        between=["covidadmitted_date_3 + 1 days","index_date + 6 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
     ),  
     # Check max number of admissions per week
     # covidadmitted_num=patients.admitted_to_hospital(
@@ -203,7 +219,6 @@ study = StudyDefinition(
     # ),   
 
     # Respiratory unplanned admission (primary diagnosis only)
-        #  Maximum respiratory unplanned admissions in a week is 2
     respadmitted_date_1=patients.admitted_to_hospital(
         returning="date_admitted",
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
@@ -231,6 +246,16 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         return_expectations = {"incidence": 0.4},
     ),
+    respadmitted_date_4=patients.admitted_to_hospital(
+        returning="date_admitted",
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_these_primary_diagnoses=resp_codes,
+        between=["respadmitted_date_3 + 1 days","index_date + 6 days"],
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+    ),
+
     # Check max number of admissions per week
     # respadmitted_num=patients.admitted_to_hospital(
     #     returning="number_of_matches_in_period",      
@@ -243,7 +268,6 @@ study = StudyDefinition(
     ## A&E attendances ##
 
     # COVID emergency attendance 
-        #  Maximum COVID emergency attednance in a week is 2
     covidemergency_date_1=patients.attended_emergency_care(
         returning="date_arrived",
         between=["index_date","index_date + 6 days"],
@@ -263,6 +287,14 @@ study = StudyDefinition(
     covidemergency_date_3=patients.attended_emergency_care(
         returning="date_arrived",
         between=["covidemergency_date_2 + 1 days","index_date + 6 days"],
+        with_these_diagnoses = covid_emergency,
+        date_format="YYYY-MM-DD",
+        find_first_match_in_period=True,
+        return_expectations = {"incidence": 0.4},
+    ),       
+    covidemergency_date_4=patients.attended_emergency_care(
+        returning="date_arrived",
+        between=["covidemergency_date_3 + 1 days","index_date + 6 days"],
         with_these_diagnoses = covid_emergency,
         date_format="YYYY-MM-DD",
         find_first_match_in_period=True,
