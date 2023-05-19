@@ -86,14 +86,14 @@ actions:
         outcomes: output/cohort/outcome*.feather
 
 # Split into separate datasets by start date
-  data_process_by_start_date:
-    run: r:latest analysis/processing/data_process_by_start_date.R
-    needs: [data_process_outcomes_2]
-    outputs:
-      highly_sensitive:
-        cohort: output/cohort/cohort_*.csv
-      moderately_sensitive:
-        outcomes: output/cohort/outcom_*.csv
+  # data_process_by_start_date:
+  #   run: r:latest analysis/processing/data_process_by_start_date.R
+  #   needs: [data_process_outcomes_2]
+  #   outputs:
+  #     highly_sensitive:
+  #       cohort: output/cohort/cohort_*.csv
+  #     moderately_sensitive:
+  #       outcomes: output/cohort/outcom_*.csv
 
 # Plots of COVID booster uptake by age
   booster_uptake:
