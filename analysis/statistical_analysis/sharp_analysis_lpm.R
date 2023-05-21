@@ -25,7 +25,7 @@ dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings
 dir_create(here::here("output", "modelling"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling", "final"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling","figures"), showWarnings = FALSE, recurse = TRUE)
-dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse = TRUE)
 
 
 ### Function to run sharp RD analysis, output coefficients and predicted values
@@ -34,7 +34,7 @@ dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 sharp <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+  data <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
     mutate(age_3mos = floor(age_mos / 3),
            over50 = if_else(age_3mos >= 200, 1, 0, 0),
            age_3mos_c = as.numeric(age_3mos - 200)) %>%
@@ -126,12 +126,12 @@ sharp <- function(start_date){
   }
   
   # Run for each outcome
-  mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomp")
-  mod(covidadmitted, "COVID unplanned admission", "covidadmit")
-  mod(covidemerg, "COVID A&E", "covidemerg")
-  mod(respcomposite, "Respiratory composite", "respcomp")
-  mod(respadmitted, "Respiratory admission", "respadmit")
-  mod(anyadmitted, "All cause unplanned admission", "anyadmit")  
+  mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomposite")
+  mod(covidadmitted, "COVID unplanned admission", "covidadmitted")
+  mod(covidemergency, "COVID A&E", "covidemergency")
+  mod(respcomposite, "Respiratory composite", "respcomposite")
+  mod(respadmitted, "Respiratory admission", "respadmitted")
+  mod(anyadmitted, "All cause unplanned admission", "anyadmitted")  
   mod(anydeath, "All cause death", "anydeath")
   
 }
@@ -169,11 +169,11 @@ comb <- function(suffix){
 
 }
 
-comb("covidcomp")
-comb("covidadmit")
-comb("covidemerg")
-comb("respcomp")
-comb("respadmit")
-comb("anyadmit")
+comb("covidcomposite")
+comb("covidadmitted")
+comb("covidemergency")
+comb("respcomposite")
+comb("respadmitted")
+comb("anyadmitted")
 comb("anydeath")
 
