@@ -68,12 +68,12 @@ fuzzy <- function(start_date){
   }
   
   # Run for each outcome
-  mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomp")
-  mod(covidadmitted, "COVID unplanned admission", "covidadmit")
-  mod(covidemerg, "COVID A&E", "covidemerg")
-  mod(respcomposite, "Respiratory composite", "respcomp")
-  mod(respadmitted, "Respiratory admission", "respadmit")
-  mod(anyadmitted, "All cause unplanned admission", "anyadmit") 
+  mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomposite")
+  mod(covidadmitted, "COVID unplanned admission", "covidadmitted")
+  mod(covidemergency, "COVID A&E", "covidemergency")
+  mod(respcomposite, "Respiratory composite", "respcomposite")
+  mod(respadmitted, "Respiratory admission", "respadmitted")
+  mod(anyadmitted, "All cause unplanned admission", "anyadmitted") 
   mod(anydeath, "All cause death", "anydeath")  
   
   
@@ -108,12 +108,12 @@ comb <- function(suffix){
   
 }
 
-comb("covidcomp")
-comb("covidadmit")
-comb("covidemerg")
-comb("respcomp")
-comb("respadmit")
-comb("anyadmit")
+comb("covidcomposite")
+comb("covidadmitted")
+comb("covidemergency")
+comb("respcomposite")
+comb("respadmitted")
+comb("anyadmitted")
 comb("anydeath")
 
 

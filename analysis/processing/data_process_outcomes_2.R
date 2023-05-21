@@ -1,7 +1,6 @@
 
 ################################################################
-# This script combines all outcomes files into one,
-#
+# This script combines all outcomes files into one
 ################################################################
 
 
@@ -47,8 +46,7 @@ index.dates <- map(list.files, read_feather)
 combine_files <- function(var){
   
   list <- purrr::map(index.dates, 
-                     ~ dplyr::select(., c(contains(var), 
-                              patient_id, dob, dod, flu_vax_date, boost_date)))
+                     ~ dplyr::select(., c(contains(var), patient_id, dob, dod, flu_vax_date, boost_date)))
   
   combined <- 
     bind_rows(list) %>% 

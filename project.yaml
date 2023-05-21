@@ -86,14 +86,12 @@ actions:
         outcomes: output/cohort/outcome*.feather
 
 # Split into separate datasets by start date
-  # data_process_by_start_date:
-  #   run: r:latest analysis/processing/data_process_by_start_date.R
-  #   needs: [data_process_outcomes_2]
-  #   outputs:
-  #     highly_sensitive:
-  #       cohort: output/cohort/cohort_*.csv
-  #     moderately_sensitive:
-  #       outcomes: output/cohort/outcom_*.csv
+  data_process_by_start_date:
+    run: r:latest analysis/processing/data_process_by_start_date.R
+    needs: [data_process_outcomes_2]
+    outputs:
+      moderately_sensitive:
+        outcomes: output/cohort_bydate/outcomes_*.csv
 
 # Plots of COVID booster uptake by age
   booster_uptake:
@@ -135,7 +133,7 @@ actions:
 # Sharp analysis #
   sharp_analysis_lpm:
    run: r:latest analysis/statistical_analysis/sharp_analysis_lpm.R
-   needs: [data_process_outcomes_2]
+   needs: [data_process_by_start_date]
    outputs:
       moderately_sensitive:
         predicted_csv: output/modelling/predicted_lpm*.csv
@@ -146,7 +144,7 @@ actions:
 # Fuzzy analysis #
   fuzzy_analysis:
    run: r:latest analysis/statistical_analysis/fuzzy_analysis.R
-   needs: [data_process_outcomes_2]
+   needs: [data_process_by_start_date]
    outputs:
       moderately_sensitive:
         coefficients_csv: output/modelling/iv/coef_iv*.csv
