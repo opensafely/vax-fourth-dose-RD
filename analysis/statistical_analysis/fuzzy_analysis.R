@@ -25,14 +25,14 @@ dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse
 dir_create(here::here("output", "covid_outcomes", "by_start_date"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling", "iv"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "modelling", "final"), showWarnings = FALSE, recurse = TRUE)
-dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse = TRUE)
 
 
 # Function for instrumental variable analysis
 fuzzy <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+  data <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
     mutate(age_3mos = floor(age_mos / 3),
            over50 = if_else(age_3mos >= 200, 1, 0, 0),
            age_3mos_c = as.numeric(age_3mos - 200)) %>%
