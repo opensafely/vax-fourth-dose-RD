@@ -175,4 +175,10 @@ actions:
   #     moderately_sensitive:
   #       demographics_csv: output/descriptive/dod*.csv
       
-  
+# Outcomes by week
+  outcomes_by_week:
+    run: r:latest analysis/descriptive/outcomes_by_week.R
+    needs: [outcomes]
+    outputs:
+      moderately_sensitive:
+        outcomes: output/descriptive/outcomes_by_week.csv
