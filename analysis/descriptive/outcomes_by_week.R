@@ -42,7 +42,8 @@ byweek <- function(dat){
                  age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1)) %>%
     
           # Exclude if died before index date or not in age range
-          subset(dod >= as.Date(dat) & age_yrs >= 45 & age_yrs < 55) %>%
+          subset((dod >= as.Date(dat) | is.na(dod)) 
+                 & age_yrs >= 45 & age_yrs < 55) %>%
     
           # Create variable for week
           mutate(week = dat, n_total = n()) %>%
