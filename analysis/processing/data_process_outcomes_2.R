@@ -12,6 +12,7 @@
 library('tidyverse')
 library('lubridate')
 library('arrow')
+library('feather')
 library('here')
 library('reshape2')
 library('dplyr')
@@ -37,7 +38,22 @@ source(here::here("analysis", "custom_functions.R"))
 ###############################################################
 
 # Create list of all weekly outcomes files
-list.files <- dir_ls('output/index', regexp = "input_outcomes_2_")
+list.files <- list("output/index/input_outcomes_2_2022-10-15.feather",
+                   "output/index/input_outcomes_2_2022-10-22.feather",
+                   "output/index/input_outcomes_2_2022-10-29.feather",
+                   "output/index/input_outcomes_2_2022-11-05.feather",
+                   "output/index/input_outcomes_2_2022-11-12.feather",
+                   "output/index/input_outcomes_2_2022-11-19.feather",
+                   "output/index/input_outcomes_2_2022-11-26.feather",
+                   "output/index/input_outcomes_2_2022-12-03.feather",
+                   "output/index/input_outcomes_2_2022-12-10.feather",
+                   "output/index/input_outcomes_2_2022-12-17.feather",
+                   "output/index/input_outcomes_2_2022-12-24.feather",
+                   "output/index/input_outcomes_2_2022-12-31.feather",
+                   "output/index/input_outcomes_2_2023-01-07.feather",
+                   "output/index/input_outcomes_2_2023-01-14.feather",
+                   "output/index/input_outcomes_2_2023-01-21.feather",
+                   "output/index/input_outcomes_2_2023-01-28.feather")
 index.dates <- map(list.files, read_feather)
 
 
