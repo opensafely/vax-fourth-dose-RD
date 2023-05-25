@@ -105,7 +105,7 @@ actions:
 # Aggregate data by age
   aggregate_outcomes_byage:
     run: r:latest analysis/processing/aggregate_outcomes.R
-    needs: [data_process_outcomes_2]
+    needs: [data_process_by_start_date]
     outputs:
       moderately_sensitive:
         outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
