@@ -130,7 +130,7 @@ ggplot(long, aes(x = week, y = value, group = variable)) +
   ylab("Rate per 100,000") + xlab("Week") +
   scale_x_discrete(breaks = c("2022-09-03", "2022-10-15", "2022-11-26")) +
   theme_bw()+ 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.title = element_blank())
 
 ggsave(here::here("output", "descriptive", "outcomes_by_week.png"), dpi = 300,
