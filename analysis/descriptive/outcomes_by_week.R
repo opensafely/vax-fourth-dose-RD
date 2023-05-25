@@ -64,17 +64,7 @@ byweek <- function(dat){
                     n_anyadmit = sum(!is.na(admitted_unplanned_date_1)),
                     n_anydeath = sum(!is.na(any_death_date) &
                                        any_death_date >= as.Date(dat) &
-                                       any_death_date < as.Date(dat) + 6)) %>%
-    
-          # Rounding
-          mutate((across(starts_with("n_"), roundmid_any)),
-                 rate_covidadmit_mid6 = n_covidadmit / n_total * 100000,
-                 rate_covidemerg_mid6 = n_covidemerg / n_total * 100000,
-                 rate_covidcomp_mid6 = n_covidcomp / n_total * 100000,
-                 rate_respcomp_mid6 = n_respcomp / n_total * 100000,
-                 rate_anyadmit_mid6 = n_anyadmit / n_total * 100000,
-                 rate_anydeath_mid6 = n_anydeath / n_total * 100000) %>%
-          rename_at(vars(starts_with("n_")), ~ paste0(., '_mid6'))
+                                       any_death_date < as.Date(dat) + 6))
   
  return(df)   
   
@@ -108,12 +98,24 @@ wide <- rbind(
 
 write.csv(wide, here::here("output", "descriptive", "outcomes_by_week.csv"))
 
+wide_round <- wide %>%
+  # Rounding
+    mutate((across(starts_with("n_"), roundmid_any)),
+       rate_covidadmit_mid6 = n_covidadmit / n_total * 100000,
+       rate_covidemerg_mid6 = n_covidemerg / n_total * 100000,
+       rate_covidcomp_mid6 = n_covidcomp / n_total * 100000,
+       rate_respcomp_mid6 = n_respcomp / n_total * 100000,
+       rate_anyadmit_mid6 = n_anyadmit / n_total * 100000,
+       rate_anydeath_mid6 = n_anydeath / n_total * 100000) %>%
+    rename_at(vars(starts_with("n_")), ~ paste0(., '_mid6'))
+
+write.csv(wide_round, here::here("output", "descriptive", "outcomes_by_week_mid6.csv"))
 
 ####### Plot ############################
 #########################################
 
 # Convert to long for plotting
-long <- wide %>% 
+long <- wide_round %>% 
   dplyr::select(!contains("n_")) %>%
   melt(id = "week")
 
@@ -128,11 +130,13 @@ long$variable <- factor(long$variable, levels = c("rate_covidcomp_mid6", "rate_c
 ggplot(long, aes(x = week, y = value, group = variable)) +
   geom_line(aes(col = variable)) +
   facet_wrap(~ variable, scales = "free_y") + 
-  ylab("Rate per 100,000") + xlab("Week") +
+  ylab("Rate per 100,000 population") + xlab("Week") +
   scale_x_discrete(breaks = c("2022-09-03", "2022-10-15", "2022-11-26")) +
   theme_bw()+ 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.title = element_blank())
+        legend.position = "none",
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0))
 
 ggsave(here::here("output", "descriptive", "outcomes_by_week.png"), dpi = 300,
-       height = 5, width = 15, units = "in")
+       height = 5, width = 10, units = "in")
