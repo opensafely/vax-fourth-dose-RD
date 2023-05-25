@@ -119,17 +119,6 @@ actions:
   #     moderately_sensitive:
   #       plot: output/covid_outcomes/figures/plot_*.png
 
-# sharp analysis #
-  # sharp_analysis_logistic:
-  #  run: r:latest analysis/statistical_analysis/sharp_analysis_logistic.R
-  #  needs: [data_process_outcomes_1, data_process_outcomes_2]
-  #  outputs:
-  #     moderately_sensitive:
-  #       predicted_csv: output/modelling/predicted_*.csv        
-  #       coefficients1_csv: output/modelling/coef_*.csv
-  #       coefficients2_csv: output/modelling/final/coef_*.csv
-  #       plot: output/modelling/figures/plot*.png
-
 # Sharp analysis #
   sharp_analysis_lpm:
    run: r:latest analysis/statistical_analysis/sharp_analysis_lpm.R
@@ -175,4 +164,11 @@ actions:
   #     moderately_sensitive:
   #       demographics_csv: output/descriptive/dod*.csv
       
-  
+# Outcomes by week
+  outcomes_by_week:
+    run: r:latest analysis/descriptive/outcomes_by_week.R
+    needs: [outcomes]
+    outputs:
+      moderately_sensitive:
+        outcomes: output/descriptive/outcomes_by_week.csv
+        plot: output/descriptive/outcomes_by_week.png

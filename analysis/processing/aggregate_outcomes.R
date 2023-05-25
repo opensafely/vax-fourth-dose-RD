@@ -1,7 +1,8 @@
 
 ################################################################
 # This script:
-# - Calculates number of outcomes by age in months
+# - Calculates number of outcomes by age in months and years 
+#   for tables and figures
 ################################################################
 
 
@@ -23,7 +24,7 @@ library('data.table')
 
 ## Create directories
 dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
-dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "covid_outcomes","by_start_date"), showWarnings = FALSE, recurse = TRUE)
 
@@ -38,9 +39,9 @@ source(here::here("analysis", "custom_functions.R"))
 agg <- function(start_date, grp, age){
   
   # No redaction
-  dat <- read.csv(here::here("output", "cohort", paste0("outcomes_",start_date,".csv"))) %>%
+  dat <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
     mutate(age_3mos = floor(age_mos / 3),
-           over50 = if_else(age_yrs >=50 & age_yrs <55, 1, 0, 0)) %>%
+           over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0)) %>%
     subset(age_yrs >= 45 & age_yrs < 55) %>%
     group_by({{age}}) %>%
     mutate(total = n()) %>%
@@ -97,20 +98,15 @@ agg <- function(start_date, grp, age){
 }
 
 ### Do the above over all relevant start dates
-agg("2022-09-03", "3mon", age_3mos) 
 agg("2022-09-03", "yrs", age_yrs)
 agg("2022-09-03", "over50", over50)
 
-agg("2022-10-15", "3mon", age_3mos) 
 agg("2022-10-15", "yrs", age_yrs)
 agg("2022-10-15", "over50", over50)
 
+agg("2022-11-26", "yrs", age_yrs)
+agg("2022-11-26", "over50", over50)
 
-start_dates <- as.Date(0:10, origin = "2022-11-26")
-
-sapply(start_dates, agg, grp = "3mon", age = age_3mos)
-sapply(start_dates, agg, grp = "yrs", age = age_yrs)
-sapply(start_dates, agg, grp = "over50", age = over50)
 
 
 
