@@ -50,7 +50,7 @@ agg <- function(start_date, grp, age){
     summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
               n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
               n_coviddeath = sum(coviddeath == 1, na.rm = TRUE),
-              n_covidemerg = sum(covidemerg == 1, na.rm = TRUE),
+              n_covidemerg = sum(covidemergency == 1, na.rm = TRUE),
               n_respcomposite = sum(respcomposite ==1, na.rm = TRUE),
               n_respdeath = sum(respdeath == 1, na.rm = TRUE),
               n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
