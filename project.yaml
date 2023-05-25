@@ -61,7 +61,7 @@ actions:
   outcomes:
     run: cohortextractor:latest generate_cohort
       --study-definition study_definition_outcomes_2
-      --index-date-range "2022-09-03 to 2023-01-27 by week" 
+      --index-date-range "2022-09-03 to 2023-01-28 by week" 
       --output-dir=feather 
       --output-format=feather
     needs: [data_process_baseline]

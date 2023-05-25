@@ -51,8 +51,9 @@ list.files <- list("output/index/input_outcomes_2_2022-10-15.feather",
                    "output/index/input_outcomes_2_2022-12-31.feather",
                    "output/index/input_outcomes_2_2023-01-07.feather",
                    "output/index/input_outcomes_2_2023-01-14.feather",
-                   "output/index/input_outcomes_2_2023-01-21.feather",
-                   "output/index/input_outcomes_2_2023-01-28.feather")
+                   "output/index/input_outcomes_2_2023-01-21.feather"
+                #   "output/index/input_outcomes_2_2023-01-28.feather"
+                )
 index.dates <- map(list.files, read_feather)
 
 
