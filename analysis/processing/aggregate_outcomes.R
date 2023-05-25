@@ -73,11 +73,10 @@ agg <- function(start_date, grp, age){
   
   # Redaction
   dat_red <- dat %>%
-    mutate(across(contains("n_"), redact),
-         across(contains("n_"), rounding),
+    mutate(across(contains("n_"), roundmid_any),
+         across(contains("n_"), roundmid_any),
          
-         total = redact(total),
-         total = rounding(total),
+         total = roundmid_any(total),
          
          rate_covidcomposite = n_covidcomposite / total * 100000,
          rate_covidadmitted = n_covidadmitted / total * 100000,
@@ -89,8 +88,8 @@ agg <- function(start_date, grp, age){
          rate_anydeath = n_anydeath / total * 100000,
          rate_anyadmitted = n_anyadmitted / total * 100000) %>%
     rename(total_round5 = total) %>%
-    rename_at(vars(contains("n_")), ~ paste0(., '_round5')) %>%
-    rename_at(vars(contains("rate_")), ~ paste0(., '_round5_derived'))
+    rename_at(vars(contains("n_")), ~ paste0(., '_mid6')) %>%
+    rename_at(vars(contains("rate_")), ~ paste0(., '_mid6'))
   
   write.csv(dat_red, here::here("output", "covid_outcomes", "by_start_date", 
                                 paste0("outcomes_byage_",grp,"_",start_date,"_red.csv")), row.names = FALSE)
