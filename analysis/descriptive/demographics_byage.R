@@ -20,7 +20,6 @@ library('fs')
 library('ggplot2')
 library('RColorBrewer')
 
-
 ## Create directories
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
@@ -36,6 +35,7 @@ source(here::here("analysis", "custom_functions.R"))
 
 demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
   dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex)) %>%
+  mutate(dod = as.Date(dod, format ="%Y-%m-%d")) %>%
   subset(age_yrs >= 45 & age_yrs < 55 &
          (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
@@ -47,6 +47,7 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"))
   group_by(age_3mos) %>%
   mutate(total_age_3mos = n()) 
 
+print(class(demographics$dod))
 
 ##########################################
 # Function for summarising frequency 
@@ -151,3 +152,4 @@ flu_vax_by_age <- fluvax %>%
 ############ Save ########################
 write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))
 write_csv(flu_vax_by_age, here::here("output", "descriptive", "fluvax_byage.csv"))
+
