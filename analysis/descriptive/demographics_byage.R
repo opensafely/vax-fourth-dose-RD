@@ -33,9 +33,17 @@ source(here::here("analysis", "custom_functions.R"))
 # Read in and prep data 
 ##########################################
 
-demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
+demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                         col_types = cols(
+                           patient_id = col_number(),
+                           age_yrs = col_number(),
+                           imd = col_number(),
+                           region = col_character(),
+                           ethnicity = col_character(),
+                           sex = col_character(),
+                           dob = col_date(format = "%Y-%m-%d"),
+                           dod = col_date(format = "%Y-%m-%d"))) %>%
   dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex)) %>%
-  mutate(dod = as.Date(dod, format ="%Y-%m-%d")) %>%
   subset(age_yrs >= 45 & age_yrs < 55 &
          (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
