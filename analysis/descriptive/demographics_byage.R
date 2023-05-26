@@ -116,7 +116,12 @@ demographics_by_age <- rbind(imd, sex, region, ethnicity)
 # Read in and prep data - receipt of flu vaccine at Nov 26
 #############################################################
 
-fluvax <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
+fluvax <-  read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                    col_types = cols(
+                      patient_id = col_number(),
+                      flu_vax_date = col_date(format = "%Y-%m-%d"),
+                      dob = col_date(format = "%Y-%m-%d"),
+                      dod = col_date(format = "%Y-%m-%d"))) %>%
   dplyr::select(c(patient_id, dob, dod, flu_vax_date)) %>%
   
   # Create age in months variable
