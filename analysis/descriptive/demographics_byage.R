@@ -111,14 +111,14 @@ fluvax <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
   dplyr::select(c(patient_id, dob, dod, flu_vax_date)) %>%
   
   # Create age in months variable
-  mutate(age = (dob %--% "2022-11-26") %/% years(1),
+  mutate(age_yrs = (dob %--% "2022-11-26") %/% years(1),
          age_mos = (dob %--% "2022-11-26") %/% months(1),
          age_3mos = floor(age_mos / 3),
          flu_vax = if_else(!is.na(flu_vax_date) & 
                              flu_vax_date < "2022-11-26",
                            1, 0, 0)) %>%
   
-  subset(age >= 45 & age < 55 &
+  subset(age_yrs >= 45 & age_yrs < 55 &
            (is.na(dod) | dod >= as.Date("2022-11-26"))) %>%
          
   # Calculate denominator by age in months

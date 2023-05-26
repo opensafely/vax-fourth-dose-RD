@@ -46,6 +46,8 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     dob = dob + 14,
     age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1),
     
+    dod = as.Date(as.character(as.POSIXct(dod)), format = "%Y-%m-%d"),
+    
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
       diabetes | chronic_liver_disease | chronic_neuro_disease |  asplenia |
