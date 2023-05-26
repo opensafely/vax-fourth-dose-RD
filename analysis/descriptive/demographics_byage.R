@@ -35,8 +35,8 @@ source(here::here("analysis", "custom_functions.R"))
 ##########################################
 
 demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
-  dplyr::select(c(patient_id, age, dob, dod, imd, region, ethnicity, sex)) %>%
-  subset(age >= 45 & age < 55 &
+  dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex)) %>%
+  subset(age_yrs >= 45 & age_yrs < 55 &
          (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   # Create age in months variable

@@ -88,3 +88,13 @@ deaths <- check %>%
   summarise(n_died = n()) 
 
 write_csv(deaths, here::here("output", "descriptive", "dod_check_outcome_2022-11-26.csv"))
+
+
+
+check <- read_csv(here::here("output",  "cohort", "cohort_final_sep.csv"))
+
+deaths <- check %>%
+  group_by(dod) %>%
+  summarise(n_died = n()) 
+
+write_csv(deaths, here::here("output", "descriptive", "dod_check_cohort_final.csv")

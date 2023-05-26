@@ -103,7 +103,7 @@ actions:
         plot: output/cumulative_rates/plot_*.png
 
 # Aggregate data by age
-  aggregate_outcomes_byage:
+  aggregate_outcomes:
     run: r:latest analysis/processing/aggregate_outcomes.R
     needs: [data_process_by_start_date]
     outputs:
@@ -170,5 +170,5 @@ actions:
     needs: [outcomes]
     outputs:
       moderately_sensitive:
-        outcomes: output/descriptive/outcomes_by_week.csv
+        outcomes: output/descriptive/outcomes_by_*.csv
         plot: output/descriptive/outcomes_by_week.png
