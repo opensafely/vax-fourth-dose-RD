@@ -37,12 +37,8 @@ source(here::here("analysis", "custom_functions.R"))
 ###############################################################
 
 # Create list of all weekly outcomes files
-list.files <- list("output/index/input_outcomes_2_2022-10-15.feather",
-                   "output/index/input_outcomes_2_2022-10-22.feather",
-                   "output/index/input_outcomes_2_2022-10-29.feather",
-                   "output/index/input_outcomes_2_2022-11-05.feather",
-                   "output/index/input_outcomes_2_2022-11-12.feather",
-                   "output/index/input_outcomes_2_2022-11-19.feather",
+list.files <- list("output/index/input_outcomes_2_2022-09-03.feather",
+                   "output/index/input_outcomes_2_2022-10-15.feather",
                    "output/index/input_outcomes_2_2022-11-26.feather",
                    "output/index/input_outcomes_2_2022-12-03.feather",
                    "output/index/input_outcomes_2_2022-12-10.feather",

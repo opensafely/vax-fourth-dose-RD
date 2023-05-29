@@ -106,9 +106,10 @@ bydate2 <- function(start_date){
 
 
 bydate2("2022-09-03")
+bydate2("2022-10-15")
 
 # Do the above over all relevant start dates
-start_dates <- as.Date(0:56, origin="2022-10-15")
+start_dates <- as.Date(0:14, origin="2022-11-26")
 sapply(start_dates, bydate2)
 
 
