@@ -34,7 +34,8 @@ source(here::here("analysis", "custom_functions.R"))
 byweek <- function(dat){
   
   # Read in data for each week
-  df <- read_feather(here::here("output", "index", paste0("input_outcomes_2_", dat, ".feather"))) %>%
+  df <- read_feather(
+    here::here("output", "index", paste0("input_outcomes_2_", dat, ".feather"))) %>%
     
           # Calculate age at index date
           mutate(dob = as.Date(as.character(as.POSIXct(dob)), format = "%Y-%m-%d"),

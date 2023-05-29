@@ -9,8 +9,7 @@
 #   on October 15, 2022
 #
 # This study definition extracts information on all outcomes for the experimental
-# periods - Nov 26 to end of data availability. Outcomes will later be grouped into 
-# rolling 28 day periods (Nov 26 + 28 days, Nov 27 + 28 days, Nov 28 + 28 days, etc.).
+# periods. Outcomes will later be grouped into rolling 42 day periods.
 #
 ##############################################################################
 

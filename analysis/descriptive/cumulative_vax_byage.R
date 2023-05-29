@@ -35,7 +35,10 @@ source(here::here("analysis", "custom_functions.R"))
 ### Read in data                                  ###
 #####################################################
 
-booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
+booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                    col_types = cols(
+                      dob = col_date(format = "%Y-%m-%d"),
+                      dod = col_date(format = "%Y-%m-%d"))) %>%
     # Age at Nov 26
     mutate(age_mos = (dob %--% "2022-11-26") %/% months(1),
            age_yrs = (dob %--% "2022-11-26") %/% years(1)) %>%
@@ -94,7 +97,7 @@ ggplot(subset(booster_age1_byday, boost_date >= as.Date("2022-09-03") |
                                 as.Date("2023-02-01"), as.Date("2023-03-01")),
                      labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1", 
                                 "Jan 1", "Feb 1", "Mar 1")) +
-  xlab(NULL) + ylab("Received autumn booster") +
+  xlab(NULL) + ylab("Received COVID-19 autumn\nbooster vaccine") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -135,7 +138,7 @@ ggplot(subset(booster_nov26, age_3mos >= 180 & age_3mos <= 216)) +
              col = "dodgerblue3") +
   scale_y_continuous(limits = c(0, 100)) +
   scale_x_continuous(breaks = seq(45,54,1)) +
-  xlab(NULL) + ylab("Received second booster\nCOVID-19 vaccine (%)") +
+  xlab(NULL) + ylab("Received COVID-19 autumn\nbooster COVID-19 vaccine (%)") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -152,47 +155,50 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_age_3months.png"),
 ###################
 
 # # Plot of when people received each dose (see if it makes sense)
-doses_by_day <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
-  select(c(patient_id, covid_vax_1_date, covid_vax_2_date,
-            covid_vax_3_date, covid_vax_4_date)) %>%
-  melt(id = c("patient_id")) %>%
-  rename(vax = variable, date = value) %>%
-  mutate(vax = fct_case_when(
-    vax == "covid_vax_1_date" ~ "First dose",
-    vax == "covid_vax_2_date" ~ "Second dose",
-    vax == "covid_vax_3_date" ~ "Third dose",
-    vax == "covid_vax_4_date" ~ "Fourth dose"
-  )) %>%
-  subset(!is.na(date)) %>%
-  group_by(vax, date) %>%
-  summarise(vax_n = n()) %>%
-  group_by(vax) %>%
-  complete(date = seq(min(as.Date(date)),
-                                  max(end_date),
-                      by = '1 day')) %>%
-  fill(vax_n) %>% # Create rows for days with zero vaccinations
-  ungroup() %>%
-  mutate(vax_n = case_when(vax_n > 7 ~ vax_n),
-         vax_n = round(vax_n / 5) * 5)
-
-
-ggplot(doses_by_day, aes(x = date, y = vax_n)) +
-  geom_line(aes(col = vax)) +
-  geom_ribbon(aes(group = vax, fill = vax, ymax = vax_n),  ymin = 0, alpha = 0.5) +
-  xlab("") + ylab("Received vaccine (n)") +
-  scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
-  scale_fill_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124')) +
-  scale_x_continuous(breaks = c(as.Date("2021-01-01"), as.Date("2021-07-01"),
-                                as.Date("2022-01-01"), as.Date("2022-07-01"),
-                                as.Date("2023-01-01")),
-                     labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022",
-                                "Jan 2023")) +
-  theme_bw() +
-  theme(panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggsave(here::here("output", "cumulative_rates", "plot_all_doses_over_time.png"),
-       dpi = 300, units = "in", width = 6, height = 3.25)
-
+# doses_by_day <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+#                          col_types = cols(
+#                            dob = col_date(format = "%Y-%m-%d"),
+#                            dod = col_date(format = "%Y-%m-%d"))) %>%
+#   select(c(patient_id, covid_vax_1_date, covid_vax_2_date,
+#             covid_vax_3_date, covid_vax_4_date)) %>%
+#   melt(id = c("patient_id")) %>%
+#   rename(vax = variable, date = value) %>%
+#   mutate(vax = fct_case_when(
+#     vax == "covid_vax_1_date" ~ "First dose",
+#     vax == "covid_vax_2_date" ~ "Second dose",
+#     vax == "covid_vax_3_date" ~ "Third dose",
+#     vax == "covid_vax_4_date" ~ "Fourth dose"
+#   )) %>%
+#   subset(!is.na(date)) %>%
+#   group_by(vax, date) %>%
+#   summarise(vax_n = n()) %>%
+#   group_by(vax) %>%
+#   complete(date = seq(min(as.Date(date)),
+#                                   max(end_date),
+#                       by = '1 day')) %>%
+#   fill(vax_n) %>% # Create rows for days with zero vaccinations
+#   ungroup() %>%
+#   mutate(vax_n = case_when(vax_n > 7 ~ vax_n),
+#          vax_n = round(vax_n / 5) * 5)
+# 
+# 
+# ggplot(doses_by_day, aes(x = date, y = vax_n)) +
+#   geom_line(aes(col = vax)) +
+#   geom_ribbon(aes(group = vax, fill = vax, ymax = vax_n),  ymin = 0, alpha = 0.5) +
+#   xlab("") + ylab("Received vaccine (n)") +
+#   scale_colour_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124'))+
+#   scale_fill_manual(values = c('#00496f', '#0f85a0', '#edd746', '#dd4124')) +
+#   scale_x_continuous(breaks = c(as.Date("2021-01-01"), as.Date("2021-07-01"),
+#                                 as.Date("2022-01-01"), as.Date("2022-07-01"),
+#                                 as.Date("2023-01-01")),
+#                      labels = c("Jan 2021", "Jul 2021", "Jan 2022", "Jul 2022",
+#                                 "Jan 2023")) +
+#   theme_bw() +
+#   theme(panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         legend.title = element_blank(),
+#         axis.text.x = element_text(angle = 45, hjust = 1))
+# 
+# ggsave(here::here("output", "cumulative_rates", "plot_all_doses_over_time.png"),
+#        dpi = 300, units = "in", width = 6, height = 3.25)
+# 

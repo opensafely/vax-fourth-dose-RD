@@ -29,7 +29,8 @@ dir_create(here::here("output", "covid_outcomes", "figures"), showWarnings = FAL
 source(here::here("analysis", "custom_functions.R"))
 
 
-data <- read.csv(here::here("output", "covid_outcomes", "by_start_date", "outcomes_byage_6mon_2022-11-26_red.csv"))
+data <- read_csv(here::here("output", "covid_outcomes", 
+                            "by_start_date", "outcomes_byage_3mon_2022-11-26_red.csv")))
   
 data2 <- data %>% dplyr::select(c(contains("rate_"), age_mos6)) %>%
   reshape2::melt(id = c("age_mos6"))

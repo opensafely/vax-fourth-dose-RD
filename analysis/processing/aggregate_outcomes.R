@@ -38,8 +38,14 @@ source(here::here("analysis", "custom_functions.R"))
 
 agg <- function(start_date, grp, age){
   
+  data <- read_csv(here::here("output", "cohort_bydate", paste0("outcomes_2022-09-03.csv")))
+  
   # No redaction
-  dat <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
+  dat <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"),
+                             col_types = cols(
+                               flu_vax_date = col_date(format = "%Y-%m-%d"),
+                               dob = col_date(format = "%Y-%m-%d"),
+                               dod = col_date(format = "%Y-%m-%d")))) %>%
     mutate(age_3mos = floor(age_mos / 3),
            over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0)) %>%
     subset(age_yrs >= 45 & age_yrs < 55) %>%

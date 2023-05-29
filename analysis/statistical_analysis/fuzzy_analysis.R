@@ -1,6 +1,7 @@
 ################################################################
 # This script:
-# - Conducts regression model and plots predicted values
+# - Conducts fuzzy regression discontinuity 
+#   using instrumental variables analysis 
 ################################################################
 
 
@@ -45,18 +46,18 @@ fuzzy <- function(start_date){
       group_by(age_3mos_c, flu_vax, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
-                p_boost = boost / n * 100,
+                p_boost = boost / n * 100000,
                 outcome = sum({{out}}),
-                p_outcome = outcome / n * 100) 
+                p_outcome = outcome / n * 100000) 
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h= 20,
                        kernel = "uniform", weights = df$n)
   
     # Save coefficients and 95% CIs
-    coef <- data.frame(estimate = rdd$coef[1],
-                lci = rdd$ci[1,1],
-                uci = rdd$ci[1,2],
+    coef <- data.frame(estimate = rdd$coef[1] * 100000,
+                lci = rdd$ci[1,1] * 100000,
+                uci = rdd$ci[1,2] * 100000,
                 outcome = name,
                 start_date = start_date)
     
@@ -81,7 +82,7 @@ fuzzy <- function(start_date){
 
 
 # Create list of dates
-start_dates <- c(as.Date(0:10, origin = "2022-11-26")) 
+start_dates <- c(as.Date(0:14, origin = "2022-11-26")) 
 
 # Run function over all dates
 sapply(start_dates, fuzzy)
@@ -100,7 +101,11 @@ comb <- function(suffix){
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-02.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-03.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-04.csv"))),
-    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-05.csv")))
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-05.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-06.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-07.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-08.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-09.csv")))
   )
   
   write.csv(all_coef, here::here("output", "modelling", "final",paste0("coef_iv_",suffix,"_","all_.csv")), 

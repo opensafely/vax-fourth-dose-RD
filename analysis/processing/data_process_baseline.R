@@ -2,6 +2,8 @@
 ################################################################
 # This script defines exclusion criteria and extracts
 # final study population
+#
+# Dependency: study_definition_baseline.py
 ################################################################
 
 
@@ -26,12 +28,10 @@ dir_create(here::here("output"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 
-
 # Load functions
 source(here::here("analysis", "custom_functions.R"))
 
 end_date = as.Date("2023-02-04")
-
 
 #######################################
 # Prepare data
@@ -45,19 +45,18 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
     # Set DOB to mid-month
     dob = dob + 14,
     age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1),
-    
-    dod = as.Date(as.character(as.POSIXct(dod)), format = "%Y-%m-%d"),
-    
+        
     # Flag for clinically vulnerable people
     cv = immunosuppressed | chronic_kidney_disease | chronic_resp_disease | 
-      diabetes | chronic_liver_disease | chronic_neuro_disease |  asplenia |
+      diabetes | chronic_liver_disease | chronic_neuro_disease | asplenia |
       chronic_heart_disease | sev_mental | sev_obesity | asthma,
     
     # Determine earliest recorded date of flu vaccination 
     flu_vax_date = pmin(flu_vax_med_date, flu_vax_tpp_date, 
                         flu_vax_clinical_date, na.rm = TRUE),
     
-    # Booster date (if received)
+    # Booster date (if received) - could be third OR fourth
+      # must be after September 5
     boost_date = case_when(
         (!is.na(covid_vax_4_date) & 
               covid_vax_4_date >= as.Date("2022-09-05") & 

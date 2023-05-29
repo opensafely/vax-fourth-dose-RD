@@ -57,7 +57,7 @@ actions:
 #       highly_sensitive:
 #         cohort: output/index/input*.feather
 
- # Extract outcomes 
+# Extract outcomes 
   outcomes:
     run: cohortextractor:latest generate_cohort
       --study-definition study_definition_outcomes_2
@@ -72,7 +72,7 @@ actions:
 # Data cleaning of outcome data (control periods)
   # data_process_outcomes_1:
   #   run: r:latest analysis/processing/data_process_outcomes_1.R
-  #   needs: [outcomes_sep, outcomes_oct]
+  #   needs: [outcomes_sep, outcomes_oct
   #   outputs:
   #     highly_sensitive:
   #       outcomes: output/cohort/outcomes*.csv
@@ -93,7 +93,16 @@ actions:
       moderately_sensitive:
         outcomes: output/cohort_bydate/outcomes_*.csv
 
-# Plots of COVID booster uptake by age
+# No. outcomes by age 
+  aggregate_outcomes:
+    run: r:latest analysis/processing/aggregate_outcomes.R
+    needs: [data_process_by_start_date]
+    outputs:
+      moderately_sensitive:
+        outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
+#       no_patients: output/descriptive/total_n_by_date.csv
+
+# Plots of booster uptake by age
   booster_uptake:
    run: r:latest analysis/descriptive/cumulative_vax_byage.R
    needs: [data_process_baseline]
@@ -102,22 +111,14 @@ actions:
         rates_csv: output/cumulative_rates/final_*.csv 
         plot: output/cumulative_rates/plot_*.png
 
-# Aggregate data by age
-  aggregate_outcomes:
-    run: r:latest analysis/processing/aggregate_outcomes.R
-    needs: [data_process_by_start_date]
+# Outcomes (overall) by week
+  outcomes_by_week:
+    run: r:latest analysis/descriptive/outcomes_by_week.R
+    needs: [outcomes]
     outputs:
       moderately_sensitive:
-        outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
-#        no_patients: output/descriptive/total_n_by_date.csv
-
-# Outcome plots #
-  # plot_outcomes:
-  #  run: r:latest analysis/descriptive/plot_outcomes_byage.R
-  #  needs: [aggregate_outcomes_byage]
-  #  outputs:
-  #     moderately_sensitive:
-  #       plot: output/covid_outcomes/figures/plot_*.png
+        outcomes: output/descriptive/outcomes_by_*.csv
+        plot: output/descriptive/outcomes_by_week.png
 
 # Sharp analysis #
   sharp_analysis_lpm:
@@ -155,6 +156,7 @@ actions:
       moderately_sensitive:
         demographics_csv: output/descriptive/demographics_*.csv
         fluvaccine_csv: output/descriptive/fluvax_*.csv
+        log: output/logs/demographics_log.txt
 
 # Check DOD
   # check_dod:
@@ -164,11 +166,4 @@ actions:
   #     moderately_sensitive:
   #       demographics_csv: output/descriptive/dod*.csv
       
-# Outcomes by week
-  outcomes_by_week:
-    run: r:latest analysis/descriptive/outcomes_by_week.R
-    needs: [outcomes]
-    outputs:
-      moderately_sensitive:
-        outcomes: output/descriptive/outcomes_by_*.csv
-        plot: output/descriptive/outcomes_by_week.png
+
