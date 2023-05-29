@@ -56,6 +56,16 @@ sharp <- function(start_date){
                 p_outcome_mid6 = outcome_mid6 / n_mid6 * 100000
                 ) 
     
+    # Write data for plots
+    write.csv(df,
+              here::here("output", "modelling", paste0("plot_data_",suffix,"_",start_date,".csv")),
+              row.names = FALSE)
+    
+    # df_round <- df %>%
+    #   dplyr::select(c(age_3mos, outcome_mid6, n_mid6, p_outcome_mid6))
+    # write.csv(df_round,
+    #           here::here("output", "modelling", paste0("plot_data_red_",suffix,"_",start_date,".csv")))
+    
     # Model
     mod <- lm(p_outcome ~ age_3mos_c*over50, data = df, weights = df$n)
 
