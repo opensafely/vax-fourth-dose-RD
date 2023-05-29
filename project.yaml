@@ -43,7 +43,7 @@ actions:
 #     needs: [data_process_baseline]
 #     outputs:
 #       highly_sensitive:
-#         cohort: output/index/input_by_index_date_*.feather
+#         cohort: output/index/input_*.feather
 
 #  # Extract outcomes mid-campaign (index date = Oct 15)
 #   outcomes_oct15:
@@ -55,162 +55,8 @@ actions:
 #     needs: [data_process_baseline]
 #     outputs:
 #       highly_sensitive:
-#         cohort: output/index/input_by_index_date*.feather
-
-#  # Extract outcomes mid-campaign (index date = Nov 26 onwards)
-#   outcomes_nov26:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-11-26" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_index_dat*.feather
-
-#   outcomes_nov27:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-11-27" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_index_d*.feather
-
-#   outcomes_nov28:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-11-28" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_index_*.feather
-
-#   outcomes_nov29:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-11-29" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_index*.feather
-
-#   outcomes_nov30:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-11-30" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_inde*.feather
-
-#   outcomes_dec01:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-01" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_ind*.feather
-
-#   outcomes_dec02:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-02" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_in*.feather
-
-#   outcomes_dec03:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-03" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_i*.feather
-
-#   outcomes_dec04:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-04" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by_*.feather
-
-#   outcomes_dec05:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-05" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_by*.feather
-
-#   outcomes_dec06:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-12-06" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_b*.feather
-
-#   outcomes_dec07:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-10-15" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/input_*.feather
-
-#   outcomes_dec08:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-10-15" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
 #         cohort: output/index/input*.feather
 
-#   outcomes_dec09:
-#     run: cohortextractor:latest generate_cohort
-#       --study-definition study_definition_outcomes_1
-#       --index-date-range "2022-10-15" 
-#       --output-dir=feather 
-#       --output-format=feather
-#     needs: [data_process_baseline]
-#     outputs:
-#       highly_sensitive:
-#         cohort: output/index/inpu*.feather
 
 # Extract outcomes 
   outcomes:
@@ -293,7 +139,7 @@ actions:
         predicted_csv: output/modelling/predicted_sharp_*.csv
         coefficients1_csv: output/modelling/coef_sharp_*.csv
         coefficients2_csv: output/modelling/final/coef_sharp_*.csv
-        plot: output/modelling/figures/plot_pred_sharp_*.png
+        plot: output/modelling/figures/plot_sharp_*.png
 
 # Fuzzy analysis #
   fuzzy_analysis:
