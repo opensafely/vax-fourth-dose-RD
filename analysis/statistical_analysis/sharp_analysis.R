@@ -30,6 +30,9 @@ dir_create(here::here("output", "modelling", "figures"), showWarnings = FALSE, r
 dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse = TRUE)
 
 
+# Load functions
+source(here::here("analysis", "custom_functions.R"))
+
 ### Function to run sharp RD analysis, output coefficients and predicted values
 sharp <- function(start_date){
   
