@@ -240,7 +240,7 @@ actions:
 
 # Plots outcomes by week
   plot_outcomes:
-    run: r:latest analysis/processing/plot_outcomes_by_week.R
+    run: r:latest analysis/descriptive/plot_outcomes_by_week.R
     needs: [generate_measures]
     outputs:
       moderately_sensitive:
