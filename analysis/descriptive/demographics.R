@@ -2,6 +2,8 @@
 # This script:
 # - Calculates the frequency distribution by age in months
 #    using baseline data
+#
+# Dependency = data_process_baseline
 ###################################################################
 
 
@@ -55,7 +57,6 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
   group_by(age_3mos) %>%
   mutate(total_age_3mos = n()) 
 
-print(class(demographics$dod))
 
 ##########################################
 # Function for summarising frequency 
@@ -129,8 +130,7 @@ fluvax <-  read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
          age_mos = (dob %--% "2022-11-26") %/% months(1),
          age_3mos = floor(age_mos / 3),
          flu_vax = if_else(!is.na(flu_vax_date) & 
-                             flu_vax_date < "2022-11-26",
-                           1, 0, 0)) %>%
+                             flu_vax_date < "2022-11-26", 1, 0, 0)) %>%
   
   subset(age_yrs >= 45 & age_yrs < 55 &
            (is.na(dod) | dod >= as.Date("2022-11-26"))) %>%
@@ -158,8 +158,8 @@ flu_vax_by_age <- fluvax %>%
   mutate(variable = "Flu vaccine", 
          category = case_when(
            category == 0 ~ "No",
-           category == 1 ~ "Yes"
-         )) 
+           category == 1 ~ "Yes")
+         ) 
 
 
 ############ Save ########################

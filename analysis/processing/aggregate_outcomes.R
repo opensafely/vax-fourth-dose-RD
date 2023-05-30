@@ -3,6 +3,8 @@
 # This script:
 # - Calculates number of outcomes by age in months and years 
 #   for tables and figures
+#
+# Dependency = outcomes_sep03, outcomes_oct15, outcomes_nov26
 ################################################################
 
 
@@ -33,7 +35,7 @@ source(here::here("analysis", "custom_functions.R"))
 
 
 #########################################
-# Total events by age in months
+# Total events by age 
 #########################################
 
 # No redaction
@@ -41,13 +43,28 @@ source(here::here("analysis", "custom_functions.R"))
 agg <- function(start_date, grp, age){
   
   # No redaction
-  dat <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
-    mutate(age_3mos = floor(age_mos / 3),
+  dat <- read_feather(here::here("output", paste0("input_outcomes_",start_date,".feather"))) %>%
+    mutate(dob = as.Date(as.character(as.POSIXct(dob)), format = "%Y-%m-%d"),
+
+           # Set DOB to mid-month
+           dob = dob + 14,
+           
+           # Calculate age at index date
+           age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1),
+           age_mos = (dob %--% as.Date("2022-09-03")) %>% months(1),
+           age_3mos = floor(age_mos / 3),
            over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0)) %>%
-    subset(age_yrs >= 45 & age_yrs < 55) %>%
+    
+    # Drop if outside age range or died before index date
+    subset(age_yrs >= 45 & age_yrs < 55 & 
+             (is.na(dod) | dod >= as.Date(start_date))) %>%
+    
+    # Calculate total population by age group
     group_by({{age}}) %>%
     mutate(total = n()) %>%
     ungroup({{age}}) %>%
+    
+    # Number of events by age
     group_by({{age}}, total) %>%
     summarise(n_covidcomposite = sum(covidcomposite == 1, na.rm = TRUE),
               n_covidadmitted = sum(covidadmitted == 1, na.rm = TRUE),
@@ -58,6 +75,8 @@ agg <- function(start_date, grp, age){
               n_respadmitted = sum(respadmitted == 1, na.rm = TRUE),
               n_anydeath = sum(anydeath ==1, na.rm = TRUE),
               n_anyadmitted = sum(anyadmitted == 1, na.rm = TRUE)) %>%
+    
+    # Rate per 100,000
     mutate(rate_covidcomposite = n_covidcomposite / total * 100000,
            rate_covidadmitted = n_covidadmitted / total * 100000,
            rate_coviddeath = n_coviddeath / total * 100000,
@@ -73,12 +92,12 @@ agg <- function(start_date, grp, age){
   write.csv(dat, here::here("output", "covid_outcomes", "by_start_date", 
                             paste0("outcomes_byage_",grp,"_",start_date,".csv")), row.names = FALSE)
   
-  # Redaction
+  # Same as above, but with redaction/rounding
   dat_red <- dat %>%
-    mutate(across(contains("n_"), roundmid_any),
-         across(contains("n_"), roundmid_any),
+    mutate(across(contains("n_"), redact),
+         across(contains("n_"), round),
          
-         total = roundmid_any(total),
+         total = round(total),
          
          rate_covidcomposite = n_covidcomposite / total * 100000,
          rate_covidadmitted = n_covidadmitted / total * 100000,
@@ -90,8 +109,8 @@ agg <- function(start_date, grp, age){
          rate_anydeath = n_anydeath / total * 100000,
          rate_anyadmitted = n_anyadmitted / total * 100000) %>%
     rename(total_round5 = total) %>%
-    rename_at(vars(contains("n_")), ~ paste0(., '_mid6')) %>%
-    rename_at(vars(contains("rate_")), ~ paste0(., '_mid6'))
+    rename_at(vars(contains("n_")), ~ paste0(., '_round5')) %>%
+    rename_at(vars(contains("rate_")), ~ paste0(., '_round5'))
   
   write.csv(dat_red, here::here("output", "covid_outcomes", "by_start_date", 
                                 paste0("outcomes_byage_",grp,"_",start_date,"_red.csv")), row.names = FALSE)

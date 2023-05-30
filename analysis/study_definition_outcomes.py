@@ -8,9 +8,9 @@
 #   autumn booster COVID-19 vaccine, before and after 50+ became eligible
 #   on October 15, 2022
 #
-# This study definition extracts information on outcomes for the control
-# periods - i.e. 42 days after Sep 03 (pre-campaign), 
-# and 42 days after Oct 15 (start of campaign). Only one outcome (first)
+# This study definition extracts information on outcomes from 42 days
+# of each index date (Sep 03 (pre-campaign),  Oct 15 (start of campaign), 
+# and Nov 26 onwards. Only one outcome 
 # per person is extracted.
 #
 ##############################################################################
@@ -78,76 +78,89 @@ study = StudyDefinition(
     ## OUTCOMES
     ############################################################
   
-    ## Deaths ##
-
-    # COVID-related death
-    coviddeath_date=patients.with_these_codes_on_death_certificate(
+   # All-cause death
+    anydeath=patients.died_from_any_cause(
+        returning="binary_flag",
+        between=["index_date","index_date + 41 days"],        
+        return_expectations = {"incidence": 0.4},
+    ),
+    
+    # COVID death
+    coviddeath=patients.with_these_codes_on_death_certificate(
         covid_codes,
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
+        returning="binary_flag",
+        between=["index_date","index_date + 41 days"],        
         return_expectations = {"incidence": 0.4},
-    ),
-  
-    # All-cause death
-    any_death_date=patients.died_from_any_cause(
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
-        return_expectations = {"incidence": 0.4},
-    ),
+        ),
     
-    # Respiratory death (underlying cause only)
-    respdeath_date=patients.with_these_codes_on_death_certificate(
-        resp_codes,
-        match_only_underlying_cause=True,
-        returning="date_of_death",
-        date_format="YYYY-MM-DD",
-        return_expectations = {"incidence": 0.4},
-
-    ),
-
-    ## Hospitalisations ##
-    
-    # Unplanned hospital admission (all cause)
-    admitted_unplanned_date=patients.admitted_to_hospital(
-        returning="date_admitted",
-        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-        with_patient_classification = ["1"], # ordinary admissions only
-        between=["index_date","index_date + 42 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
-        return_expectations = {"incidence": 0.4},
-
-    ),
     # COVID unplanned admission
-    covidadmitted_date=patients.admitted_to_hospital(
-        returning="date_admitted",
+    covidadmitted=patients.admitted_to_hospital(
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_diagnoses=covid_codes,
-        between=["index_date","index_date + 42 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
+        between=["index_date","index_date + 41 days"],        
+        returning="binary_flag",
         return_expectations = {"incidence": 0.4},
+        ),   
+    
+    # COVID emergency attendance 
+    covidemergency=patients.attended_emergency_care(
+        between=["index_date","index_date + 41 days"],        
+        with_these_diagnoses = covid_emergency,
+        returning="binary_flag",
+        return_expectations = {"incidence": 0.4},
+        ),
 
-    ),   
+    # COVID composite
+    covidcomposite=patients.categorised_as(
+        {
+            0: "DEFAULT",
+            1: """
+                coviddeath = 1 OR
+                covidadmitted = 1 OR
+                covidemergency = 1
+                 """,
+            },
+            return_expectations = {"incidence": 0.4},
+        ),
+
+    # Respiratory death (underlying cause only)
+    respdeath=patients.with_these_codes_on_death_certificate(
+        resp_codes,
+        match_only_underlying_cause=True,
+        returning="binary_flag",
+        between=["index_date","index_date + 41 days"],        
+        return_expectations = {"incidence": 0.4},
+        ),
+    
     # Respiratory unplanned admission (primary diagnosis only)
-    respadmitted_date=patients.admitted_to_hospital(
-        returning="date_admitted",
+    respadmitted=patients.admitted_to_hospital(
         with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
         with_these_primary_diagnoses=resp_codes,
-        between=["index_date","index_date + 42 days"],
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
+        between=["index_date","index_date + 41 days"],        
+        returning="binary_flag",
         return_expectations = {"incidence": 0.4},
+        ),
 
+   # Respiratory composite
+   respcomposite=patients.categorised_as(
+       {
+           0: "DEFAULT",
+           1: """
+            respdeath = 1 OR
+            respadmitted = 1
+            """
+       },
+    return_expectations = {"incidence": 0.4},
     ),
-
-    # COVID emergency attendance 
-    covidemergency_date=patients.attended_emergency_care(
-        returning="date_arrived",
-        between=["index_date","index_date + 42 days"],
-        with_these_diagnoses = covid_emergency,
-        date_format="YYYY-MM-DD",
-        find_first_match_in_period=True,
+   
+    # Unplanned hospital admission (all cause)
+    anyadmitted=patients.admitted_to_hospital(
+        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
+        with_patient_classification = ["1"], # ordinary admissions only
+        between=["index_date","index_date + 41 days"],        
+        returning="binary_flag",
         return_expectations = {"incidence": 0.4},
-    ),   
+    ),
 )
+
+

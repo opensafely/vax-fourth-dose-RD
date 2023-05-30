@@ -3,6 +3,8 @@
 # This script:
 # - Calculates cumulative uptake of booster dose/second booster
 #    COVID-19 vaccine by age
+#
+# Dependency = data_process_baseline
 ################################################################
 
 
@@ -25,26 +27,21 @@ library('RColorBrewer')
 dir_create(here::here("output", "cumulative_rates"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 
-end_date = as.Date("2023-02-04")
+end_date = as.Date("2023-01-31")
 
 ## Load functions
 source(here::here("analysis", "custom_functions.R"))
 
 
 #####################################################
-### Read in data                                  ###
+### Read in and prepare data
 #####################################################
 
 booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
                     col_types = cols(
                       dob = col_date(format = "%Y-%m-%d"),
                       dod = col_date(format = "%Y-%m-%d"))) %>%
-    # Age at Nov 26
-    mutate(age_mos = (dob %--% "2022-11-26") %/% months(1),
-           age_yrs = (dob %--% "2022-11-26") %/% years(1)) %>%
-    # Exclude if died
-    subset(dod >= as.Date("2022-11-26") | is.na(dod)) %>%
-    dplyr::select(c(patient_id, age_mos, age_yrs, boost_date, booster)) 
+    dplyr::select(c(patient_id, dob, dod, boost_date, booster)) 
   
 
 #####################################################
@@ -53,6 +50,14 @@ booster <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
 
 ### Calculate cumulative proportion of people receiving booster dose
 booster_age1_byday <- booster %>%
+  
+  # Age at Sep 03 (baseline)
+  mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
+         age_yrs = (dob %--% "2022-09-03") %/% years(1)) %>%
+  
+  # Exclude if died
+  subset(dod >= as.Date("2022-09-03") | is.na(dod)) %>%
+  
   subset(age_yrs < 55 & age_yrs >= 45) %>% 
   group_by(age_yrs) %>%
   mutate(total = n()) %>% # Calculate denominator (total count per age category)
@@ -94,9 +99,9 @@ ggplot(subset(booster_age1_byday, boost_date >= as.Date("2022-09-03") |
   scale_x_continuous(breaks = c(as.Date("2022-09-01"), as.Date("2022-10-01"),
                                 as.Date("2022-10-14"), as.Date("2022-11-01"),
                                 as.Date("2022-12-01"), as.Date("2023-01-01"),
-                                as.Date("2023-02-01"), as.Date("2023-03-01")),
+                                as.Date("2023-02-01")),
                      labels = c("Sep 1", "Oct 1", "Oct 14", "Nov 1", "Dec 1", 
-                                "Jan 1", "Feb 1", "Mar 1")) +
+                                "Jan 1", "Feb 1")) +
   xlab(NULL) + ylab("Received COVID-19 autumn\nbooster vaccine") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
@@ -110,10 +115,17 @@ ggsave(here::here("output", "cumulative_rates", "plot_dose4_cum_age1.png"),
 
 
 #################################################
-### % vaccinated by age in 3 month intervals  ###
+### % vaccinated by age in 3 month intervals at Nov 26
 #################################################
 
 booster_nov26 <- booster %>%
+  
+    # Age at Nov 26
+    mutate(age_mos = (dob %--% "2022-11-26") %/% months(1),
+         age_yrs = (dob %--% "2022-11-26") %/% years(1)) %>%
+  
+    # Exclude if died
+    subset(dod >= as.Date("2022-11-26") | is.na(dod)) %>%
     mutate(age_3mos = floor(age_mos / 3)) %>%
     group_by(age_3mos) %>%
     mutate(boost_nov26 = if_else(boost_date <= as.Date("2022-11-26"), 1, 0, 0),

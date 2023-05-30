@@ -2,6 +2,8 @@
 # This script:
 # - Conducts sharp regression discontinuity
 #   regression model and plots predicted values
+#
+# Depedency = outcomes_*
 ################################################################
 
 
@@ -37,11 +39,22 @@ source(here::here("analysis", "custom_functions.R"))
 sharp <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
-    mutate(age_3mos = floor(age_mos / 3),
-           over50 = if_else(age_3mos >= 200, 1, 0, 0),
-           age_3mos_c = as.numeric(age_3mos - 200)) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220) 
+  data <- read_feather(here::here("output", paste0("input_outcomes_",start_date,".feather"))) %>%
+    mutate(
+             # Set DOB to mid-month
+             dob = dob + 14,
+             age_yrs = (dob %--% as.Date(start_date)) %/% years(1),
+             age_mos = (dob %--% as.Date(start_date)) %/% months(1),
+             age_3mos = floor(age_mos / 3),
+             age_3mos_c = as.numeric(age_3mos - 200),
+             over50 = if_else(age_3mos >= 200, 1, 0, 0),
+          
+             covidcomposite = as.integer(covidcomposite),
+             respcomposite = as.integer(respcomposite),
+             dod = as.integer(dod),
+             anyadmitted = as.integer(anyadmitted)) %>%
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220
+           & (is.na(dod) | dod >= as.Date(start_date))) 
   
   mod <- function(out, name, suffix){
     
@@ -150,10 +163,7 @@ sharp <- function(start_date){
   
   # Run for each outcome
   mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomposite")
-  mod(covidadmitted, "COVID unplanned admission", "covidadmitted")
-  mod(covidemergency, "COVID A&E", "covidemergency")
   mod(respcomposite, "Respiratory composite", "respcomposite")
-  mod(respadmitted, "Respiratory admission", "respadmitted")
   mod(anyadmitted, "All cause unplanned admission", "anyadmitted")  
   mod(anydeath, "All cause death", "anydeath")
   
@@ -164,12 +174,7 @@ sharp <- function(start_date){
 # Create list of dates
 start_dates <- c(as.Date("2022-09-03"), 
                  as.Date("2022-10-15"), 
-                 as.Date("2022-10-22"), 
-                 as.Date("2022-10-29"),
-                 as.Date("2022-11-05"),
-                 as.Date("2022-11-12"), 
-                 as.Date("2022-11-19"), 
-                 as.Date(0:14, origin = "2022-11-26")) 
+                 as.Date(0:13, origin = "2022-11-26")) 
 
 # Run function over all dates
 sapply(start_dates, sharp)
@@ -180,12 +185,7 @@ comb <- function(suffix){
 
   all_coef <- bind_rows(
           read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-09-03.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-10-15.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-10-22.csv"))),  
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-10-29.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-05.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-12.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-19.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-10-15.csv"))),      
           read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-26.csv"))),
           read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-27.csv"))),
           read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-28.csv"))),
@@ -208,10 +208,7 @@ comb <- function(suffix){
 }
 
 comb("covidcomposite")
-comb("covidadmitted")
-comb("covidemergency")
 comb("respcomposite")
-comb("respadmitted")
 comb("anyadmitted")
 comb("anydeath")
 

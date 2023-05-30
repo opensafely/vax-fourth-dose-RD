@@ -2,6 +2,8 @@
 # This script:
 # - Conducts fuzzy regression discontinuity 
 #   using instrumental variables analysis 
+#
+# Dependency = outcomes_*
 ################################################################
 
 
@@ -33,11 +35,29 @@ dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse 
 fuzzy <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
-    mutate(age_3mos = floor(age_mos / 3),
+  data <- read_feather(here::here("output", paste0("input_outcomes_",start_date,".feather"))) %>%
+    mutate(dob = as.Date(as.character(as.POSIXct(dob)), format = "%Y-%m-%d"),
+           
+           # Set DOB to mid-month
+           dob = dob + 14,
+           age_yrs = (dob %--% as.Date(start_date)) %/% years(1),
+           age_mos = (dob %--% as.Date(start_date)) %/% months(1),
+           age_3mos = floor(age_mos / 3),
+           age_3mos_c = as.numeric(age_3mos - 200),
            over50 = if_else(age_3mos >= 200, 1, 0, 0),
-           age_3mos_c = as.numeric(age_3mos - 200)) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220)
+           
+           covidcomposite = as.integer(covidcomposite),
+           respcomposite = as.integer(respcomposite),
+           anydeath = as.integer(anydeath),
+           anyadmitted = as.integer(anyadmitted),
+           
+           # Flag for having received flu vax before start date
+           flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < start_date, 1, 0, 0),
+           
+           # Flag for booster before start date
+           boost = if_else(!is.na(boost_date) & boost_date < start_date, 1, 0, 0)) %>%
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220
+           & (is.na(dod) | dod >= as.Date(start_date))) 
   
   mod <- function(out, name, suffix){
     
@@ -70,10 +90,7 @@ fuzzy <- function(start_date){
   
   # Run for each outcome
   mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomposite")
-  mod(covidadmitted, "COVID unplanned admission", "covidadmitted")
-  mod(covidemergency, "COVID A&E", "covidemergency")
   mod(respcomposite, "Respiratory composite", "respcomposite")
-  mod(respadmitted, "Respiratory admission", "respadmitted")
   mod(anyadmitted, "All cause unplanned admission", "anyadmitted") 
   mod(anydeath, "All cause death", "anydeath")  
   
@@ -82,7 +99,7 @@ fuzzy <- function(start_date){
 
 
 # Create list of dates
-start_dates <- c(as.Date(0:14, origin = "2022-11-26")) 
+start_dates <- c(as.Date(0:13, origin = "2022-11-26")) 
 
 # Run function over all dates
 sapply(start_dates, fuzzy)
@@ -114,10 +131,7 @@ comb <- function(suffix){
 }
 
 comb("covidcomposite")
-comb("covidadmitted")
-comb("covidemergency")
 comb("respcomposite")
-comb("respadmitted")
 comb("anyadmitted")
 comb("anydeath")
 
