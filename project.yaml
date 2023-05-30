@@ -13,6 +13,7 @@ expectations:
 
 actions:
 
+### BASELINE COHORT ###
 # Generate study population and extract baseline characteristics at Sep 3, 2022
   generate_study_pop_baseline:
     run: cohortextractor:latest generate_cohort
@@ -33,6 +34,7 @@ actions:
       moderately_sensitive:
         descriptive: output/descriptive/total_*.csv     
 
+### EXTRACT OUTCOMES BY INDEX DATE ###
 # Extract outcomes pre-campaign (index date = Sep 3)
   outcomes_sep03:
     run: cohortextractor:latest generate_cohort
@@ -212,18 +214,7 @@ actions:
       highly_sensitive:
         cohort: output/input_outcomes_2022-12-09.feather
 
-# Extract outcomes 
-  # outcomes:
-  #   run: cohortextractor:latest generate_cohort
-  #     --study-definition study_definition_outcomes_2
-  #     --index-date-range "2022-09-03 to 2023-01-28 by week" 
-  #     --output-dir=feather 
-  #     --output-format=feather
-  #   needs: [data_process_baseline]
-  #   outputs:
-  #     highly_sensitive:
-  #       cohort: output/index/inpu*.feather
-
+### OUTCOMES BY WEEK FOR PLOTTING ###
 # Extract no. people with outcome by week
   outcomes_by_week:
     run: cohortextractor:latest generate_cohort
@@ -256,31 +247,8 @@ actions:
         outcomes: output/descriptive/outcomes_*.csv
         plot: output/descriptive/outcomes_by_week.png
 
-# Data cleaning of outcome data (control periods)
-  # data_process_outcomes:
-  #   run: r:latest analysis/processing/data_process_outcomes.R
-  #   needs: [outcomes_by_week]
-  #   outputs:
-  #     highly_sensitive:
-  #       outcomes: output/cohort/outcomes*.csv
-
-# Data cleaning of outcome data 
-#   data_process_outcomes_2:
-#     run: r:latest analysis/processing/data_process_outcomes_2.R
-#     needs: [outcomes]
-#     outputs:
-#       highly_sensitive:
-#         outcomes: output/cohort/outcome*.feather
-
-# Split into separate datasets by start date
-#   data_process_by_start_date:
-#     run: r:latest analysis/processing/data_process_by_start_date.R
-#     needs: [data_process_outcomes_2]
-#     outputs:
-#       moderately_sensitive:
-#         outcomes: output/cohort_bydate/outcomes_*.csv
-
-# No. outcomes by age 
+### OTHER PLOTS AND TABLES ###
+# No. outcomes by age for table
   aggregate_outcomes:
     run: r:latest analysis/processing/aggregate_outcomes.R
     needs: [outcomes_sep03, outcomes_oct15, outcomes_nov26]
@@ -288,7 +256,7 @@ actions:
       moderately_sensitive:
         outcomes: output/covid_outcomes/by_start_date/outcomes_*.csv
 
-# Plots of booster uptake by age
+# Plots of booster uptake by age 
   booster_uptake:
    run: r:latest analysis/descriptive/booster_uptake.R
    needs: [data_process_baseline]
@@ -296,17 +264,8 @@ actions:
       moderately_sensitive:
         rates_csv: output/cumulative_rates/final_*.csv 
         plot: output/cumulative_rates/plot_*.png
-
-# Outcomes (overall) by week
-  # count_by_week:
-  #   run: r:latest analysis/descriptive/count_by_week.R
-  #   needs: [outcomes]
-  #   outputs:
-  #     moderately_sensitive:
-  #       outcomes: output/descriptive/outcomes_by_*.csv
-  #       plot: output/descriptive/outcomes_by_week.png
         
-# Discontinuity of demographics
+# Extract demographics by age for plotting discontinuities
   demographics:
    run: r:latest analysis/descriptive/demographics.R
    needs: [data_process_baseline]
@@ -315,6 +274,7 @@ actions:
         demographics_csv: output/descriptive/demographics_*.csv
         fluvaccine_csv: output/descriptive/fluvax_*.csv
 
+### REGRESSION ANALYSES ###
 # Sharp analysis #
   sharp_analysis:
    run: r:latest analysis/statistical_analysis/sharp_analysis.R
@@ -338,6 +298,44 @@ actions:
       moderately_sensitive:
         coefficients_csv: output/modelling/iv/coef_iv*.csv
         final_csv: output/modelling/final/coef_i*.csv
+
+
+### IGNORE ###
+# Extract outcomes 
+  # outcomes:
+  #   run: cohortextractor:latest generate_cohort
+  #     --study-definition study_definition_outcomes_2
+  #     --index-date-range "2022-09-03 to 2023-01-28 by week" 
+  #     --output-dir=feather 
+  #     --output-format=feather
+  #   needs: [data_process_baseline]
+  #   outputs:
+  #     highly_sensitive:
+  #       cohort: output/index/inpu*.feather
+
+# Data cleaning of outcome data (control periods)
+  # data_process_outcomes:
+  #   run: r:latest analysis/processing/data_process_outcomes.R
+  #   needs: [outcomes_by_week]
+  #   outputs:
+  #     highly_sensitive:
+  #       outcomes: output/cohort/outcomes*.csv
+
+# Data cleaning of outcome data 
+#   data_process_outcomes_2:
+#     run: r:latest analysis/processing/data_process_outcomes_2.R
+#     needs: [outcomes]
+#     outputs:
+#       highly_sensitive:
+#         outcomes: output/cohort/outcome*.feather
+
+# Split into separate datasets by start date
+#   data_process_by_start_date:
+#     run: r:latest analysis/processing/data_process_by_start_date.R
+#     needs: [data_process_outcomes_2]
+#     outputs:
+#       moderately_sensitive:
+#         outcomes: output/cohort_bydate/outcomes_*.csv
 
 # # Check latest date of outcome
 #   # latest_date_outcomes:
