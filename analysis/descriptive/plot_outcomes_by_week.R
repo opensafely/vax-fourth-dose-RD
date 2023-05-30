@@ -24,7 +24,7 @@ library('purrr')
 
 ## Create directories
 dir_create(here::here("output"), showWarnings = FALSE, recurse = TRUE)
-dir_create(here::here("output", "covid_outcomes"), showWarnings = FALSE, recurse = TRUE)
+dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
 
 ## Load functions
 source(here::here("analysis", "custom_functions.R"))

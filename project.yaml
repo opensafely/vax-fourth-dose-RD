@@ -286,7 +286,7 @@ actions:
         predicted_csv: output/modelling/predicted_sharp_*.csv
         coefficients1_csv: output/modelling/coef_sharp_*.csv
         coefficients2_csv: output/modelling/final/coef_sharp_*.csv
-        plot: output/modelling/figures/plot_pred_sharp_*.png
+        plot: output/modelling/figures/plot_sharp_*.png
 
 # Fuzzy analysis #
   fuzzy_analysis:

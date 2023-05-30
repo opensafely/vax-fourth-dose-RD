@@ -50,8 +50,8 @@ agg <- function(start_date, grp, age){
            dob = dob + 14,
            
            # Calculate age at index date
-           age_yrs = (dob %--% as.Date("2022-09-03")) %/% years(1),
-           age_mos = (dob %--% as.Date("2022-09-03")) %>% months(1),
+           age_yrs = (dob %--% as.Date(start_date)) %/% years(1),
+           age_mos = (dob %--% as.Date(start_date)) %/% months(1),
            age_3mos = floor(age_mos / 3),
            over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0)) %>%
     
