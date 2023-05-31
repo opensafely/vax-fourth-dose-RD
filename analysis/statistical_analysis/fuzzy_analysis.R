@@ -1,6 +1,9 @@
 ################################################################
 # This script:
-# - Conducts regression model and plots predicted values
+# - Conducts fuzzy regression discontinuity 
+#   using instrumental variables analysis 
+#
+# Dependency = outcomes_*
 ################################################################
 
 
@@ -32,11 +35,29 @@ dir_create(here::here("output", "cohort_bydate"), showWarnings = FALSE, recurse 
 fuzzy <- function(start_date){
   
   # Read in data
-  data <- read.csv(here::here("output", "cohort_bydate", paste0("outcomes_",start_date,".csv"))) %>%
-    mutate(age_3mos = floor(age_mos / 3),
+  data <- read_feather(here::here("output", paste0("input_outcomes_",start_date,".feather"))) %>%
+    mutate(dob = as.Date(as.character(as.POSIXct(dob)), format = "%Y-%m-%d"),
+           
+           # Set DOB to mid-month
+           dob = dob + 14,
+           age_yrs = (dob %--% as.Date(start_date)) %/% years(1),
+           age_mos = (dob %--% as.Date(start_date)) %/% months(1),
+           age_3mos = floor(age_mos / 3),
+           age_3mos_c = as.numeric(age_3mos - 200),
            over50 = if_else(age_3mos >= 200, 1, 0, 0),
-           age_3mos_c = as.numeric(age_3mos - 200)) %>%
-    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220)
+           
+           covidcomposite = as.integer(covidcomposite),
+           respcomposite = as.integer(respcomposite),
+           anydeath = as.integer(anydeath),
+           anyadmitted = as.integer(anyadmitted),
+           
+           # Flag for having received flu vax before start date
+           flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < start_date, 1, 0, 0),
+           
+           # Flag for booster before start date
+           boost = if_else(!is.na(boost_date) & boost_date < start_date, 1, 0, 0)) %>%
+    subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220
+           & (is.na(dod) | dod >= as.Date(start_date))) 
   
   mod <- function(out, name, suffix){
     
@@ -45,18 +66,18 @@ fuzzy <- function(start_date){
       group_by(age_3mos_c, flu_vax, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
-                p_boost = boost / n * 100,
+                p_boost = boost / n * 100000,
                 outcome = sum({{out}}),
-                p_outcome = outcome / n * 100) 
+                p_outcome = outcome / n * 100000) 
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h= 20,
                        kernel = "uniform", weights = df$n)
   
     # Save coefficients and 95% CIs
-    coef <- data.frame(estimate = rdd$coef[1],
-                lci = rdd$ci[1,1],
-                uci = rdd$ci[1,2],
+    coef <- data.frame(estimate = rdd$coef[1] * 100000,
+                lci = rdd$ci[1,1] * 100000,
+                uci = rdd$ci[1,2] * 100000,
                 outcome = name,
                 start_date = start_date)
     
@@ -69,10 +90,7 @@ fuzzy <- function(start_date){
   
   # Run for each outcome
   mod(covidcomposite, "COVID unplanned admission/A&E/death", "covidcomposite")
-  mod(covidadmitted, "COVID unplanned admission", "covidadmitted")
-  mod(covidemergency, "COVID A&E", "covidemergency")
   mod(respcomposite, "Respiratory composite", "respcomposite")
-  mod(respadmitted, "Respiratory admission", "respadmitted")
   mod(anyadmitted, "All cause unplanned admission", "anyadmitted") 
   mod(anydeath, "All cause death", "anydeath")  
   
@@ -81,7 +99,7 @@ fuzzy <- function(start_date){
 
 
 # Create list of dates
-start_dates <- c(as.Date(0:10, origin = "2022-11-26")) 
+start_dates <- c(as.Date(0:13, origin = "2022-11-26")) 
 
 # Run function over all dates
 sapply(start_dates, fuzzy)
@@ -100,7 +118,11 @@ comb <- function(suffix){
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-02.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-03.csv"))),
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-04.csv"))),
-    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-05.csv")))
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-05.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-06.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-07.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-08.csv"))),
+    read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-09.csv")))
   )
   
   write.csv(all_coef, here::here("output", "modelling", "final",paste0("coef_iv_",suffix,"_","all_.csv")), 
@@ -109,10 +131,7 @@ comb <- function(suffix){
 }
 
 comb("covidcomposite")
-comb("covidadmitted")
-comb("covidemergency")
 comb("respcomposite")
-comb("respadmitted")
 comb("anyadmitted")
 comb("anydeath")
 
