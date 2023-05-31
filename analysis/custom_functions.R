@@ -21,7 +21,6 @@ roundmid_any <- function(x, to=6){
   ceiling(x/to)*to - (floor(to/2)*(x!=0))
 }
 
-
 # Factorise ----
 fct_case_when <- function(...) {
   # uses dplyr::case_when but converts the output to a factor,

@@ -2,6 +2,8 @@
 # This script:
 # - Calculates the frequency distribution by age in months
 #    using baseline data
+#
+# Dependency = data_process_baseline
 ###################################################################
 
 
@@ -20,7 +22,6 @@ library('fs')
 library('ggplot2')
 library('RColorBrewer')
 
-
 ## Create directories
 dir_create(here::here("output", "cohort"), showWarnings = FALSE, recurse = TRUE)
 dir_create(here::here("output", "descriptive"), showWarnings = FALSE, recurse = TRUE)
@@ -34,9 +35,18 @@ source(here::here("analysis", "custom_functions.R"))
 # Read in and prep data 
 ##########################################
 
-demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
-  dplyr::select(c(patient_id, age, dob, dod, imd, region, ethnicity, sex)) %>%
-  subset(age >= 45 & age < 55 &
+demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                         col_types = cols(
+                           patient_id = col_number(),
+                           age_yrs = col_number(),
+                           imd = col_number(),
+                           region = col_character(),
+                           ethnicity = col_character(),
+                           sex = col_character(),
+                           dob = col_date(format = "%Y-%m-%d"),
+                           dod = col_date(format = "%Y-%m-%d"))) %>%
+  dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex)) %>%
+  subset(age_yrs >= 45 & age_yrs < 55 &
          (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   # Create age in months variable
@@ -107,18 +117,22 @@ demographics_by_age <- rbind(imd, sex, region, ethnicity)
 # Read in and prep data - receipt of flu vaccine at Nov 26
 #############################################################
 
-fluvax <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv")) %>%
+fluvax <-  read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                    col_types = cols(
+                      patient_id = col_number(),
+                      flu_vax_date = col_date(format = "%Y-%m-%d"),
+                      dob = col_date(format = "%Y-%m-%d"),
+                      dod = col_date(format = "%Y-%m-%d"))) %>%
   dplyr::select(c(patient_id, dob, dod, flu_vax_date)) %>%
   
   # Create age in months variable
-  mutate(age = (dob %--% "2022-11-26") %/% years(1),
+  mutate(age_yrs = (dob %--% "2022-11-26") %/% years(1),
          age_mos = (dob %--% "2022-11-26") %/% months(1),
          age_3mos = floor(age_mos / 3),
          flu_vax = if_else(!is.na(flu_vax_date) & 
-                             flu_vax_date < "2022-11-26",
-                           1, 0, 0)) %>%
+                             flu_vax_date < "2022-11-26", 1, 0, 0)) %>%
   
-  subset(age >= 45 & age < 55 &
+  subset(age_yrs >= 45 & age_yrs < 55 &
            (is.na(dod) | dod >= as.Date("2022-11-26"))) %>%
          
   # Calculate denominator by age in months
@@ -144,10 +158,11 @@ flu_vax_by_age <- fluvax %>%
   mutate(variable = "Flu vaccine", 
          category = case_when(
            category == 0 ~ "No",
-           category == 1 ~ "Yes"
-         )) 
+           category == 1 ~ "Yes")
+         ) 
 
 
 ############ Save ########################
 write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))
 write_csv(flu_vax_by_age, here::here("output", "descriptive", "fluvax_byage.csv"))
+
