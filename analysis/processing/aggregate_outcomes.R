@@ -95,9 +95,9 @@ agg <- function(start_date, grp, age){
   # Same as above, but with redaction/rounding
   dat_red <- dat %>%
     mutate(across(contains("n_"), redact),
-         across(contains("n_"), round),
+         across(contains("n_"), rounding),
          
-         total = round(total),
+         total = rounding(total),
          
          rate_covidcomposite = n_covidcomposite / total * 100000,
          rate_covidadmitted = n_covidadmitted / total * 100000,
@@ -129,8 +129,6 @@ agg("2022-11-26", "over50", over50)
 
 
 
-
-########################################
 
 # Create data frame with number of patients per cohort
 # pat <- function(start_date){

@@ -62,22 +62,31 @@ sharp <- function(start_date){
     df <- data  %>%
       group_by(age_3mos_c, age_3mos, over50) %>%
       summarise(n = n(), 
-                n_mid6 = roundmid_any(n, 6),
-                outcome = sum({{out}}),
-                outcome_mid6 = roundmid_any(outcome, 6),
-                p_outcome = outcome / n * 100000,
-                p_outcome_mid6 = outcome_mid6 / n_mid6 * 100000
-                ) 
+                outcome = sum({{out}})) %>%
+      mutate(n_mid6 = roundmid_any(n, 6),
+             outcome_mid6 = roundmid_any(outcome, 6),
+             p_outcome = outcome / n * 100000,
+             p_outcome_mid6 = outcome_mid6 / n_mid6 * 100000)
     
     # Write data for plots
     write.csv(df,
               here::here("output", "modelling", paste0("plot_data_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
-    # df_round <- df %>%
-    #   dplyr::select(c(age_3mos, outcome_mid6, n_mid6, p_outcome_mid6))
-    # write.csv(df_round,
-    #           here::here("output", "modelling", paste0("plot_data_red_",suffix,"_",start_date,".csv")))
+    # 6-month age groups 
+    df_6mos <- df %>%
+      mutate(age_6mos = floor(age_3mos / 2)) %>%
+      group_by(age_6mos) %>%
+      summarise(n = sum(n),
+                outcome = sum(outcome)) %>%
+      mutate(n_mid6 = roundmid_any(n, 6),
+             outcome_mid6 = roundmid_any(outcome, 6),
+             p_outcome = outcome / n * 100000,
+             p_outcome_mid6 = outcome_mid6 / n_mid6 * 100000) %>%
+      dplyr::select(c(age_6mos, outcome_mid6, n_mid6, p_outcome_mid6))
+    
+    write.csv(df_6mos,
+               here::here("output", "modelling", paste0("plot_data_6mos_",suffix,"_",start_date,".csv")))
     
     # Model
     mod <- lm(p_outcome ~ age_3mos_c*over50, data = df, weights = df$n)
