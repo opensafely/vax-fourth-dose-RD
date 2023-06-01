@@ -95,7 +95,7 @@ long_mid6 <- long %>%
   mutate(rate = count_mid6 / population_mid6 * 100000)
 
 # Save
-write.csv(long_mid6, here::here("output", "descriptive"), "outcomes_by_week_mid6.csv", row.names = FALSE)
+write.csv(long_mid6, here::here("output", "descriptive", "outcomes_by_week_mid6.csv"), row.names = FALSE)
 
 
 ################# PLOT ###################################
