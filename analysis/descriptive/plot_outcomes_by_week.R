@@ -65,7 +65,7 @@ respcomposite <- read_csv(here::here("output", "measure_respcomposite.csv"),
   dplyr::select(!c(population, value))
 
 
-# Combine into one
+########## Combine into one
 combined <- list(covidcomposite, anyadmitted, covidadmitted, covidemergency,
                  anydeath, respcomposite) %>% 
   reduce(full_join, by='date')
@@ -95,9 +95,10 @@ long_mid6 <- long %>%
   mutate(rate = count_mid6 / population_mid6 * 100000)
 
 # Save
-write.csv(here::here("output", "descriptive"), "outcomes_by_week_mid6.csv", row.names = FALSE)
+write.csv(long_mid6, here::here("output", "descriptive"), "outcomes_by_week_mid6.csv", row.names = FALSE)
 
 
+################# PLOT ###################################
 ggplot(long_mid6, aes(x = week, y = rate, group = variable)) +
   geom_line(aes(col = variable)) +
   facet_wrap(~ variable, scales = "free_y") + 
