@@ -26,7 +26,7 @@ from cohortextractor import (
 # Import codelists from codelist.py (which pulls them from the codelist folder)
 from codelists import *
 
-COHORT = "output/cohort/cohort_final_sep.csv"
+COHORT = "output/cohort/cohort_final_sep_measures.csv"
 
 # Specify study definition
 study = StudyDefinition(

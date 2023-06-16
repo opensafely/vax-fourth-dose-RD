@@ -215,4 +215,13 @@ print(paste0("Final population (n): ", nrow(final)))
 write.csv(final,
           here::here("output", "cohort", "cohort_final_sep.csv"),
           row.names = FALSE)
- 
+
+
+#Save - restrict to age range
+final_measures <- final %>%
+  subset(age_yrs >= 45 & age_yrs < 55) 
+
+write.csv(final_measures,
+          here::here("output", "cohort", "cohort_final_sep_measures.csv"),
+          row.names = FALSE)
+  

@@ -56,6 +56,7 @@ fuzzy <- function(start_date){
            
            # Flag for booster before start date
            boost = if_else(!is.na(boost_date) & boost_date < start_date, 1, 0, 0)) %>%
+    
     subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220
            & (is.na(dod) | dod >= as.Date(start_date))) 
   
@@ -66,9 +67,9 @@ fuzzy <- function(start_date){
       group_by(age_3mos_c, flu_vax, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
-                p_boost = boost / n * 100000,
-                outcome = sum({{out}}),
-                p_outcome = outcome / n * 100000) 
+                outcome = sum({{out}})) %>%
+      mutate(p_boost = boost / n * 100000,
+             p_outcome = outcome / n * 100000)
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h= 20,
