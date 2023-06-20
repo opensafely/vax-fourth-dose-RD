@@ -299,7 +299,7 @@ actions:
       moderately_sensitive:
         coefficients_csv: output/modelling/iv/coef_iv*.csv
         final_csv: output/modelling/final/coef_i*.csv
-        data_csv: output/modelling/modelling/iv/data_*.csv
+        data_csv: output/modelling/iv/data_*.csv
 
 
 ### IGNORE ###
