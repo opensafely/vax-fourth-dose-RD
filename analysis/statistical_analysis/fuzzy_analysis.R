@@ -64,25 +64,27 @@ fuzzy <- function(start_date){
     
     # Prep data
     df <- data  %>%
-      group_by(age_3mos_c, flu_vax, over50) %>%
+      group_by(age_3mos_c, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
+                flu_vax = sum(flu_vax),
                 outcome = sum({{out}})) %>%
-      mutate(p_boost = boost / n * 100000,
-             p_outcome = outcome / n * 100000)
+      mutate(p_boost = boost / n * 100,
+             p_flu_vax = flu_vax / n * 100,
+             p_outcome = outcome / n * 100)
     
     write.csv(df, here::here("output", "modelling", "iv", 
                              paste0("data_iv_", suffix,"_", start_date,".csv")),
               row.names = FALSE)
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
-                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h= 20,
+                       fuzzy = df$p_boost, covs = df$p_flu_vax, p = 1, h = 20,
                        kernel = "uniform", weights = df$n)
   
     # Save coefficients and 95% CIs
-    coef <- data.frame(estimate = rdd$coef[1] * 100000,
-                lci = rdd$ci[1,1] * 100000,
-                uci = rdd$ci[1,2] * 100000,
+    coef <- data.frame(estimate = rdd$coef[1] ,
+                lci = rdd$ci[1,1] ,
+                uci = rdd$ci[1,2] ,
                 outcome = name,
                 start_date = start_date)
     
