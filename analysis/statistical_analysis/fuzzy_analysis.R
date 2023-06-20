@@ -71,6 +71,10 @@ fuzzy <- function(start_date){
       mutate(p_boost = boost / n * 100000,
              p_outcome = outcome / n * 100000)
     
+    write.csv(df, here::here("output", "modelling", "iv", 
+                             paste0("data_iv_", suffix,"_", start_date,".csv")),
+              row.names = FALSE)
+    
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h= 20,
                        kernel = "uniform", weights = df$n)
