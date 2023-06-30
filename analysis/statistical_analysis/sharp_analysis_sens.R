@@ -55,7 +55,10 @@ sharp <- function(start_date){
              anyadmitted = as.integer(anyadmitted)) %>%
     
     subset(!is.na(age_3mos) & age_3mos >= 180 & age_3mos < 220
-           & (is.na(dod) | dod >= as.Date(start_date))) 
+           
+           # Exclude age 50
+           & age_3mos != 200 
+           & (is.na(dod) | dod >= as.Date(start_date)) ) 
   
   mod <- function(out, name, suffix){
     
@@ -71,7 +74,7 @@ sharp <- function(start_date){
     
     # Write data for plots
     write.csv(df,
-              here::here("output", "modelling", paste0("plot_data_",suffix,"_",start_date,".csv")),
+              here::here("output", "modelling", paste0("plot_data_sens_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
     # 6-month age groups 
@@ -87,7 +90,7 @@ sharp <- function(start_date){
       dplyr::select(c(age_6mos, outcome_mid6, n_mid6, p_outcome_mid6))
     
     write.csv(df_6mos,
-               here::here("output", "modelling", paste0("plot_data_6mos_",suffix,"_",start_date,".csv")))
+               here::here("output", "modelling", paste0("plot_data_6mos_sens_",suffix,"_",start_date,".csv")))
     
     # Model
     mod <- lm(p_outcome ~ age_3mos_c*over50, data = df, weights = df$n)
@@ -106,7 +109,7 @@ sharp <- function(start_date){
     
     # Save coefficients
     write.csv(coef2, 
-              here::here("output", "modelling", paste0("coef_sharp_",suffix,"_",start_date,".csv")),
+              here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
     # Predicted values 
@@ -140,7 +143,7 @@ sharp <- function(start_date){
       mutate(start = start_date,
              outcome = name)
     
-    write.csv(df_pred, here::here("output", "modelling", paste0("predicted_sharp_",suffix,"_",start_date,".csv")), row.names = FALSE)
+    write.csv(df_pred, here::here("output", "modelling", paste0("predicted_sharp_sens_",suffix,"_",start_date,".csv")), row.names = FALSE)
   
     ggplot() + 
       geom_ribbon(data=subset(df_pred, age_3mos <= 200), 
@@ -166,7 +169,7 @@ sharp <- function(start_date){
             legend.title = element_blank(), legend.position = "none",
             axis.text.x = element_text(angle = 45, hjust = 1))
     
-    ggsave(here::here("output", "modelling", "figures", paste0("plot_sharp_",suffix,start_date,".png")),
+    ggsave(here::here("output", "modelling", "figures", paste0("plot_sharp_sens_",suffix,start_date,".png")),
            dpi = 300, units = "in", width = 6, height = 8)
     
   }
@@ -194,25 +197,25 @@ sapply(start_dates, sharp)
 comb <- function(suffix){
 
   all_coef <- bind_rows(
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-09-03.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-10-15.csv"))),      
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-26.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-27.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-28.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-29.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-11-30.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-01.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-02.csv"))),  
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-03.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-04.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-05.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-06.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-07.csv"))),
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-08.csv"))),          
-          read_csv(here::here("output", "modelling", paste0("coef_sharp_",suffix,"_2022-12-09.csv")))
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-09-03.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-10-15.csv"))),      
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-11-26.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-11-27.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-11-28.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-11-29.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-11-30.csv"))),          
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-01.csv"))),          
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-02.csv"))),  
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-03.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-04.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-05.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-06.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-07.csv"))),
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-08.csv"))),          
+          read_csv(here::here("output", "modelling", paste0("coef_sharp_sens_",suffix,"_2022-12-09.csv")))
   )
 
-  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_sharp_",suffix,"_","all.csv")), 
+  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_sharp_sens_",suffix,"_","all.csv")), 
             row.names = FALSE)
 
 }
