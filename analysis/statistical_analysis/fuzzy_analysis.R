@@ -78,6 +78,13 @@ fuzzy <- function(start_date){
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
                        fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 20,
                        kernel = "uniform", weights = df$n)
+    
+    # Save model summary
+    sink(here::here("output","modelling", "iv", 
+                    paste0("summ_iv_", suffix, "_",start_date,".txt")))
+    print(summary(rdd))
+    sink()
+    
   
     # Save coefficients and 95% CIs
     coef <- data.frame(estimate = rdd$coef[1] ,
