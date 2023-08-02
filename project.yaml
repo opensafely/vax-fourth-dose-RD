@@ -282,6 +282,7 @@ actions:
       moderately_sensitive:
         demographics_csv: output/descriptive/demographics_for_table*.csv
         time_csv: output/descriptive/time_*.csv
+        flu_csv: output/descriptive/fluvax_booster*.csv
 
 ### REGRESSION ANALYSES ###
 # Sharp analysis #

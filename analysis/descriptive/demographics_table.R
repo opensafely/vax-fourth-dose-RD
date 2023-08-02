@@ -116,10 +116,13 @@ ethnicity <- freq(ethnicity) %>%
   rename(category = ethnicity) %>%
   mutate(variable = "Ethnicity")
 
+
+
 ## Combine into one file ##
 demographics_for_table <- rbind(imd, sex, region, ethnicity, doses)
 
 write_csv(demographics_for_table, here::here("output", "descriptive", "demographics_for_table.csv"))
+
 
 
 #############################################################
@@ -136,3 +139,50 @@ time_since_vax <- demographics %>%
 
 write_csv(time_since_vax, here::here("output", "descriptive", "time_since_last_dose.csv"))
 
+
+
+#############################################################
+# Read in and prep data - compare receipt of flu vaccine and booster at Nov 26
+#############################################################
+
+flu_boost <-  read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
+                    col_types = cols(
+                      patient_id = col_number(),
+                      flu_vax_date = col_date(format = "%Y-%m-%d"),
+                      boost_date = col_date(format = "%Y-%m-%d"),
+                      dob = col_date(format = "%Y-%m-%d"),
+                      dod = col_date(format = "%Y-%m-%d"))) %>%
+  dplyr::select(c(patient_id, dob, dod, flu_vax_date, boost_date)) %>%
+  
+  # Create age in months variable
+  mutate(age_yrs = (dob %--% "2022-11-26") %/% years(1),
+         age_mos = (dob %--% "2022-11-26") %/% months(1),
+         age_3mos = floor(age_mos / 3),
+         flu_vax = if_else(!is.na(flu_vax_date) & 
+                             flu_vax_date < "2022-11-26", 1, 0, 0),
+         boost = if_else(!is.na(boost_date) &
+                                boost_date < "2022-11-26", 1, 0, 0),
+         uptake = case_when(
+           flu_vax == 1 & boost == 1 ~ "Both",
+           flu_vax == 1 & boost == 0 ~ "Flu vax only",
+           flu_vax == 0 & boost == 1 ~ "COVID booster only",
+           flu_vax == 0 & boost == 0 ~ "Neither")) %>%
+  
+  subset(age_yrs >= 45 & age_yrs < 55 &
+           (is.na(dod) | dod >= as.Date("2022-11-26"))) %>%
+  
+  # Calculate denominator by age in months
+  group_by(age_3mos) %>%
+  mutate(total_age_3mos = n()) 
+
+
+flu_boost2 <- flu_boost %>%
+  group_by(age_3mos, total_age_3mos) %>%
+  tally() %>%
+  mutate(across(c(n, total_age_3mos), redact),
+         across(c(n, total_age_3mos), rounding),
+         pcent = n / total_age_3mos * 100)  
+
+
+############ Save ########################
+write_csv(flu_boost2, here::here("output", "descriptive", "fluvax_booster_age.csv"))
