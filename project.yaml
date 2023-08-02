@@ -274,6 +274,15 @@ actions:
         demographics_csv: output/descriptive/demographics_*.csv
         fluvaccine_csv: output/descriptive/fluvax_*.csv
 
+# Extract demographics for table
+  demographics_table:
+   run: r:latest analysis/descriptive/demographics_table.R
+   needs: [data_process_baseline]
+   outputs:
+      moderately_sensitive:
+        demographics_csv: output/descriptive/demographics_for_table*.csv
+        time_csv: output/descriptive/time_*.csv
+
 ### REGRESSION ANALYSES ###
 # Sharp analysis #
   sharp_analysis:
@@ -297,11 +306,11 @@ actions:
            outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
    outputs:
       moderately_sensitive:
-        predicted_csv: output/modelling/predicted_sharp_sens_*.csv
+        #predicted_csv: output/modelling/predicted_sharp_sens_*.csv
         coefficients1_csv: output/modelling/coef_sharp_sens_*.csv
         coefficients2_csv: output/modelling/final/coef_sharp_sens_*.csv
         #plot_data_csv: output/modelling/plot_data_sens_*.csv
-       #plot: output/modelling/figures/plot_sharp_sens_*.png
+        #plot: output/modelling/figures/plot_sharp_sens_*.png
 
 # Fuzzy analysis #
   fuzzy_analysis:
