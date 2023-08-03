@@ -337,7 +337,7 @@ actions:
         coefficients_csv: output/modelling/iv/coef_iv_sens_*.csv
         final_csv: output/modelling/final/coef_iv_sens*.csv
         data_csv: output/modelling/iv/data_iv_sens*.csv    
-        summ_txt: output/modelling/iv/summ_sens*.txt
+        summ_txt: output/modelling/iv/summ_iv_sens*.txt
 
 
 
