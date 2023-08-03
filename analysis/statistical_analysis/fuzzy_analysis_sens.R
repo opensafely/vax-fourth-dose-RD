@@ -80,7 +80,7 @@ fuzzy <- function(start_date){
                        kernel = "uniform", weights = df$n)
     
     # Save model summary
-    sink(here::here("output","modelling", "iv",
+    sink(here::here("output","modelling", "iv", "sens",
                     paste0("summ_iv_sens_", suffix, "_",start_date,".txt")))
     print(summary(rdd))
     sink()
@@ -137,7 +137,7 @@ comb <- function(suffix){
     read_csv(here::here("output", "modelling", "iv", "sens", paste0("coef_iv_sens_",suffix,"_2022-12-09.csv")))
   )
   
-  write.csv(all_coef, here::here("output", "modelling", "final",paste0("coef_iv_sens_",suffix,"_","all.csv")), 
+  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_iv_sens_",suffix,"_","all.csv")), 
             row.names = FALSE)
   
 }

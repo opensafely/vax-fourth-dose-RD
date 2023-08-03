@@ -334,10 +334,10 @@ actions:
            outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
    outputs:
       moderately_sensitive:
-        coefficients_csv: output/modelling/iv/coef_iv_sens_*.csv
+        coefficients_csv: output/modelling/iv/sens/coef_iv_sens_*.csv
         final_csv: output/modelling/final/coef_iv_sens*.csv
-        data_csv: output/modelling/iv/data_iv_sens*.csv    
-        summ_txt: output/modelling/iv/summ_iv_sens*.txt
+        data_csv: output/modelling/iv/sens/data_iv_sens*.csv    
+        summ_txt: output/modelling/iv/sens/summ_iv_sens*.txt
 
 
 
