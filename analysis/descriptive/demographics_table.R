@@ -177,7 +177,7 @@ flu_boost <-  read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
 
 
 flu_boost2 <- flu_boost %>%
-  group_by(age_3mos, total_age_3mos) %>%
+  group_by(age_3mos, uptake, total_age_3mos) %>%
   tally() %>%
   mutate(across(c(n, total_age_3mos), redact),
          across(c(n, total_age_3mos), rounding),
