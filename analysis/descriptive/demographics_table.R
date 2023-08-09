@@ -54,7 +54,8 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
            (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   # Create age in months variable
-  mutate(time_since_vax = case_when(
+  mutate(over50 = ifelse(age_yrs >= 50, 1, 0),
+           time_since_vax = case_when(
            covid_vax3 == 1 ~ as.Date("2022-09-03") - covid_vax_3_date,
            covid_vax2 == 1 & covid_vax3 == 0 ~ as.Date("2022-09-03") - covid_vax_2_date)) 
 
@@ -66,7 +67,7 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
 freq <- function(var){
   demographics %>%
     # Count number in each IMD category by age in months
-    group_by({{var}}) %>% 
+    group_by(over50, {{var}}) %>% 
     tally() %>%
     mutate(
      n = redact(n),
@@ -133,6 +134,7 @@ quantile <- scales::percent(c(.25,.5,.75))
 
 time_since_vax <- demographics %>%
   ungroup() %>%
+  group_by(over50) %>%
   summarise(p25 = quantile(time_since_vax, .25, na.rm = TRUE),
             median = quantile(time_since_vax, .5, na.rm = TRUE),
             p75 = quantile(time_since_vax, .75, na.rm = TRUE)) 
