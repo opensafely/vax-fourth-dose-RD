@@ -43,16 +43,18 @@ demographics <- read_csv(here::here("output", "cohort", "cohort_final_sep.csv"),
                            region = col_character(),
                            ethnicity = col_character(),
                            sex = col_character(),
+                           covid_vax3 = col_integer(),
                            dob = col_date(format = "%Y-%m-%d"),
                            dod = col_date(format = "%Y-%m-%d"))) %>%
-  dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex)) %>%
+  dplyr::select(c(patient_id, age_yrs, dob, dod, imd, region, ethnicity, sex,
+                  covid_vax3)) %>%
   subset(age_yrs >= 45 & age_yrs < 55 &
          (is.na(dod) | dod >= as.Date("2022-09-03"))) %>%
   
   # Create age in months variable
   mutate(age_mos = (dob %--% "2022-09-03") %/% months(1),
          age_3mos = floor(age_mos / 3)) %>%
-  
+
   # Calculate denominator by age in months
   group_by(age_3mos) %>%
   mutate(total_age_3mos = n()) 
@@ -74,6 +76,15 @@ freq <- function(var){
       pcent = n / total_age_3mos * 100) 
 }
 
+
+## Number of vaccinations
+doses <- freq(covid_vax3) %>%
+  rename(category = covid_vax3) %>%
+  mutate(variable = "Number doses",
+         category = case_when(
+           category == 1 ~ "3 doses",
+           category == 0 ~ "2 doses"
+         ))
 
 ## Sex
 sex <- freq(sex) %>%
@@ -109,8 +120,9 @@ ethnicity <- freq(ethnicity) %>%
   mutate(variable = "Ethnicity")
 
 ## Combine into one file ##
-demographics_by_age <- rbind(imd, sex, region, ethnicity)
+demographics_by_age <- rbind(imd, sex, region, ethnicity, doses)
 
+write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))
 
 
 #############################################################
@@ -163,6 +175,5 @@ flu_vax_by_age <- fluvax %>%
 
 
 ############ Save ########################
-write_csv(demographics_by_age, here::here("output", "descriptive", "demographics_by_age.csv"))
 write_csv(flu_vax_by_age, here::here("output", "descriptive", "fluvax_byage.csv"))
 
