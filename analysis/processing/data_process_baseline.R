@@ -99,6 +99,9 @@ baseline <- read_feather(here::here("output", "input_baseline.feather")) %>%
           covid_vax3_early == 1 | covid_vax2 != 1 | covid_vax_recent == 1)
   ) 
 
+write.csv(baseline, here::here("output", "cohort", "baseline.csv"), row.names = FALSE)
+
+
 ####################################################
 # Overview of study population prior to exclusions 
 ####################################################
