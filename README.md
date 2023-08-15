@@ -2,8 +2,6 @@
 
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fvax-fourth-dose-RD)
 
-[Link to preprint](https://www.medrxiv.org/content/10.1101/2023.07.28.23293269v1)
-
 Details of the purpose and any published outputs from this project can be found at the link above.
 
 This study estimates the effectiveness of the second booster (fourth dose) COVID-19 vaccine using a regression discontinuity design. 
