@@ -328,7 +328,7 @@ actions:
       moderately_sensitive:
         coefficients1_csv: output/modelling/bandwidth/coef_sharp_sens_*.csv
         coefficients2_csv: output/modelling/final/coef_sharp_sens_bw*.csv
-        bw_txt: output/modelling/iv/bandwidth/bw_*.txt
+        bw_txt: output/modelling/bandwidth/bw_*.txt
 
 
 # Fuzzy analysis #
