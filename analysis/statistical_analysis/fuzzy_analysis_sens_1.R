@@ -3,7 +3,7 @@
 # - Conducts fuzzy regression discontinuity 
 #   using instrumental variables analysis 
 #
-# Dependency = outcomes_*
+# - Sensitivity analysis - including flu vaccination in model
 ################################################################
 
 
@@ -64,28 +64,22 @@ fuzzy <- function(start_date){
     
     # Prep data
     df <- data  %>%
-      group_by(age_3mos_c, over50) %>%
+      group_by(age_3mos_c, flu_vax, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
                 outcome = sum({{out}})) %>%
-      mutate(p_boost = boost / n * 100,
-             p_outcome = outcome / n * 100)
-    
-    write.csv(df, here::here("output", "modelling", "iv", "sens",
-                             paste0("data_iv_sens_", suffix,"_", start_date,".csv")),
-              row.names = FALSE)
+      mutate(p_boost = boost / n * 100000,
+             p_outcome = outcome / n * 100000)
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
-                       fuzzy = df$p_boost, p = 1, h = 20,
+                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 20,
                        kernel = "uniform", weights = df$n)
     
     # Save model summary
-    sink(here::here("output","modelling", "iv", "sens",
-                    paste0("summ_iv_sens_", suffix, "_",start_date,".txt")))
+    sink(here::here("output","modelling", "iv", "sens", paste0("summ_iv_sens_", suffix, "_",start_date,".txt")))
     print(summary(rdd))
     sink()
     
-  
     # Save coefficients and 95% CIs
     coef <- data.frame(estimate = rdd$coef[1] ,
                 lci = rdd$ci[1,1] ,
@@ -94,8 +88,7 @@ fuzzy <- function(start_date){
                 start_date = start_date)
     
     # Save coefficients
-    write.csv(coef, here::here("output", "modelling", "iv", "sens",
-              paste0("coef_iv_sens_",suffix,"_",start_date,".csv")),
+    write.csv(coef, here::here("output", "modelling", "iv", "sens", paste0("coef_iv_sens_",suffix,"_",start_date,".csv")),
               row.names = FALSE)
     
   }

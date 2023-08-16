@@ -2,6 +2,8 @@
 # This script:
 # - Conducts sharp regression discontinuity
 #   regression model and plots predicted values
+#
+# - Sensitivity analysis - different bandwidths
 ################################################################
 
 
@@ -60,7 +62,14 @@ sharp <- function(start_date){
                 outcome = sum({{out}})) %>%
       mutate(p_outcome = outcome / n * 100000)
     
-    # Model
+    # Optimal bandwidth
+    bw <- rdbwselect(df$p_outcome, df$age_3mos_c, bwrestrict = TRUE)
+    
+    sink(here::here("output","modelling", "bandwidth", paste0("bw_", suffix, "_",start_date,".txt")))
+    print(summary(bw))
+    sink()
+    
+    # Model - 4 years bandwidth
     mod_4yrs <- lm(p_outcome ~ age_3mos_c*over50, 
               data = subset(df, age_3mos >= 184 & age_3mos < 216), 
               weights = subset(df, age_3mos >= 184 & age_3mos < 216)$n)
@@ -78,7 +87,7 @@ sharp <- function(start_date){
             lci = lci,
             uci = uci) 
 
-    # Model
+    # Model - 3 years bandwidth
     mod_3yrs <- lm(p_outcome ~ age_3mos_c*over50, 
                    data = subset(df, age_3mos >= 188 & age_3mos < 212), 
                    weights = subset(df, age_3mos >= 188 & age_3mos < 212)$n)
@@ -96,7 +105,7 @@ sharp <- function(start_date){
              lci = lci,
              uci = uci) 
     
-    # Model
+    # Model - 2 years bandwidth
     mod_2yrs <- lm(p_outcome ~ age_3mos_c*over50, 
                    data = subset(df, age_3mos >= 192 & age_3mos < 208), 
                    weights = subset(df, age_3mos >= 192 & age_3mos < 208)$n)
@@ -114,7 +123,7 @@ sharp <- function(start_date){
              lci = lci,
              uci = uci) 
     
-    # Model
+    # Model - 1 years bandwidth
     mod_1yrs <- lm(p_outcome ~ age_3mos_c*over50, 
                    data = subset(df, age_3mos >= 196 & age_3mos < 204), 
                    weights = subset(df, age_3mos >= 196 & age_3mos < 204)$n)
