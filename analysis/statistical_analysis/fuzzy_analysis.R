@@ -51,9 +51,6 @@ fuzzy <- function(start_date){
            anydeath = as.integer(anydeath),
            anyadmitted = as.integer(anyadmitted),
            
-           # Flag for having received flu vax before start date
-           flu_vax = if_else(!is.na(flu_vax_date) & flu_vax_date < start_date, 1, 0, 0),
-           
            # Flag for booster before start date
            boost = if_else(!is.na(boost_date) & boost_date < start_date, 1, 0, 0)) %>%
     
@@ -64,19 +61,18 @@ fuzzy <- function(start_date){
     
     # Prep data
     df <- data  %>%
-      group_by(age_3mos_c, flu_vax, over50) %>%
+      group_by(age_3mos_c, over50) %>%
       summarise(n = n(), 
                 boost = sum(boost),
                 outcome = sum({{out}})) %>%
-      mutate(p_boost = boost / n * 100,
-             p_outcome = outcome / n * 100)
+      mutate(p_boost = boost / n * 100000,
+             p_outcome = outcome / n * 100000)
     
-    write.csv(df, here::here("output", "modelling", "iv", 
-                             paste0("data_iv_", suffix,"_", start_date,".csv")),
+    write.csv(df, here::here("output", "modelling", "iv", paste0("data_iv_", suffix,"_", start_date,".csv")),
               row.names = FALSE)
     
     rdd <- rdrobust(y = df$p_outcome, x = df$age_3mos_c, c = 0,
-                       fuzzy = df$p_boost, covs = df$flu_vax, p = 1, h = 20,
+                       fuzzy = df$p_boost, p = 1, h = 20,
                        kernel = "uniform", weights = df$n)
     
     # Save model summary
@@ -137,7 +133,7 @@ comb <- function(suffix){
     read_csv(here::here("output", "modelling", "iv", paste0("coef_iv_",suffix,"_2022-12-09.csv")))
   )
   
-  write.csv(all_coef, here::here("output", "modelling", "final",paste0("coef_iv_",suffix,"_","all_.csv")), 
+  write.csv(all_coef, here::here("output", "modelling", "final", paste0("coef_iv_",suffix,"_","all_.csv")), 
             row.names = FALSE)
   
 }

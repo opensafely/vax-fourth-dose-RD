@@ -1,9 +1,8 @@
-######################################
-
-# This script defines the project pipeline - it specifies the execution orders for all the code in this
+############################################################
+# This script defines the project pipeline -
+# it specifies the execution orders for all the code in this
 # repo using a series of actions.
-
-######################################
+############################################################
 
 
 version: '3.0'
@@ -14,6 +13,7 @@ expectations:
 actions:
 
 ### BASELINE COHORT ###
+
 # Generate study population and extract baseline characteristics at Sep 3, 2022
   generate_study_pop_baseline:
     run: cohortextractor:latest generate_cohort
@@ -308,18 +308,28 @@ actions:
         plot: output/modelling/figures/plot_sharp_*.png
 
 # Sharp analysis - sensitivity excluding age 50 #
-  sharp_analysis_sens:
-   run: r:latest analysis/statistical_analysis/sharp_analysis_sens.R
+  sharp_analysis_sens_1:
+   run: r:latest analysis/statistical_analysis/sharp_analysis_sens_1.R
    needs: [outcomes_sep03, outcomes_oct15, outcomes_nov26, outcomes_nov27, outcomes_nov28, outcomes_nov29,
            outcomes_nov30, outcomes_dec01, outcomes_dec02, outcomes_dec03, outcomes_dec04, outcomes_dec05,
            outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
    outputs:
       moderately_sensitive:
-        #predicted_csv: output/modelling/predicted_sharp_sens_*.csv
         coefficients1_csv: output/modelling/coef_sharp_sens_*.csv
         coefficients2_csv: output/modelling/final/coef_sharp_sens_*.csv
-        #plot_data_csv: output/modelling/plot_data_sens_*.csv
-        #plot: output/modelling/figures/plot_sharp_sens_*.png
+
+# Sharp analysis - sensitivity with different bandwidths #
+  sharp_analysis_sens_2:
+   run: r:latest analysis/statistical_analysis/sharp_analysis_sens_2.R
+   needs: [outcomes_sep03, outcomes_oct15, outcomes_nov26, outcomes_nov27, outcomes_nov28, outcomes_nov29,
+           outcomes_nov30, outcomes_dec01, outcomes_dec02, outcomes_dec03, outcomes_dec04, outcomes_dec05,
+           outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
+   outputs:
+      moderately_sensitive:
+        coefficients1_csv: output/modelling/bandwidth/coef_sharp_sens_*.csv
+        coefficients2_csv: output/modelling/final/coef_sharp_sens_bw*.csv
+        bw_txt: output/modelling/bandwidth/bw_*.txt
+
 
 # Fuzzy analysis #
   fuzzy_analysis:
@@ -334,9 +344,9 @@ actions:
         data_csv: output/modelling/iv/data_*.csv    
         summ_txt: output/modelling/iv/summ_*.txt
 
-# Fuzzy analysis (without adjusting for flu vax) #
-  fuzzy_analysis_sens:
-   run: r:latest analysis/statistical_analysis/fuzzy_analysis_sens.R
+# Fuzzy analysis - sensitivity (adjusting for flu vax) #
+  fuzzy_analysis_sens_1:
+   run: r:latest analysis/statistical_analysis/fuzzy_analysis_sens_1.R
    needs: [outcomes_nov26, outcomes_nov27, outcomes_nov28, outcomes_nov29,
            outcomes_nov30, outcomes_dec01, outcomes_dec02, outcomes_dec03, outcomes_dec04, outcomes_dec05,
            outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
@@ -344,10 +354,19 @@ actions:
       moderately_sensitive:
         coefficients_csv: output/modelling/iv/sens/coef_iv_sens_*.csv
         final_csv: output/modelling/final/coef_iv_sens*.csv
-        data_csv: output/modelling/iv/sens/data_iv_sens*.csv    
         summ_txt: output/modelling/iv/sens/summ_iv_sens*.txt
 
-
+# Fuzzy analysis - sensitivity with different bandwidths #
+  fuzzy_analysis_sens_2:
+   run: r:latest analysis/statistical_analysis/fuzzy_analysis_sens_2.R
+   needs: [outcomes_nov26, outcomes_nov27, outcomes_nov28, outcomes_nov29,
+           outcomes_nov30, outcomes_dec01, outcomes_dec02, outcomes_dec03, outcomes_dec04, outcomes_dec05,
+           outcomes_dec06, outcomes_dec07, outcomes_dec08, outcomes_dec09]
+   outputs:
+      moderately_sensitive:
+        coefficients_csv: output/modelling/iv/bandwidth/coef_iv_sens_bw_*.csv
+        final_csv: output/modelling/final/coef_iv_sens_bw*.csv
+        bw_txt: output/modelling/iv/bandwidth/bw_iv_*.txt
 
 ### IGNORE ###
 # Extract outcomes 
