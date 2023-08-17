@@ -91,12 +91,14 @@ sharp <- function(start_date){
     
     # Model
     mod <- lm(p_outcome ~ age_3mos_c*over50, data = df, weights = df$n)
+    
+    mod_sum <- summary(mod)
 
     # Save coefficients and 95% CIs
     coef <-  data.frame(est = mod$coefficients)
     coef2 <- coef %>%  data.frame() %>%
       mutate(var = row.names(coef)) %>%
-      cbind(confint(mod), aic = AIC(mod)) %>%
+      cbind(confint(mod), aic = AIC(mod), mse = mean(mod_sum$residuals^2)) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`) %>%
       mutate(start_date = start_date, 
             outcome = name,
