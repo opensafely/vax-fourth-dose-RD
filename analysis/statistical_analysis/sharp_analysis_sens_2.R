@@ -73,12 +73,14 @@ sharp <- function(start_date){
     mod_4yrs <- lm(p_outcome ~ age_3mos_c*over50, 
               data = subset(df, age_3mos >= 184 & age_3mos < 216), 
               weights = subset(df, age_3mos >= 184 & age_3mos < 216)$n)
+    
+    mod_4yrs_sum <- summary(mod_4yrs)
 
     # Save coefficients and 95% CIs
     coef_4yrs <-  data.frame(est = mod_4yrs$coefficients)
     coef2_4yrs <- coef_4yrs %>%  data.frame() %>%
       mutate(var = row.names(coef_4yrs)) %>%
-      cbind(confint(mod_4yrs), aic = AIC(mod_4yrs)) %>%
+      cbind(confint(mod_4yrs), aic = AIC(mod_4yrs), mse = mean(mod_4yrs_sum$residuals^2)) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`) %>%
       mutate(start_date = start_date, 
             outcome = name,
@@ -92,11 +94,13 @@ sharp <- function(start_date){
                    data = subset(df, age_3mos >= 188 & age_3mos < 212), 
                    weights = subset(df, age_3mos >= 188 & age_3mos < 212)$n)
     
+    mod_3yrs_sum <- summary(mod_3yrs)
+    
     # Save coefficients and 95% CIs
     coef_3yrs <-  data.frame(est = mod_3yrs$coefficients)
     coef2_3yrs <- coef_3yrs %>%  data.frame() %>%
       mutate(var = row.names(coef_3yrs)) %>%
-      cbind(confint(mod_3yrs), aic = AIC(mod_3yrs)) %>%
+      cbind(confint(mod_3yrs), aic = AIC(mod_3yrs), mse = mean(mod_3yrs_sum$residuals^2)) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`) %>%
       mutate(start_date = start_date, 
              outcome = name,
@@ -110,11 +114,13 @@ sharp <- function(start_date){
                    data = subset(df, age_3mos >= 192 & age_3mos < 208), 
                    weights = subset(df, age_3mos >= 192 & age_3mos < 208)$n)
     
+    mod_2yrs_sum <- summary(mod_2yrs)
+    
     # Save coefficients and 95% CIs
     coef_2yrs <-  data.frame(est = mod_2yrs$coefficients)
     coef2_2yrs <- coef_2yrs %>%  data.frame() %>%
       mutate(var = row.names(coef_2yrs)) %>%
-      cbind(confint(mod_2yrs), aic = AIC(mod_2yrs)) %>%
+      cbind(confint(mod_2yrs), aic = AIC(mod_2yrs), mse = mean(mod_2yrs_sum$residuals^2)) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`) %>%
       mutate(start_date = start_date, 
              outcome = name,
@@ -128,11 +134,13 @@ sharp <- function(start_date){
                    data = subset(df, age_3mos >= 196 & age_3mos < 204), 
                    weights = subset(df, age_3mos >= 196 & age_3mos < 204)$n)
     
+    mod_1yrs_sum <- summary(mod_1yrs)
+    
     # Save coefficients and 95% CIs
     coef_1yrs <-  data.frame(est = mod_1yrs$coefficients)
     coef2_1yrs <- coef_1yrs %>%  data.frame() %>%
       mutate(var = row.names(coef_1yrs)) %>%
-      cbind(confint(mod_1yrs), aic = AIC(mod_1yrs))  %>%
+      cbind(confint(mod_1yrs), aic = AIC(mod_1yrs), mse = mean(mod_1yrs_sum$residuals^2)) %>%
       rename(lci = `2.5 %`, uci = `97.5 %`) %>%
       mutate(start_date = start_date, 
              outcome = name,
