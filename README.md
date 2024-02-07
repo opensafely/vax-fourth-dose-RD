@@ -1,5 +1,7 @@
 # COVID-19 autumn 2022/23 booster regression discontinuity analysis
 
+Link to preprint: [Schaffer et al. Effect of the 2022 COVID-19 booster vaccination campaign in 50 year olds in England: regression discontinuity analysis in OpenSAFELY. medrxiv 2023 doi: 10.1101/2023.09.07.23295194](https://www.medrxiv.org/content/10.1101/2023.09.07.23295194v1)
+
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fvax-fourth-dose-RD)
 
 Details of the purpose and any published outputs from this project can be found at the link above.
