@@ -48,7 +48,8 @@ df1 <- read_feather(here::here("output", "input_outcomes_2022-09-03.feather")) %
          age_mos = (dob %--% as.Date("2022-09-03")) %/% months(1),
          age_3mos = floor(age_mos / 3),
          over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0),
-         sep3 = 1) %>%
+         sep3 = 1
+         ) %>%
   
   # Drop if outside age range or died before index date
   subset(age_yrs >= 45 & age_yrs < 55 & 
@@ -68,7 +69,8 @@ df2 <- read_feather(here::here("output", "input_outcomes_2022-10-15.feather")) %
          age_mos = (dob %--% as.Date("2022-09-03")) %/% months(1),
          age_3mos = floor(age_mos / 3),
          over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0),
-         sep3 = 1) %>%
+         sep3 = 1
+         ) %>%
   
   # Drop if outside age range or died before index date
   subset(age_yrs >= 45 & age_yrs < 55 & 
@@ -88,7 +90,8 @@ df3 <- read_feather(here::here("output", "input_outcomes_2022-11-26.feather")) %
          age_mos = (dob %--% as.Date("2022-09-03")) %/% months(1),
          age_3mos = floor(age_mos / 3),
          over50 = if_else(age_yrs >= 50 & age_yrs < 55, 1, 0, 0),
-         sep3 = 1) %>%
+         sep3 = 1
+         ) %>%
   
   # Drop if outside age range or died before index date
   subset(age_yrs >= 45 & age_yrs < 55 & 

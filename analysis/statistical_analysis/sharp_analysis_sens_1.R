@@ -2,8 +2,9 @@
 # This script:
 # - Conducts sharp regression discontinuity
 #   regression model and plots predicted values
+# - Sensitivity analyses excluding people age = 50
 #
-# Depedency = outcomes_*
+# Dependency = outcomes_*
 ################################################################
 
 
